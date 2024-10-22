@@ -1,0 +1,15 @@
+[*]
+end_of_line = lf
+
+[*.cs]
+end_of_line = lf
+
+csharp_style_namespace_declarations=file_scoped:suggestion
+
+[*.csproj]
+end_of_line = lf
+indent_size = 2
+indent_style = space
+
+[*.slnx]
+end_of_line = lf

@@ -1,3 +1,11 @@
 <Solution>
+  <Folder Name="/.solution items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="TrialWpfApp/TrialWpfApp.csproj" />
+  </Folder>
   <Project Path="CodeCompletion/CodeCompletion.csproj" />
 </Solution>
