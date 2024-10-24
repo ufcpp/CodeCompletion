@@ -1,6 +1,8 @@
-﻿using CodeCompletion.Text;
+﻿using CodeCompletion.Syntax;
+using CodeCompletion.Text;
 using System.Windows;
 using System.Windows.Input;
+using TrialWpfApp.Models;
 
 namespace TrialWpfApp;
 
@@ -9,6 +11,8 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+
+        var f = Factory.Create(typeof(A));
 
         var buffer = new TextBuffer();
 
