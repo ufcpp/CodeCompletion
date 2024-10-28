@@ -26,7 +26,7 @@ public struct Token()
 
         EnsureCapacity(Written + s.Length);
 
-        Text.AsSpan(position, Written).CopyTo(Text.AsSpan(position + s.Length));
+        Span[position..].CopyTo(Text.AsSpan(position + s.Length));
 
         s.CopyTo(Text.AsSpan(position));
         Written += s.Length;
@@ -36,7 +36,7 @@ public struct Token()
     {
         var (start, length) = range.GetOffsetAndLength(Written);
         System.Diagnostics.Debug.Assert(start + length <= Written);
-        Text.AsSpan(start + length, Written).CopyTo(Text.AsSpan(start));
+        Span[(start + length)..].CopyTo(Text.AsSpan(start));
         Written -= length;
     }
 
