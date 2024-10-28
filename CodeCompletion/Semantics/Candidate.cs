@@ -1,4 +1,4 @@
-﻿namespace CodeCompletion.Syntax;
+﻿namespace CodeCompletion.Semantics;
 
 public abstract class Candidate
 {

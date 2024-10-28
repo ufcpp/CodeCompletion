@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace CodeCompletion.Syntax;
+namespace CodeCompletion.Semantics;
 
 
 class PropertyFactory(Type type) : Factory

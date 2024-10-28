@@ -1,4 +1,4 @@
-﻿using CodeCompletion.Syntax;
+﻿using CodeCompletion.Semantics;
 using CodeCompletion.Text;
 using System.Windows;
 using System.Windows.Input;

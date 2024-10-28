@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace CodeCompletion.Syntax;
+namespace CodeCompletion.Semantics;
 
 enum ComparisonType
 {

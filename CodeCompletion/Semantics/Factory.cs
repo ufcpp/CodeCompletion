@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CodeCompletion.Syntax;
+namespace CodeCompletion.Semantics;
 
 public abstract class Factory
 {
