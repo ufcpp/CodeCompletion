@@ -119,10 +119,25 @@ public class TextBuffer : ISpanFormattable
 
                 t.Remove(position..(position + 1));
                 break;
+            case CursorMove.StartToken:
+                if (position == 0)
+                {
+                    //todo: トークン先頭で BS はトークンのマージ
+                    return;
+                }
 
-            //todo: 
-            //case CursorMove.StartToken:
-            //case CursorMove.EndToken:
+                t.Remove(..position);
+                _cursor -= position;
+                break;
+            case CursorMove.EndToken:
+                if (position == t.Span.Length - 1)
+                {
+                    //todo: トークン末尾で DEL はトークンのマージ
+                    return;
+                }
+
+                t.Remove(position..);
+                break;
         }
     }
 

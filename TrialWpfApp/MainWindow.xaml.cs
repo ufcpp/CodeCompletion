@@ -66,8 +66,8 @@ cursor: {buffer.Cursor} token: {t} pos: {p} move: {move}
             {
                 (false, Key.Back) => CursorMove.Back,
                 (false, Key.Delete) => CursorMove.Forward,
-                //(true, Key.Back) => CursorMove.StartToken,
-                //(true, Key.Delete) => CursorMove.EndToken,
+                (true, Key.Back) => CursorMove.StartToken,
+                (true, Key.Delete) => CursorMove.EndToken,
                 _ => default,
             };
 
