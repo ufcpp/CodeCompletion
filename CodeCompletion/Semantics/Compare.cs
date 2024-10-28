@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace CodeCompletion.Semantics;
+﻿namespace CodeCompletion.Semantics;
 
 enum ComparisonType
 {
@@ -12,12 +10,14 @@ enum ComparisonType
     GreaterThanOrEqual
 }
 
-class CompareNode(ComparisonType comparison) : Node
+class CompareNode(PrimitiveCategory category, ComparisonType comparison) : Node
 {
-    public override IEnumerable<Candidate> GetCandidates() => [];
+    public override IEnumerable<Candidate> GetCandidates() => [
+        //todo: LiteralNode
+        ];
 }
 
-class CompareCandidate(ComparisonType comparison) : Candidate
+class CompareCandidate(PrimitiveCategory category, ComparisonType comparison) : Candidate
 {
     public override string Text => comparison switch
     {
@@ -30,15 +30,5 @@ class CompareCandidate(ComparisonType comparison) : Candidate
         _ => throw new NotImplementedException()
     };
 
-    public override Node GetFactory() => new CompareNode(comparison);
-
-    public static readonly ImmutableArray<Candidate> Singleton =
-    [
-        new CompareCandidate(ComparisonType.Equal),
-        new CompareCandidate(ComparisonType.NotEqual),
-        new CompareCandidate(ComparisonType.LessThan),
-        new CompareCandidate(ComparisonType.LessThanOrEqual),
-        new CompareCandidate(ComparisonType.GreaterThan),
-        new CompareCandidate(ComparisonType.GreaterThanOrEqual)
-    ];
+    public override Node GetFactory() => new CompareNode(category, comparison);
 }

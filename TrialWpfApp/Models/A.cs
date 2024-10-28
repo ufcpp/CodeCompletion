@@ -14,6 +14,17 @@ public class B
 
     public int[] Values { get; set; }
     public string[] Attributes { get; set; }
+
+    public byte U8 { get; set; }
+    public sbyte I8 { get; set; }
+    public short I16 { get; set; }
+    public ushort U16 { get; set; }
+    public int I32 { get; set; }
+    public uint U32 { get; set; }
+    public long I64 { get; set; }
+    public ulong U64 { get; set; }
+    public float F32 { get; set; }
+    public double F64 { get; set; }
 }
 
 public class C

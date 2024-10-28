@@ -2,7 +2,6 @@
 
 namespace CodeCompletion.Semantics;
 
-
 class PropertyNode(Type type) : Node
 {
     public override IEnumerable<Candidate> GetCandidates()
@@ -10,11 +9,6 @@ class PropertyNode(Type type) : Node
         foreach (var property in type.GetProperties())
         {
             yield return new PropertyCandidate(property);
-        }
-
-        foreach (var comp in CompareCandidate.Singleton)
-        {
-            yield return comp;
         }
     }
 }
@@ -25,5 +19,26 @@ class PropertyCandidate(PropertyInfo property) : Candidate
 
     //public string? ToolTip
 
-    public override Node GetFactory() => new PropertyNode(property.PropertyType);
+    public override Node GetFactory()
+    {
+        var t = property.PropertyType;
+
+        if (t == typeof(int)
+            || t == typeof(long)
+            || t == typeof(byte)
+            || t == typeof(short)
+            || t == typeof(uint)
+            || t == typeof(ulong)
+            || t == typeof(ushort)
+            || t == typeof(sbyte)
+            ) return PrimitivePropertyNode.Integer;
+
+        if (t == typeof(float)
+            || t == typeof(double)
+            ) return PrimitivePropertyNode.Float;
+
+        if (t == typeof(string)) return PrimitivePropertyNode.String;
+
+        return new PropertyNode(property.PropertyType);
+    }
 }
