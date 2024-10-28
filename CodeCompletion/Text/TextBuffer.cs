@@ -91,6 +91,20 @@ public class TextBuffer : ISpanFormattable
     }
 
     /// <summary>
+    /// <paramref name="token"/> 版のトークンを前のトークンと結合する。
+    /// </summary>
+    private void MergeToken(int token)
+    {
+        var tokens = Tokens;
+
+        if (token >= tokens.Length) return;
+
+        tokens[token - 1].Insert(tokens[token - 1].Written, tokens[token].Span);
+        _tokens.RemoveAt(token);
+
+    }
+
+    /// <summary>
     /// 文字の削除。
     /// </summary>
     public void Remove(CursorMove move)
@@ -103,7 +117,9 @@ public class TextBuffer : ISpanFormattable
             case CursorMove.Back:
                 if (position == 0)
                 {
-                    //todo: トークン先頭で BS はトークンのマージ
+                    if (token == 0) return;
+                    MergeToken(token);
+                    _cursor--;
                     return;
                 }
 
@@ -111,9 +127,9 @@ public class TextBuffer : ISpanFormattable
                 _cursor--;
                 break;
             case CursorMove.Forward:
-                if (position == t.Span.Length - 1)
+                if (position == t.Span.Length)
                 {
-                    //todo: トークン末尾で DEL はトークンのマージ
+                    MergeToken(token + 1);
                     return;
                 }
 
@@ -122,7 +138,9 @@ public class TextBuffer : ISpanFormattable
             case CursorMove.StartToken:
                 if (position == 0)
                 {
-                    //todo: トークン先頭で BS はトークンのマージ
+                    if (token == 0) return;
+                    MergeToken(token);
+                    _cursor--;
                     return;
                 }
 
@@ -130,9 +148,9 @@ public class TextBuffer : ISpanFormattable
                 _cursor -= position;
                 break;
             case CursorMove.EndToken:
-                if (position == t.Span.Length - 1)
+                if (position == t.Span.Length)
                 {
-                    //todo: トークン末尾で DEL はトークンのマージ
+                    MergeToken(token + 1);
                     return;
                 }
 
