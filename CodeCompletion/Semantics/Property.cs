@@ -21,7 +21,7 @@ class PropertyCandidate(PropertyInfo property) : Candidate
 
     //public string? ToolTip
 
-    public override Node GetFactory()
+    public override Node GetNode()
     {
         var t = property.PropertyType;
 

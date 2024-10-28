@@ -7,7 +7,7 @@ public class SemanticModel
     private readonly Node _root;
     private readonly TextBuffer _texts;
 
-    private readonly List<Node?> _factories = [];
+    private readonly List<Node?> _nodes = [];
 
     public SemanticModel(Type rootType, TextBuffer texts)
         : this(Node.Create(rootType), texts) { }
@@ -19,34 +19,34 @@ public class SemanticModel
         Refresh();
     }
 
-    public IEnumerable<Node?> Nodes => _factories;
+    public IEnumerable<Node?> Nodes => _nodes;
 
     public IReadOnlyList<Candidate> GetCandidates()
     {
         var (pos, _) = _texts.GetPosition();
-        if (GetNode(pos) is not { } factory) return [];
+        if (GetNode(pos) is not { } node) return [];
 
         var token = _texts.Tokens[pos];
-        return factory.Filter(token.Span);
+        return node.Filter(token.Span);
     }
 
     private Node? GetNode(int pos)
     {
         if (pos == 0) return _root;
-        return _factories.ElementAtOrDefault(pos - 1);
+        return _nodes.ElementAtOrDefault(pos - 1);
     }
 
     public void Refresh()
     {
         var node = _root;
 
-        _factories.Clear();
+        _nodes.Clear();
         foreach (var token in _texts.Tokens)
         {
-            if (node.Select(token.Span) is { } factory)
+            if (node.Select(token.Span) is { } candidate)
             {
-                node = factory.GetFactory();
-                _factories.Add(node);
+                node = candidate.GetNode();
+                _nodes.Add(node);
             }
             else
             {

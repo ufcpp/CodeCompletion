@@ -32,5 +32,5 @@ class CompareCandidate(PrimitiveCategory category, ComparisonType comparison) : 
         _ => throw new NotImplementedException()
     };
 
-    public override Node GetFactory() => new CompareNode(category, comparison);
+    public override Node GetNode() => new CompareNode(category, comparison);
 }
