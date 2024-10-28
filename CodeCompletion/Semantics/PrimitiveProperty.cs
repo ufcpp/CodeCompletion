@@ -21,6 +21,10 @@ public class PrimitivePropertyNode(PrimitiveCategory category) : Node
         new CompareCandidate(category, ComparisonType.LessThanOrEqual),
         new CompareCandidate(category, ComparisonType.GreaterThan),
         new CompareCandidate(category, ComparisonType.GreaterThanOrEqual)
+
+        //todo: String のとき、 Length
+
+        //todo: Float のとき、 Ceiling, Floor, Round
     ];
 
     public static readonly PrimitivePropertyNode Integer = new(PrimitiveCategory.Integer);
