@@ -164,20 +164,17 @@ public class TextBuffer : ISpanFormattable
     /// </summary>
     public void Insert(ReadOnlySpan<char> s)
     {
-        if (s.IsWhiteSpace())
-        {
-            //todo: 挿入はトークン末尾にいるときだけ。
-            // 途中にいるときは Split する。
-            NewToken();
-            return;
-        }
-
         var tokens = CollectionsMarshal.AsSpan(_tokens);
         var (token, position) = GetPosition(tokens, _cursor);
-
-        if (token >= tokens.Length) return;
-
         ref var currentToken = ref tokens[token];
+
+        if (s.IsWhiteSpace())
+        {
+            var newToken = currentToken.Split(position);
+            _tokens.Insert(token + 1, newToken);
+            _cursor++;
+            return;
+        }
 
         if (position > currentToken.Written) return;
 
@@ -220,13 +217,6 @@ public class TextBuffer : ISpanFormattable
         }
 
         return (index, pos);
-    }
-
-    private void NewToken()
-    {
-        var (token, _) = GetPosition(CollectionsMarshal.AsSpan(_tokens), _cursor);
-        _tokens.Insert(token + 1, new Token());
-        _cursor++;
     }
 
     public override string ToString() => ToString(null, null);

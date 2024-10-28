@@ -24,6 +24,7 @@ text: {buffer}
 cursor: {buffer.Cursor} token: {t} pos: {p}
 nodes: {string.Join(", ", model.Nodes)}
 candidates: {string.Join(", ", model.GetCandidates().Select(x => x.Text))}
+
 """);
         }
 

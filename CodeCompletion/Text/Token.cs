@@ -40,6 +40,23 @@ public struct Token()
         Written -= length;
     }
 
+    /// <summary>
+    /// <paramref name="position"/> の位置で分割する。
+    /// このノードが分割後の前半の状態になる。
+    /// </summary>
+    /// <returns>分割後の後半トークン。</returns>
+    public Token Split(int position)
+    {
+        if (position == Written) return new();
+
+        var newToken = new Token();
+        newToken.Insert(0, Span[position..]);
+
+        Remove(position..);
+
+        return newToken;
+    }
+
     private void EnsureCapacity(int capacity)
     {
         if (capacity >= Text.Length)
