@@ -32,6 +32,14 @@ public struct Token()
         Written += s.Length;
     }
 
+    public void Remove(Range range)
+    {
+        var (start, length) = range.GetOffsetAndLength(Written);
+        System.Diagnostics.Debug.Assert(start + length <= Written);
+        Text.AsSpan(start + length, Written).CopyTo(Text.AsSpan(start));
+        Written -= length;
+    }
+
     private void EnsureCapacity(int capacity)
     {
         if (capacity >= Text.Length)

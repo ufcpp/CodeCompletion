@@ -90,12 +90,41 @@ public class TextBuffer : ISpanFormattable
         }
     }
 
-    //todo: backspace
-    //  トークン先頭で BS はトークンのマージ
-    //  ctlr + BS
-    //todo: delete
-    //  トークン末尾で DEL はトークンのマージ
-    //  ctlr + DEL
+    /// <summary>
+    /// 文字の削除。
+    /// </summary>
+    public void Remove(CursorMove move)
+    {
+        var (token, position) = GetPosition();
+        ref var t = ref Tokens[token];
+
+        switch (move)
+        {
+            case CursorMove.Back:
+                if (position == 0)
+                {
+                    //todo: トークン先頭で BS はトークンのマージ
+                    return;
+                }
+
+                t.Remove((position - 1)..position);
+                _cursor--;
+                break;
+            case CursorMove.Forward:
+                if (position == t.Span.Length - 1)
+                {
+                    //todo: トークン末尾で DEL はトークンのマージ
+                    return;
+                }
+
+                t.Remove(position..(position + 1));
+                break;
+
+            //todo: 
+            //case CursorMove.StartToken:
+            //case CursorMove.EndToken:
+        }
+    }
 
     /// <summary>
     /// <see cref="Cursor"/> の位置に文字列挿入。

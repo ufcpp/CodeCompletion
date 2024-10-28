@@ -15,10 +15,28 @@ public partial class MainWindow : Window
         var buffer = new TextBuffer();
         var model = new SemanticModel(typeof(A), buffer);
 
+        void showText()
+        {
+            System.Diagnostics.Debug.WriteLine($"ti: {buffer}");
+        }
+
+        void showPosition(CursorMove move)
+        {
+            model.Refresh();
+            var (t, p) = buffer.GetPosition();
+            System.Diagnostics.Debug.WriteLine($"""
+cursor: {buffer.Cursor} token: {t} pos: {p} move: {move}
+{string.Join(", ", model.GetCandidates().Select(x => x.Text))}
+""");
+        }
+
         TextInput += (sender, e) =>
         {
+            if (e.Text.Length == 0) return;
+            if (char.GetUnicodeCategory(e.Text[0]) == System.Globalization.UnicodeCategory.Control) return;
+
             buffer.Insert(e.Text);
-            System.Diagnostics.Debug.WriteLine($"ti: {buffer}");
+            showText();
         };
 
         KeyDown += (sender, e) =>
@@ -40,15 +58,24 @@ public partial class MainWindow : Window
             if (move != 0)
             {
                 buffer.Move(move);
+                showPosition(move);
+                return;
+            }
 
-                model.Refresh();
-                var (t, p) = buffer.GetPosition();
-                System.Diagnostics.Debug.WriteLine($"""
-cursor: {buffer.Cursor} token: {t} pos: {p} move: {move}
-{string.Join(", ", model.GetCandidates().Select(x => x.Text))}
-""");
+            move = (ctrl, e.Key) switch
+            {
+                (false, Key.Back) => CursorMove.Back,
+                (false, Key.Delete) => CursorMove.Forward,
+                //(true, Key.Back) => CursorMove.StartToken,
+                //(true, Key.Delete) => CursorMove.EndToken,
+                _ => default,
+            };
 
-                //model.GetCandidates()
+            if (move != 0)
+            {
+                buffer.Remove(move);
+                showText();
+                showPosition(move);
             }
         };
     }
