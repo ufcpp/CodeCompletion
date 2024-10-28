@@ -15,6 +15,8 @@ class CompareNode(PrimitiveCategory category, ComparisonType comparison) : Node
     public override IEnumerable<Candidate> GetCandidates() => [
         //todo: LiteralNode
         ];
+
+    public override string ToString() => $"Compare {category} {comparison}";
 }
 
 class CompareCandidate(PrimitiveCategory category, ComparisonType comparison) : Candidate

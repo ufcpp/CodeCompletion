@@ -19,6 +19,8 @@ public class SemanticModel
         Refresh();
     }
 
+    public IEnumerable<Node?> Nodes => _factories;
+
     public IReadOnlyList<Candidate> GetCandidates()
     {
         var (pos, _) = _texts.GetPosition();

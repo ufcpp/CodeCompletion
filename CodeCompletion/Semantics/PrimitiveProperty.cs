@@ -30,4 +30,6 @@ public class PrimitivePropertyNode(PrimitiveCategory category) : Node
     public static readonly PrimitivePropertyNode Integer = new(PrimitiveCategory.Integer);
     public static readonly PrimitivePropertyNode Float = new(PrimitiveCategory.Float);
     public static readonly PrimitivePropertyNode String = new(PrimitiveCategory.String);
+
+    public override string ToString() => $"Property {category}";
 }
