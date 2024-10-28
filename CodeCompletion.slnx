@@ -2,6 +2,7 @@
   <Folder Name="/.solution items/">
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
+    <File Path=".gitattributes" />
     <File Path="Directory.Build.props" />
   </Folder>
   <Folder Name="/tests/">
