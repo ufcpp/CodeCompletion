@@ -12,9 +12,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        var f = Factory.Create(typeof(A));
-
         var buffer = new TextBuffer();
+        var model = new SemanticModel(typeof(A), buffer);
 
         TextInput += (sender, e) =>
         {
@@ -42,8 +41,14 @@ public partial class MainWindow : Window
             {
                 buffer.Move(move);
 
+                model.Refresh();
                 var (t, p) = buffer.GetPosition();
-                System.Diagnostics.Debug.WriteLine($"cursor: {buffer.Cursor} token: {t} pos: {p} move: {move}");
+                System.Diagnostics.Debug.WriteLine($"""
+cursor: {buffer.Cursor} token: {t} pos: {p} move: {move}
+{string.Join(", ", model.GetCandidates().Select(x => x.Text))}
+""");
+
+                //model.GetCandidates()
             }
         };
     }

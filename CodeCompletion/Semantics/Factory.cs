@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CodeCompletion.Semantics;
+﻿namespace CodeCompletion.Semantics;
 
 public abstract class Factory
 {
@@ -15,17 +9,29 @@ public abstract class Factory
 
     public abstract IEnumerable<Candidate> GetCandidates();
 
-    public IEnumerable<Candidate> Filter(ReadOnlyMemory<char> text)
+    public IReadOnlyList<Candidate> Filter(ReadOnlySpan<char> text)
+    {
+        List<Candidate>? candidates = null;
+        foreach (var candidate in GetCandidates())
+        {
+            if (candidate.Text.AsSpan().StartsWith(text, StringComparison.OrdinalIgnoreCase))
+            {
+                (candidates ??= []).Add(candidate);
+            }
+        }
+        return candidates ?? [];
+    }
+
+    public virtual Candidate? Select(ReadOnlySpan<char> text)
     {
         foreach (var candidate in GetCandidates())
         {
-            if (candidate.Text.AsSpan().StartsWith(text.Span, StringComparison.OrdinalIgnoreCase))
+            if (candidate.Text.AsSpan().StartsWith(text, StringComparison.OrdinalIgnoreCase))
             {
-                yield return candidate;
+                return candidate;
             }
         }
-    }
+        return null;
 
-    public virtual Candidate? Select(ReadOnlyMemory<char> text)
-        => Filter(text).FirstOrDefault();
+    }
 }

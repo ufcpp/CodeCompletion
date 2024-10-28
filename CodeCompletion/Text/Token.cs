@@ -2,6 +2,9 @@
 
 namespace CodeCompletion.Text;
 
+/// <summary>
+/// トークン。
+/// </summary>
 public struct Token()
 {
     private const int InitialCapacity = 32;

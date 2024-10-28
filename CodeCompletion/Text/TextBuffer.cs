@@ -16,6 +16,14 @@ public class TextBuffer : ISpanFormattable
     private readonly List<Token> _tokens = [new Token()];
 
     /// <summary>
+    /// トークン一覧。
+    /// </summary>
+    /// <remarks>
+    /// Add/Remove は外からされたくないけど、インデックスアクセスでの書き換えは認めててちょっと中途半端な感じあり。
+    /// </remarks>
+    internal Span<Token> Tokens => CollectionsMarshal.AsSpan(_tokens);
+
+    /// <summary>
     /// テキスト全体の文字数。
     /// </summary>
     /// <remarks>

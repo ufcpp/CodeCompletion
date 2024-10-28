@@ -15,8 +15,6 @@ enum ComparisonType
 class CompareFactory(ComparisonType comparison) : Factory
 {
     public override IEnumerable<Candidate> GetCandidates() => [];
-
-    public override Candidate? Select(ReadOnlyMemory<char> text) => base.Select(text);
 }
 
 class CompareCandidate(ComparisonType comparison) : Candidate
