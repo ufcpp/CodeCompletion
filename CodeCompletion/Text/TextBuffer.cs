@@ -182,6 +182,24 @@ public class TextBuffer : ISpanFormattable
         _cursor += s.Length;
     }
 
+    public void Replace(ReadOnlySpan<char> s)
+    {
+        // 今のトークンを丸ごと置き換え。
+        var tokens = CollectionsMarshal.AsSpan(_tokens);
+        var (token, _) = GetPosition(tokens, _cursor);
+        ref var currentToken = ref tokens[token];
+        currentToken.Replace(s);
+
+        // たぶん、後ろに新規トークン挿入した方がストレスなさげ。
+        _tokens.Insert(token + 1, new());
+
+        // カーソル位置は末尾(というか、新規挿入したトークンの先頭)に移動。
+        _cursor = PositionAtEndOfToken(token);
+
+        int PositionAtEndOfToken(int token)
+            => _tokens.Take(token + 1).Sum(x => x.Written) + token + 1;
+    }
+
     /// <summary>
     /// <see cref="Cursor"/> の位置のトークン文字列を取得。
     /// </summary>

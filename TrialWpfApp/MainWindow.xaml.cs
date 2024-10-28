@@ -14,16 +14,20 @@ public partial class MainWindow : Window
 
         var buffer = new TextBuffer();
         var model = new SemanticModel(typeof(A), buffer);
+        IReadOnlyList<Candidate> candidates = [];
+        int selectedCandidateIndex = 0;
 
         void show()
         {
             model.Refresh();
+            candidates = model.GetCandidates();
+
             var (t, p) = buffer.GetPosition();
             System.Diagnostics.Debug.WriteLine($"""
 text: {buffer}
 cursor: {buffer.Cursor} token: {t} pos: {p}
 nodes: {string.Join(", ", model.Nodes)}
-candidates: {string.Join(", ", model.GetCandidates().Select(x => x.Text))}
+candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {selectedCandidateIndex})
 
 """);
         }
@@ -39,9 +43,40 @@ candidates: {string.Join(", ", model.GetCandidates().Select(x => x.Text))}
 
         KeyDown += (sender, e) =>
         {
+            if (e.Key == Key.Enter) // Tab も？
+            {
+                // 補完候補確定。
+                if (candidates.ElementAtOrDefault(selectedCandidateIndex) is { } c)
+                {
+                    buffer.Replace(c.Text);
+                    selectedCandidateIndex = 0;
+                    show();
+                }
+                return;
+            }
+
+            if (e.Key == Key.Down)
+            {
+                // 補完候補を1個下に。
+                selectedCandidateIndex++;
+                if (selectedCandidateIndex >= candidates.Count) selectedCandidateIndex = 0;
+                show();
+                return;
+            }
+
+            if (e.Key == Key.Up)
+            {
+                // 補完候補を1個上に。
+                selectedCandidateIndex--;
+                if (selectedCandidateIndex < 0) selectedCandidateIndex = candidates.Count - 1;
+                show();
+                return;
+            }
+
             var ctrl = Keyboard.GetKeyStates(Key.LeftCtrl).HasFlag(KeyStates.Down)
                 || Keyboard.GetKeyStates(Key.RightCtrl).HasFlag(KeyStates.Down);
 
+            // カーソル移動。
             var move = (ctrl, e.Key) switch
             {
                 (false, Key.Left) => CursorMove.Back,
@@ -61,6 +96,7 @@ candidates: {string.Join(", ", model.GetCandidates().Select(x => x.Text))}
                 return;
             }
 
+            // 文字削除。
             move = (ctrl, e.Key) switch
             {
                 (false, Key.Back) => CursorMove.Back,
