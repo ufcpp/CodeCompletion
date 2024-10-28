@@ -1,10 +1,10 @@
 ﻿namespace CodeCompletion.Semantics;
 
-public abstract class Factory
+public abstract class Node
 {
-    public static Factory Create(Type type)
+    public static Node Create(Type type)
     {
-        return new PropertyFactory(type);
+        return new PropertyNode(type);
     }
 
     public abstract IEnumerable<Candidate> GetCandidates();

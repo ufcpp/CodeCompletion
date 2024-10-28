@@ -12,7 +12,7 @@ enum ComparisonType
     GreaterThanOrEqual
 }
 
-class CompareFactory(ComparisonType comparison) : Factory
+class CompareNode(ComparisonType comparison) : Node
 {
     public override IEnumerable<Candidate> GetCandidates() => [];
 }
@@ -30,7 +30,7 @@ class CompareCandidate(ComparisonType comparison) : Candidate
         _ => throw new NotImplementedException()
     };
 
-    public override Factory GetFactory() => new CompareFactory(comparison);
+    public override Node GetFactory() => new CompareNode(comparison);
 
     public static readonly ImmutableArray<Candidate> Singleton =
     [

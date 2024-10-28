@@ -4,15 +4,15 @@ namespace CodeCompletion.Semantics;
 
 public class SemanticModel
 {
-    private readonly Factory _root;
+    private readonly Node _root;
     private readonly TextBuffer _texts;
 
-    private readonly List<Factory?> _factories = [];
+    private readonly List<Node?> _factories = [];
 
     public SemanticModel(Type rootType, TextBuffer texts)
-        : this(Factory.Create(rootType), texts) { }
+        : this(Node.Create(rootType), texts) { }
 
-    public SemanticModel(Factory root, TextBuffer texts)
+    public SemanticModel(Node root, TextBuffer texts)
     {
         _root = root;
         _texts = texts;
@@ -28,7 +28,7 @@ public class SemanticModel
         return factory.Filter(token.Span);
     }
 
-    private Factory? GetNode(int pos)
+    private Node? GetNode(int pos)
     {
         if (pos == 0) return _root;
         return _factories.ElementAtOrDefault(pos - 1);

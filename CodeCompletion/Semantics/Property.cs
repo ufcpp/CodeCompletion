@@ -3,7 +3,7 @@
 namespace CodeCompletion.Semantics;
 
 
-class PropertyFactory(Type type) : Factory
+class PropertyNode(Type type) : Node
 {
     public override IEnumerable<Candidate> GetCandidates()
     {
@@ -25,5 +25,5 @@ class PropertyCandidate(PropertyInfo property) : Candidate
 
     //public string? ToolTip
 
-    public override Factory GetFactory() => new PropertyFactory(property.PropertyType);
+    public override Node GetFactory() => new PropertyNode(property.PropertyType);
 }
