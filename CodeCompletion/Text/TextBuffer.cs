@@ -21,7 +21,7 @@ public class TextBuffer : ISpanFormattable
     /// <remarks>
     /// Add/Remove は外からされたくないけど、インデックスアクセスでの書き換えは認めててちょっと中途半端な感じあり。
     /// </remarks>
-    internal Span<Token> Tokens => CollectionsMarshal.AsSpan(_tokens);
+    public ReadOnlySpan<Token> Tokens => CollectionsMarshal.AsSpan(_tokens);
 
     /// <summary>
     /// テキスト全体の文字数。
@@ -110,7 +110,8 @@ public class TextBuffer : ISpanFormattable
     public void Remove(CursorMove move)
     {
         var (token, position) = GetPosition();
-        ref var t = ref Tokens[token];
+        var tokens = CollectionsMarshal.AsSpan(_tokens);
+        ref var t = ref tokens[token];
 
         switch (move)
         {

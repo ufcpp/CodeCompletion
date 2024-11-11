@@ -11,14 +11,26 @@ public class MyControl : TextBlock
         Focusable = true;
         Height = 30;
 
-        static void show(ViewModel vm)
+        void show(ViewModel vm)
         {
             vm.Refresh();
 
             var buffer = vm.Texts;
+
+            //todo: 変化した Token に対応する部分だけ更新できないか。
+            Inlines.Clear();
+            foreach (var token in vm.Texts.Tokens)
+            {
+                //todo: Node のタイプで色分け。
+                Inlines.Add(token.Span.ToString());
+            }
+
+            //todo: カレット表示。
+
+            //todo: 補完候補をポップアップ。
+
             var (t, p) = buffer.GetPosition();
             System.Diagnostics.Debug.WriteLine($"""
-text: {buffer}
 cursor: {buffer.Cursor} token: {t} pos: {p}
 nodes: {string.Join(", ", vm.Semantics.Nodes)}
 candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {vm.SelectedCandidateIndex})
@@ -26,6 +38,7 @@ candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {v
 """);
         }
 
+        //todo: InputBindings KeyBinding でやった方がいい？
         TextInput += (sender, e) =>
         {
             if (DataContext is not ViewModel vm) return;
