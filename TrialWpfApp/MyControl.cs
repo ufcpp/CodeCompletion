@@ -50,79 +50,61 @@ candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {v
             show(vm);
         };
 
+        var table = new Dictionary<int, Action<ViewModel>>();
+
+        void neutral(Key key, Action<ViewModel> action) => table[(int)key] = action;
+        void ctrl(Key key, Action<ViewModel> action) => table[256 + (int)key] = action;
+        void either(Key key, Action<ViewModel> action) { neutral(key, action); ctrl(key, action); }
+
+        neutral(Key.Enter, vm =>
+        {
+            if (vm.Complete())
+            {
+                show(vm);
+            }
+        });
+
+        ctrl(Key.Enter, vm => vm.Filter());
+
+        either(Key.Down, vm => { vm.Next(); show(vm); });
+        either(Key.Up, vm => { vm.Prev(); show(vm); });
+
+        void move(ViewModel vm, CursorMove m)
+        {
+            vm.Texts.Move(m);
+            System.Diagnostics.Debug.WriteLine($"move: {m}");
+            show(vm);
+        }
+
+        neutral(Key.Left, vm => move(vm, CursorMove.Back));
+        neutral(Key.Right, vm => move(vm, CursorMove.Forward));
+        ctrl(Key.Left, vm => move(vm, CursorMove.StartToken));
+        ctrl(Key.Right, vm => move(vm, CursorMove.EndToken));
+        either(Key.Home, vm => move(vm, CursorMove.StartText));
+        either(Key.End, vm => move(vm, CursorMove.EndText));
+
+        void remove(ViewModel vm, CursorMove m)
+        {
+            vm.Texts.Remove(m);
+            System.Diagnostics.Debug.WriteLine($"remove: {m}");
+            show(vm);
+        }
+
+        neutral(Key.Back, vm => remove(vm, CursorMove.Back));
+        neutral(Key.Delete, vm => remove(vm, CursorMove.Forward));
+        ctrl(Key.Back, vm => remove(vm, CursorMove.StartToken));
+        ctrl(Key.Delete, vm => remove(vm, CursorMove.EndToken));
+
         KeyDown += (sender, e) =>
         {
             if (DataContext is not ViewModel vm) return;
 
-            var ctrl = Keyboard.GetKeyStates(Key.LeftCtrl).HasFlag(KeyStates.Down)
-                || Keyboard.GetKeyStates(Key.RightCtrl).HasFlag(KeyStates.Down);
+            var key = (int)e.Key;
 
-            if (e.Key == Key.Enter) // Tab も？
-            {
-                if (ctrl)
-                {
-                    vm.Filter();
-                    return;
-                }
+            if (Keyboard.GetKeyStates(Key.LeftCtrl).HasFlag(KeyStates.Down)
+                || Keyboard.GetKeyStates(Key.RightCtrl).HasFlag(KeyStates.Down)) key += 256;
 
-                // 補完候補確定。
-                if (vm.Complete())
-                {
-                    show(vm);
-                }
-                return;
-            }
-
-            if (e.Key == Key.Down)
-            {
-                vm.Next();
-                show(vm);
-                return;
-            }
-
-            if (e.Key == Key.Up)
-            {
-                vm.Prev();
-                show(vm);
-                return;
-            }
-
-            // カーソル移動。
-            var move = (ctrl, e.Key) switch
-            {
-                (false, Key.Left) => CursorMove.Back,
-                (false, Key.Right) => CursorMove.Forward,
-                (true, Key.Left) => CursorMove.StartToken,
-                (true, Key.Right) => CursorMove.EndToken,
-                (_, Key.Home) => CursorMove.StartText,
-                (_, Key.End) => CursorMove.EndText,
-                _ => default,
-            };
-
-            if (move != 0)
-            {
-                vm.Texts.Move(move);
-                System.Diagnostics.Debug.WriteLine($"move: {move}");
-                show(vm);
-                return;
-            }
-
-            // 文字削除。
-            move = (ctrl, e.Key) switch
-            {
-                (false, Key.Back) => CursorMove.Back,
-                (false, Key.Delete) => CursorMove.Forward,
-                (true, Key.Back) => CursorMove.StartToken,
-                (true, Key.Delete) => CursorMove.EndToken,
-                _ => default,
-            };
-
-            if (move != 0)
-            {
-                vm.Texts.Remove(move);
-                System.Diagnostics.Debug.WriteLine($"remove: {move}");
-                show(vm);
-            }
+            if (table.TryGetValue(key, out var action)) action(vm);
         };
     }
 }
