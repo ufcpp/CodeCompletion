@@ -7,13 +7,18 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <Grid.CommandBindings>
+        </Grid.CommandBindings>
+        <Grid.InputBindings>
+        </Grid.InputBindings>
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <TextBlock x:Name="text" />
-        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding}">
+        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding FilteredItems}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" />
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" />

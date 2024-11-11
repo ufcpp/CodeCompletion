@@ -12,9 +12,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        DataContext = SampleData.Data;
-
-        var vm = new CompletionModel(typeof(A));
+        var vm = new ViewModel(SampleData.Data);
+        DataContext = vm;
 
         void show()
         {
@@ -49,18 +48,7 @@ candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {v
             {
                 if (ctrl)
                 {
-                    var filter = vm.Semantics.Emit();
-
-                    if (filter is null)
-                    {
-                        System.Diagnostics.Debug.WriteLine("filter OFF");
-                        DataContext = SampleData.Data;
-                    }
-                    else
-                    {
-                        System.Diagnostics.Debug.WriteLine("filter ON");
-                        DataContext = SampleData.Data.Where(filter).ToList();
-                    }
+                    vm.Filter();
                     return;
                 }
 
