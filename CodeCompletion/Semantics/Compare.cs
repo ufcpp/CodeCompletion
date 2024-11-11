@@ -10,18 +10,18 @@ enum ComparisonType
     GreaterThanOrEqual
 }
 
-class CompareNode(PrimitiveCategory category, ComparisonType comparison) : Node
+class CompareNode(Type type, ComparisonType comparison) : Node
 {
     public ComparisonType ComparisonType { get; } = comparison;
 
     public override IEnumerable<Candidate> GetCandidates() => [
-            new LiteralCandidate(category),
+            new LiteralCandidate(type),
         ];
 
-    public override string ToString() => $"Compare {category} {ComparisonType}";
+    public override string ToString() => $"Compare {type.Name} {ComparisonType}";
 }
 
-class CompareCandidate(PrimitiveCategory category, ComparisonType comparison) : Candidate
+class CompareCandidate(Type type, ComparisonType comparison) : Candidate
 {
     public override string? Text => comparison switch
     {
@@ -34,5 +34,5 @@ class CompareCandidate(PrimitiveCategory category, ComparisonType comparison) : 
         _ => throw new NotImplementedException()
     };
 
-    public override Node GetNode() => new CompareNode(category, comparison);
+    public override Node GetNode() => new CompareNode(type, comparison);
 }

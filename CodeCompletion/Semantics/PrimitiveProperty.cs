@@ -1,35 +1,48 @@
 ﻿namespace CodeCompletion.Semantics;
 
-public enum PrimitiveCategory
+public class PrimitivePropertyNode(Type type) : Node
 {
-    Integer,
-    Float,
-    String,
+    private static readonly Type[] _comparableTypes =
+    [
+        typeof(int),
+        typeof(uint),
+        typeof(long),
+        typeof(ulong),
+        typeof(short),
+        typeof(ushort),
+        typeof(byte),
+        typeof(sbyte),
+        typeof(float),
+        typeof(double),
+        typeof(decimal),
+        typeof(TimeSpan),
+        typeof(DateTime),
+        typeof(DateTimeOffset),
+        typeof(bool),
+        typeof(string),
+    ];
 
-    //todo: Date 系
-}
+    private static readonly Dictionary<Type, PrimitivePropertyNode> _map = _comparableTypes.ToDictionary(t => t, t => new PrimitivePropertyNode(t));
 
-public class PrimitivePropertyNode(PrimitiveCategory category) : Node
-{
+    public static PrimitivePropertyNode Get(Type type) => _map[type];
+
+    public Type Type { get; } = type;
+
     public override IEnumerable<Candidate> GetCandidates() => _candidates;
 
     private readonly Candidate[] _candidates =
     [
-        new CompareCandidate(category, ComparisonType.Equal),
-        new CompareCandidate(category, ComparisonType.NotEqual),
-        new CompareCandidate(category, ComparisonType.LessThan),
-        new CompareCandidate(category, ComparisonType.LessThanOrEqual),
-        new CompareCandidate(category, ComparisonType.GreaterThan),
-        new CompareCandidate(category, ComparisonType.GreaterThanOrEqual)
+        new CompareCandidate(type, ComparisonType.Equal),
+        new CompareCandidate(type, ComparisonType.NotEqual),
+        new CompareCandidate(type, ComparisonType.LessThan),
+        new CompareCandidate(type, ComparisonType.LessThanOrEqual),
+        new CompareCandidate(type, ComparisonType.GreaterThan),
+        new CompareCandidate(type, ComparisonType.GreaterThanOrEqual)
 
         //todo: String のとき、 Length
 
         //todo: Float のとき、 Ceiling, Floor, Round
     ];
 
-    public static readonly PrimitivePropertyNode Integer = new(PrimitiveCategory.Integer);
-    public static readonly PrimitivePropertyNode Float = new(PrimitiveCategory.Float);
-    public static readonly PrimitivePropertyNode String = new(PrimitiveCategory.String);
-
-    public override string ToString() => $"Property {category}";
+    public override string ToString() => $"Property of {Type.Name}";
 }

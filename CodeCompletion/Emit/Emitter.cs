@@ -15,8 +15,12 @@ public readonly ref struct EmitContext(Type type, Node head, ReadOnlySpan<Node> 
 
     public Token Token => _tokens[0];
 
+    public bool IsDefault => Head is null;
+
     public EmitContext Next()
     {
+        if (Tail.Length == 0) return default;
+
         var nextHead = Tail[0];
         var t = Type;
         if (nextHead is PropertyNode p) t = p.Type;
@@ -50,6 +54,8 @@ public class Emitter
 
     private static ObjectMatcher? EmitInternal(EmitContext context)
     {
+        if (context.IsDefault) return null;
+
         if (context.Head is PropertyNode)
         {
             var matcher = EmitInternal(context.Next());
@@ -57,12 +63,15 @@ public class Emitter
             return new Property(context.Token.Span.ToString(), matcher);
         }
 
-        if (context.Head is CompareNode c)
+        if (context.Head is PrimitivePropertyNode p)
         {
             var next = context.Next();
-            if (next.Head is not LiteralNode) return null;
+            if (next.Head is not CompareNode c) return null;
 
-            return Compare.Create(c.ComparisonType, context.Type, context.Token.Span);
+            var next2 = next.Next();
+            if (next2.Head is not LiteralNode) return null;
+
+            return Compare.Create(c.ComparisonType, p.Type, next.Token.Span);
         }
 
         return null;

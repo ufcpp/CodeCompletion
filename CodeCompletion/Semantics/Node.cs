@@ -14,7 +14,8 @@ public abstract class Node
         List<Candidate>? candidates = null;
         foreach (var candidate in GetCandidates())
         {
-            if (candidate.Text.AsSpan().StartsWith(text, StringComparison.OrdinalIgnoreCase))
+            if (candidate.Text is not { } ct
+                || ct.AsSpan().StartsWith(text, StringComparison.OrdinalIgnoreCase))
             {
                 (candidates ??= []).Add(candidate);
             }
@@ -26,7 +27,8 @@ public abstract class Node
     {
         foreach (var candidate in GetCandidates())
         {
-            if (candidate.Text.AsSpan().StartsWith(text, StringComparison.OrdinalIgnoreCase))
+            if (candidate.Text is not { } ct
+                || ct.AsSpan().StartsWith(text, StringComparison.OrdinalIgnoreCase))
             {
                 return candidate;
             }

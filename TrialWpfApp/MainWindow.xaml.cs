@@ -68,9 +68,9 @@ candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {sele
                 }
 
                 // 補完候補確定。
-                if (candidates.ElementAtOrDefault(selectedCandidateIndex) is { } c)
+                if (candidates.ElementAtOrDefault(selectedCandidateIndex) is { Text: { } ct })
                 {
-                    buffer.Replace(c.Text);
+                    buffer.Replace(ct);
                     selectedCandidateIndex = 0;
                     show();
                 }

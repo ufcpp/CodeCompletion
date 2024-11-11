@@ -26,23 +26,6 @@ class PropertyCandidate(PropertyInfo property) : Candidate
     public override Node GetNode()
     {
         var t = property.PropertyType;
-
-        if (t == typeof(int)
-            || t == typeof(long)
-            || t == typeof(byte)
-            || t == typeof(short)
-            || t == typeof(uint)
-            || t == typeof(ulong)
-            || t == typeof(ushort)
-            || t == typeof(sbyte)
-            ) return PrimitivePropertyNode.Integer;
-
-        if (t == typeof(float)
-            || t == typeof(double)
-            ) return PrimitivePropertyNode.Float;
-
-        if (t == typeof(string)) return PrimitivePropertyNode.String;
-
-        return new PropertyNode(property.PropertyType);
+        return PrimitivePropertyNode.Get(t);
     }
 }
