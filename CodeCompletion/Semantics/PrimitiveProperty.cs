@@ -24,7 +24,7 @@ public class PrimitivePropertyNode(Type type) : Node
 
     private static readonly Dictionary<Type, PrimitivePropertyNode> _map = _comparableTypes.ToDictionary(t => t, t => new PrimitivePropertyNode(t));
 
-    public static PrimitivePropertyNode Get(Type type) => _map[type];
+    public static PrimitivePropertyNode? Get(Type type) => _map.TryGetValue(type, out var x) ? x : null;
 
     public Type Type { get; } = type;
 

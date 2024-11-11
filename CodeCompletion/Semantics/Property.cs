@@ -26,6 +26,6 @@ class PropertyCandidate(PropertyInfo property) : Candidate
     public override Node GetNode()
     {
         var t = property.PropertyType;
-        return PrimitivePropertyNode.Get(t);
+        return (Node?)PrimitivePropertyNode.Get(t) ?? new PropertyNode(t);
     }
 }
