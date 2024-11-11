@@ -4,15 +4,17 @@ namespace CodeCompletion.Semantics;
 
 class PropertyNode(Type type) : Node
 {
+    public Type Type { get; } = type;
+
     public override IEnumerable<Candidate> GetCandidates()
     {
-        foreach (var property in type.GetProperties())
+        foreach (var property in Type.GetProperties())
         {
             yield return new PropertyCandidate(property);
         }
     }
 
-    public override string ToString() => $"Property {type.Name}";
+    public override string ToString() => $"Property {Type.Name}";
 }
 
 class PropertyCandidate(PropertyInfo property) : Candidate

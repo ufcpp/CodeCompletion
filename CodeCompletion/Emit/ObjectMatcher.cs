@@ -33,16 +33,16 @@ internal static class Compare
     public static ObjectMatcher? Create(ComparisonType comparison, Type type, ReadOnlySpan<char> valueSpan)
     {
         if (type == typeof(int)) return CreateParsable<int>(comparison, valueSpan);
-        if (type == typeof(uint)) return CreateParsable<int>(comparison, valueSpan);
-        if (type == typeof(long)) return CreateParsable<int>(comparison, valueSpan);
-        if (type == typeof(ulong)) return CreateParsable<int>(comparison, valueSpan);
-        if (type == typeof(short)) return CreateParsable<int>(comparison, valueSpan);
-        if (type == typeof(ushort)) return CreateParsable<int>(comparison, valueSpan);
-        if (type == typeof(byte)) return CreateParsable<int>(comparison, valueSpan);
-        if (type == typeof(sbyte)) return CreateParsable<int>(comparison, valueSpan);
-        if (type == typeof(float)) return CreateParsable<int>(comparison, valueSpan);
-        if (type == typeof(double)) return CreateParsable<int>(comparison, valueSpan);
-        if (type == typeof(decimal)) return CreateParsable<int>(comparison, valueSpan);
+        if (type == typeof(uint)) return CreateParsable<uint>(comparison, valueSpan);
+        if (type == typeof(long)) return CreateParsable<long>(comparison, valueSpan);
+        if (type == typeof(ulong)) return CreateParsable<ulong>(comparison, valueSpan);
+        if (type == typeof(short)) return CreateParsable<short>(comparison, valueSpan);
+        if (type == typeof(ushort)) return CreateParsable<ushort>(comparison, valueSpan);
+        if (type == typeof(byte)) return CreateParsable<byte>(comparison, valueSpan);
+        if (type == typeof(sbyte)) return CreateParsable<sbyte>(comparison, valueSpan);
+        if (type == typeof(float)) return CreateParsable<float>(comparison, valueSpan);
+        if (type == typeof(double)) return CreateParsable<double>(comparison, valueSpan);
+        if (type == typeof(decimal)) return CreateParsable<decimal>(comparison, valueSpan);
         if (type == typeof(TimeSpan)) return CreateParsable<TimeSpan>(comparison, valueSpan);
         if (type == typeof(DateTime)) return CreateParsable<DateTime>(comparison, valueSpan);
         if (type == typeof(DateTimeOffset)) return CreateParsable<DateTimeOffset>(comparison, valueSpan);

@@ -3,15 +3,25 @@ using CodeCompletion.Text;
 
 namespace CodeCompletion.Emit;
 
-public readonly ref struct EmitContext(Node head, ReadOnlySpan<Node> tail, ReadOnlySpan<Token> tokens)
+public readonly ref struct EmitContext(Type type, Node head, ReadOnlySpan<Node> tail, ReadOnlySpan<Token> tokens)
 {
+    internal EmitContext(PropertyNode head, ReadOnlySpan<Node> tail, ReadOnlySpan<Token> tokens)
+        : this(head.Type, head, tail, tokens) { }
+
+    public readonly Type Type = type;
     public readonly Node Head = head;
     public readonly ReadOnlySpan<Node> Tail = tail;
     private readonly ReadOnlySpan<Token> _tokens = tokens;
 
     public Token Token => _tokens[0];
 
-    public EmitContext Next() => new(Tail[0], Tail[1..], _tokens[1..]);
+    public EmitContext Next()
+    {
+        var nextHead = Tail[0];
+        var t = Type;
+        if (nextHead is PropertyNode p) t = p.Type;
+        return new(t, nextHead, Tail[1..], _tokens[1..]);
+    }
 }
 
 public class Emitter
@@ -47,12 +57,12 @@ public class Emitter
             return new Property(context.Token.Span.ToString(), matcher);
         }
 
-        if (context.Head is CompareNode)
+        if (context.Head is CompareNode c)
         {
-            //var next = context.Next();
-            //if (next.Head is not LiteralNode) return null;
+            var next = context.Next();
+            if (next.Head is not LiteralNode) return null;
 
-            //return Compare.Create();
+            return Compare.Create(c.ComparisonType, context.Type, context.Token.Span);
         }
 
         return null;

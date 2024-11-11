@@ -12,11 +12,13 @@ enum ComparisonType
 
 class CompareNode(PrimitiveCategory category, ComparisonType comparison) : Node
 {
+    public ComparisonType ComparisonType { get; } = comparison;
+
     public override IEnumerable<Candidate> GetCandidates() => [
             new LiteralCandidate(category),
         ];
 
-    public override string ToString() => $"Compare {category} {comparison}";
+    public override string ToString() => $"Compare {category} {ComparisonType}";
 }
 
 class CompareCandidate(PrimitiveCategory category, ComparisonType comparison) : Candidate
