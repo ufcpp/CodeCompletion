@@ -14,22 +14,19 @@ public partial class MainWindow : Window
 
         DataContext = SampleData.Data;
 
-        var model = new SemanticModel(typeof(A));
-        IReadOnlyList<Candidate> candidates = [];
-        int selectedCandidateIndex = 0;
+        var vm = new CompletionModel(typeof(A));
 
         void show()
         {
-            model.Refresh();
-            candidates = model.GetCandidates();
+            vm.Refresh();
 
-            var buffer = model.Texts;
+            var buffer = vm.Texts;
             var (t, p) = buffer.GetPosition();
             System.Diagnostics.Debug.WriteLine($"""
 text: {buffer}
 cursor: {buffer.Cursor} token: {t} pos: {p}
-nodes: {string.Join(", ", model.Nodes)}
-candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {selectedCandidateIndex})
+nodes: {string.Join(", ", vm.Semantics.Nodes)}
+candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {vm.SelectedCandidateIndex})
 
 """);
         }
@@ -39,7 +36,7 @@ candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {sele
             if (e.Text.Length == 0) return;
             if (char.GetUnicodeCategory(e.Text[0]) == System.Globalization.UnicodeCategory.Control) return;
 
-            model.Texts.Insert(e.Text);
+            vm.Texts.Insert(e.Text);
             show();
         };
 
@@ -52,7 +49,7 @@ candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {sele
             {
                 if (ctrl)
                 {
-                    var filter = model.Emit();
+                    var filter = vm.Semantics.Emit();
 
                     if (filter is null)
                     {
@@ -68,10 +65,8 @@ candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {sele
                 }
 
                 // 補完候補確定。
-                if (candidates.ElementAtOrDefault(selectedCandidateIndex) is { Text: { } ct })
+                if (vm.Complete())
                 {
-                    model.Texts.Replace(ct);
-                    selectedCandidateIndex = 0;
                     show();
                 }
                 return;
@@ -79,18 +74,14 @@ candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {sele
 
             if (e.Key == Key.Down)
             {
-                // 補完候補を1個下に。
-                selectedCandidateIndex++;
-                if (selectedCandidateIndex >= candidates.Count) selectedCandidateIndex = 0;
+                vm.Next();
                 show();
                 return;
             }
 
             if (e.Key == Key.Up)
             {
-                // 補完候補を1個上に。
-                selectedCandidateIndex--;
-                if (selectedCandidateIndex < 0) selectedCandidateIndex = candidates.Count - 1;
+                vm.Prev();
                 show();
                 return;
             }
@@ -109,7 +100,7 @@ candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {sele
 
             if (move != 0)
             {
-                model.Texts.Move(move);
+                vm.Texts.Move(move);
                 System.Diagnostics.Debug.WriteLine($"move: {move}");
                 show();
                 return;
@@ -127,7 +118,7 @@ candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {sele
 
             if (move != 0)
             {
-                model.Texts.Remove(move);
+                vm.Texts.Remove(move);
                 System.Diagnostics.Debug.WriteLine($"remove: {move}");
                 show();
             }
