@@ -104,7 +104,11 @@ candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {v
             if (Keyboard.GetKeyStates(Key.LeftCtrl).HasFlag(KeyStates.Down)
                 || Keyboard.GetKeyStates(Key.RightCtrl).HasFlag(KeyStates.Down)) key += 256;
 
-            if (table.TryGetValue(key, out var action)) action(vm);
+            if (table.TryGetValue(key, out var action))
+            {
+                action(vm);
+                e.Handled = true;
+            }
         };
     }
 }
