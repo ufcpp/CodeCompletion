@@ -17,7 +17,7 @@ class PropertyNode(Type type) : Node
 
 class PropertyCandidate(PropertyInfo property) : Candidate
 {
-    public override string Text => property.Name;
+    public override string? Text => property.Name;
 
     //public string? ToolTip
 
