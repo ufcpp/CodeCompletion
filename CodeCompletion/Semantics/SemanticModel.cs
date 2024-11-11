@@ -1,4 +1,6 @@
-﻿using CodeCompletion.Text;
+﻿using CodeCompletion.Emit;
+using CodeCompletion.Text;
+using System.Runtime.InteropServices;
 
 namespace CodeCompletion.Semantics;
 
@@ -10,7 +12,7 @@ public class SemanticModel
     private readonly List<Node?> _nodes = [];
 
     public SemanticModel(Type rootType, TextBuffer texts)
-        : this(Node.Create(rootType), texts) { }
+        : this((PropertyNode)Node.Create(rootType), texts) { }
 
     public SemanticModel(Node root, TextBuffer texts)
     {
@@ -53,5 +55,14 @@ public class SemanticModel
                 break;
             }
         }
+    }
+
+    public Func<object?, bool> Emit()
+    {
+        var c = new EmitContext((PropertyNode)_root,
+            CollectionsMarshal.AsSpan(_nodes)!,
+            _texts.Tokens);
+
+        return Emitter.Emit(c);
     }
 }

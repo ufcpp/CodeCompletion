@@ -34,7 +34,7 @@ public class Emitter
     // エラーどうしよう？
     // Func or Error な union 返す？
     // 例外？
-    public static Func<object?, bool> Emit(EmitContext context)
+    public static Func<object?, bool>? Emit(EmitContext context)
     {
         var matcher = EmitInternal(context);
 
@@ -42,7 +42,7 @@ public class Emitter
         {
             // 例外？
             // Result<Func, Error> ?
-            return null!;
+            return null;
         }
 
         return matcher.Match;

@@ -12,6 +12,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
+        DataContext = SampleData.Data;
+
         var buffer = new TextBuffer();
         var model = new SemanticModel(typeof(A), buffer);
         IReadOnlyList<Candidate> candidates = [];
@@ -43,8 +45,28 @@ candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {sele
 
         KeyDown += (sender, e) =>
         {
+            var ctrl = Keyboard.GetKeyStates(Key.LeftCtrl).HasFlag(KeyStates.Down)
+                || Keyboard.GetKeyStates(Key.RightCtrl).HasFlag(KeyStates.Down);
+
             if (e.Key == Key.Enter) // Tab も？
             {
+                if (ctrl)
+                {
+                    var filter = model.Emit();
+
+                    if (filter is null)
+                    {
+                        System.Diagnostics.Debug.WriteLine("filter OFF");
+                        DataContext = SampleData.Data;
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("filter ON");
+                        DataContext = SampleData.Data.Where(filter).ToList();
+                    }
+                    return;
+                }
+
                 // 補完候補確定。
                 if (candidates.ElementAtOrDefault(selectedCandidateIndex) is { } c)
                 {
@@ -72,9 +94,6 @@ candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {sele
                 show();
                 return;
             }
-
-            var ctrl = Keyboard.GetKeyStates(Key.LeftCtrl).HasFlag(KeyStates.Down)
-                || Keyboard.GetKeyStates(Key.RightCtrl).HasFlag(KeyStates.Down);
 
             // カーソル移動。
             var move = (ctrl, e.Key) switch
