@@ -14,8 +14,7 @@ public partial class MainWindow : Window
 
         DataContext = SampleData.Data;
 
-        var buffer = new TextBuffer();
-        var model = new SemanticModel(typeof(A), buffer);
+        var model = new SemanticModel(typeof(A));
         IReadOnlyList<Candidate> candidates = [];
         int selectedCandidateIndex = 0;
 
@@ -24,6 +23,7 @@ public partial class MainWindow : Window
             model.Refresh();
             candidates = model.GetCandidates();
 
+            var buffer = model.Texts;
             var (t, p) = buffer.GetPosition();
             System.Diagnostics.Debug.WriteLine($"""
 text: {buffer}
@@ -39,7 +39,7 @@ candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {sele
             if (e.Text.Length == 0) return;
             if (char.GetUnicodeCategory(e.Text[0]) == System.Globalization.UnicodeCategory.Control) return;
 
-            buffer.Insert(e.Text);
+            model.Texts.Insert(e.Text);
             show();
         };
 
@@ -70,7 +70,7 @@ candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {sele
                 // 補完候補確定。
                 if (candidates.ElementAtOrDefault(selectedCandidateIndex) is { Text: { } ct })
                 {
-                    buffer.Replace(ct);
+                    model.Texts.Replace(ct);
                     selectedCandidateIndex = 0;
                     show();
                 }
@@ -109,7 +109,7 @@ candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {sele
 
             if (move != 0)
             {
-                buffer.Move(move);
+                model.Texts.Move(move);
                 System.Diagnostics.Debug.WriteLine($"move: {move}");
                 show();
                 return;
@@ -127,7 +127,7 @@ candidates: {string.Join(", ", candidates.Select(x => x.Text))} (selected: {sele
 
             if (move != 0)
             {
-                buffer.Remove(move);
+                model.Texts.Remove(move);
                 System.Diagnostics.Debug.WriteLine($"remove: {move}");
                 show();
             }

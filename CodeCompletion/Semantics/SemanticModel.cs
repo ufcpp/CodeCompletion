@@ -7,17 +7,17 @@ namespace CodeCompletion.Semantics;
 public class SemanticModel
 {
     private readonly Node _root;
-    private readonly TextBuffer _texts;
+    public TextBuffer Texts { get; }
 
     private readonly List<Node?> _nodes = [];
 
-    public SemanticModel(Type rootType, TextBuffer texts)
+    public SemanticModel(Type rootType, TextBuffer? texts = null)
         : this((PropertyNode)Node.Create(rootType), texts) { }
 
-    public SemanticModel(Node root, TextBuffer texts)
+    public SemanticModel(Node root, TextBuffer? texts = null)
     {
         _root = root;
-        _texts = texts;
+        Texts = texts ?? new();
         Refresh();
     }
 
@@ -25,10 +25,10 @@ public class SemanticModel
 
     public IReadOnlyList<Candidate> GetCandidates()
     {
-        var (pos, _) = _texts.GetPosition();
+        var (pos, _) = Texts.GetPosition();
         if (GetNode(pos) is not { } node) return [];
 
-        var token = _texts.Tokens[pos];
+        var token = Texts.Tokens[pos];
         return node.Filter(token.Span);
     }
 
@@ -43,7 +43,7 @@ public class SemanticModel
         var node = _root;
 
         _nodes.Clear();
-        foreach (var token in _texts.Tokens)
+        foreach (var token in Texts.Tokens)
         {
             if (node.Select(token.Span) is { } candidate)
             {
@@ -57,11 +57,11 @@ public class SemanticModel
         }
     }
 
-    public Func<object?, bool> Emit()
+    public Func<object?, bool>? Emit()
     {
         var c = new EmitContext((PropertyNode)_root,
             CollectionsMarshal.AsSpan(_nodes)!,
-            _texts.Tokens);
+            Texts.Tokens);
 
         return Emitter.Emit(c);
     }
