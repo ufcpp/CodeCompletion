@@ -1,4 +1,6 @@
-﻿namespace TrialWpfApp.Models;
+﻿#pragma warning disable CS8618
+
+namespace TrialWpfApp.Models;
 
 public class A
 {
