@@ -1,6 +1,6 @@
 ﻿namespace CodeCompletion.Semantics;
 
-internal class KeywordNode(string keyword) : Node
+public class KeywordNode(string keyword) : Node
 {
     public string Keyword { get; } = keyword;
 
@@ -10,7 +10,7 @@ internal class KeywordNode(string keyword) : Node
     public override string ToString() => $"Keyword {Keyword}";
 }
 
-internal class KeywordCandidate(string keyword) : Candidate
+public class KeywordCandidate(string keyword) : Candidate
 {
     public override string? Text => keyword;
 

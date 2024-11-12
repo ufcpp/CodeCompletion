@@ -2,7 +2,7 @@
 
 namespace CodeCompletion.Semantics;
 
-class PropertyNode(Type type, bool isNullable = false) : Node
+public class PropertyNode(Type type, bool isNullable = false) : Node
 {
     public Type Type { get; } = type;
 
@@ -43,7 +43,7 @@ class PropertyNode(Type type, bool isNullable = false) : Node
     public override string ToString() => $"Property {Type.Name}";
 }
 
-class PropertyCandidate(PropertyInfo property) : Candidate
+public class PropertyCandidate(PropertyInfo property) : Candidate
 {
     public override string? Text => property.Name;
 

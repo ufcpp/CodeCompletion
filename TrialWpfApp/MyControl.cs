@@ -1,15 +1,33 @@
-﻿using CodeCompletion.Text;
+﻿using CodeCompletion.Semantics;
+using CodeCompletion.Text;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace TrialWpfApp;
 
 public class MyControl : TextBlock
 {
+    private static Brush? GetBrush(Node? n) => n switch
+    {
+        PropertyNode => Brushes.MidnightBlue,
+        PrimitivePropertyNode => Brushes.DarkGreen,
+        CompareNode => Brushes.DimGray,
+        LiteralNode => Brushes.DarkRed,
+        KeywordNode => Brushes.Blue,
+        _ => null,
+    };
+
     public MyControl()
     {
         Focusable = true;
-        Height = 30;
+        Margin = new(5);
+
+        Loaded += (_, _) =>
+        {
+            Height = Math.Ceiling(FontFamily.LineSpacing * FontSize);
+        };
 
         void show(ViewModel vm)
         {
@@ -19,10 +37,24 @@ public class MyControl : TextBlock
 
             //todo: 変化した Token に対応する部分だけ更新できないか。
             Inlines.Clear();
-            foreach (var token in vm.Texts.Tokens)
+            var part = false;
+            for (var i = 0; i < vm.Texts.Tokens.Length; ++i)
             {
+                if (part) Inlines.Add(" ");
+                else part = true;
+
+                var token = vm.Texts.Tokens[i];
+                var node = vm.Semantics.Nodes.ElementAtOrDefault(i);
+
                 //todo: Node のタイプで色分け。
-                Inlines.Add(token.Span.ToString());
+                if (GetBrush(node) is { } brush)
+                {
+                    Inlines.Add(new Run() { Text = token.Span.ToString(), Foreground = brush });
+                }
+                else
+                {
+                    Inlines.Add(token.Span.ToString());
+                }
             }
 
             //todo: カレット表示。

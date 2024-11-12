@@ -1,6 +1,6 @@
 ﻿namespace CodeCompletion.Semantics;
 
-enum ComparisonType
+public enum ComparisonType
 {
     Equal,
     NotEqual,
@@ -10,7 +10,7 @@ enum ComparisonType
     GreaterThanOrEqual
 }
 
-class CompareNode(Type type, ComparisonType comparison) : Node
+public class CompareNode(Type type, ComparisonType comparison) : Node
 {
     public ComparisonType ComparisonType { get; } = comparison;
 
@@ -26,7 +26,7 @@ class CompareNode(Type type, ComparisonType comparison) : Node
     public override string ToString() => $"Compare {type.Name} {ComparisonType}";
 }
 
-class CompareCandidate(Type type, ComparisonType comparison) : Candidate
+public class CompareCandidate(Type type, ComparisonType comparison) : Candidate
 {
     public override string? Text => comparison switch
     {
