@@ -12,6 +12,8 @@ class PropertyNode(Type type) : Node
         {
             yield return new PropertyCandidate(property);
         }
+
+        //todo: is null, is not null
     }
 
     public override string ToString() => $"Property {Type.Name}";
