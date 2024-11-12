@@ -13,5 +13,7 @@ class LiteralCandidate(Type type) : Candidate
 {
     public override string? Text => null;
 
-    public override Node GetNode() => new LiteralNode(type);
+    private readonly LiteralNode _singleton = new(type);
+
+    public override Node GetNode() => _singleton;
 }
