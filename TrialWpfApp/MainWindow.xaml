@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         FontSize="20">
-    <Grid>
+    <Grid FocusManager.FocusedElement="{Binding ElementName=texts}">
         <Grid.CommandBindings>
         </Grid.CommandBindings>
         <Grid.InputBindings>
@@ -18,8 +18,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <local:MyControl />
-        <!--<TextBlock x:Name="text" />-->
+        <local:MyControl x:Name="texts" />
 
         <DataGrid Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{Binding FilteredItems}">
             <DataGrid.Columns>
