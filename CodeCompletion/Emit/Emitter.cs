@@ -83,6 +83,17 @@ public class Emitter
             if (next.Head is not CompareNode c) return null;
 
             var next2 = next.Next();
+
+            if (next2.Head is KeywordNode { Keyword: var keyword })
+            {
+                return keyword switch
+                {
+                    "true" => Compare<bool>.Create(c.ComparisonType, true),
+                    "false" => Compare<bool>.Create(c.ComparisonType, false),
+                    _ => null
+                };
+            }
+
             if (next2.Head is not LiteralNode) return null;
 
             return Compare.Create(c.ComparisonType, p.Type, next.Token.Span);
