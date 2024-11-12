@@ -15,9 +15,11 @@ class CompareNode(Type type, ComparisonType comparison) : Node
     public ComparisonType ComparisonType { get; } = comparison;
 
     private readonly Candidate[] _candidates =
-    [
-        new LiteralCandidate(type),
-    ];
+        type == typeof(object) ? [KeywordCandidate.Null] :
+        type == typeof(bool) ? [KeywordCandidate.True, KeywordCandidate.False] :
+        //todo: nullable struct
+        //todo: string は [ KeywordCandidate.Null, new LiteralCandidate(type)] にする？
+        [new LiteralCandidate(type)];
 
     public override IEnumerable<Candidate> GetCandidates() => _candidates;
 

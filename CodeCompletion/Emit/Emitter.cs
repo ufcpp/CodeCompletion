@@ -58,6 +58,20 @@ public class Emitter
 
         if (context.Head is PropertyNode)
         {
+            var next = context.Next();
+            if (next.Head is CompareNode c)
+            {
+                var next2 = next.Next();
+                if (next2.Head is not KeywordNode { Keyword: "null" }) return null;
+
+                return c.ComparisonType switch
+                {
+                    ComparisonType.Equal => Compare.IsNull,
+                    ComparisonType.NotEqual => Compare.IsNotNull,
+                    _ => null
+                };
+            }
+
             var matcher = EmitInternal(context.Next());
             if (matcher is null) return null;
             return new Property(context.Token.Span.ToString(), matcher);

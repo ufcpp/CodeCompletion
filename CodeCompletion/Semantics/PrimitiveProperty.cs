@@ -46,6 +46,8 @@ public class PrimitivePropertyNode(Type type) : Node
         //todo: Float のとき、 Ceiling, Floor, Round
 
         //todo: 時刻系、hour, min, sec, ...?
+
+        //todo: nullable primitive のとき new CompareCandidate(typeof(object), ComparisonType.Equal) 足すので null が候補に出る？
     ];
 
     public override string ToString() => $"Property of {Type.Name}";
