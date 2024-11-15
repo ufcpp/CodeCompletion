@@ -18,6 +18,8 @@ public class PrimitivePropertyNode(Type type) : Node
         typeof(TimeSpan),
         typeof(DateTime),
         typeof(DateTimeOffset),
+        typeof(DateOnly),
+        typeof(TimeOnly),
         typeof(bool),
         typeof(string),
     ];
@@ -42,6 +44,10 @@ public class PrimitivePropertyNode(Type type) : Node
         //todo: String のとき、 Length
 
         //todo: Float のとき、 Ceiling, Floor, Round
+
+        //todo: 時刻系、hour, min, sec, ...?
+
+        //todo: nullable primitive のとき new CompareCandidate(typeof(object), ComparisonType.Equal) 足すので null が候補に出る？
     ];
 
     public override string ToString() => $"Property of {Type.Name}";

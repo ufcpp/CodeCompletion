@@ -1,6 +1,6 @@
 ﻿namespace CodeCompletion.Semantics;
 
-enum ComparisonType
+public enum ComparisonType
 {
     Equal,
     NotEqual,
@@ -10,18 +10,23 @@ enum ComparisonType
     GreaterThanOrEqual
 }
 
-class CompareNode(Type type, ComparisonType comparison) : Node
+public class CompareNode(Type type, ComparisonType comparison) : Node
 {
     public ComparisonType ComparisonType { get; } = comparison;
 
-    public override IEnumerable<Candidate> GetCandidates() => [
-            new LiteralCandidate(type),
-        ];
+    private readonly Candidate[] _candidates =
+        type == typeof(object) ? [KeywordCandidate.Null] :
+        type == typeof(bool) ? [KeywordCandidate.True, KeywordCandidate.False] :
+        //todo: nullable struct
+        //todo: string は [ KeywordCandidate.Null, new LiteralCandidate(type)] にする？
+        [new LiteralCandidate(type)];
+
+    public override IEnumerable<Candidate> GetCandidates() => _candidates;
 
     public override string ToString() => $"Compare {type.Name} {ComparisonType}";
 }
 
-class CompareCandidate(Type type, ComparisonType comparison) : Candidate
+public class CompareCandidate(Type type, ComparisonType comparison) : Candidate
 {
     public override string? Text => comparison switch
     {
@@ -34,5 +39,7 @@ class CompareCandidate(Type type, ComparisonType comparison) : Candidate
         _ => throw new NotImplementedException()
     };
 
-    public override Node GetNode() => new CompareNode(type, comparison);
+    private readonly CompareNode _singleton = new(type, comparison);
+
+    public override Node GetNode() => _singleton;
 }

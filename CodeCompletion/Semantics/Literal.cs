@@ -1,6 +1,6 @@
 ﻿namespace CodeCompletion.Semantics;
 
-internal class LiteralNode(Type type) : Node
+public class LiteralNode(Type type) : Node
 {
     public override IEnumerable<Candidate> GetCandidates() => [
             // , &, |, )
@@ -9,9 +9,11 @@ internal class LiteralNode(Type type) : Node
     public override string ToString() => $"Literal {type.Name}";
 }
 
-class LiteralCandidate(Type type) : Candidate
+public class LiteralCandidate(Type type) : Candidate
 {
     public override string? Text => null;
 
-    public override Node GetNode() => new LiteralNode(type);
+    private readonly LiteralNode _singleton = new(type);
+
+    public override Node GetNode() => _singleton;
 }

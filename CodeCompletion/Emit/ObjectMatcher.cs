@@ -18,16 +18,6 @@ internal class Property(string name, ObjectMatcher mather) : ObjectMatcher
     }
 }
 
-internal class IsNull : ObjectMatcher
-{
-    public override bool Match(object? value) => value is null;
-}
-
-internal class IsNotNull : ObjectMatcher
-{
-    public override bool Match(object? value) => value is { };
-}
-
 internal static class Compare
 {
     public static ObjectMatcher? Create(ComparisonType comparison, Type type, ReadOnlySpan<char> valueSpan)
@@ -73,6 +63,19 @@ internal static class Compare
         //todo: " とかから始まってたら unescape する
         //todo: regex 認める？ それか正規表現マッチは文法自体変える？
         return Compare<string>.Create(comparison, valueSpan.ToString());
+    }
+
+    public static readonly ObjectMatcher IsNull = new IsNullMatcher();
+    public static readonly ObjectMatcher IsNotNull = new IsNotNullMatcher();
+
+    internal class IsNullMatcher : ObjectMatcher
+    {
+        public override bool Match(object? value) => value is null;
+    }
+
+    internal class IsNotNullMatcher : ObjectMatcher
+    {
+        public override bool Match(object? value) => value is { };
     }
 }
 
