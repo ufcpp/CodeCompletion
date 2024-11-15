@@ -60,7 +60,11 @@ internal static class Compare
 
     public static ObjectMatcher? CreateString(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
     {
-        //todo: " とかから始まってたら unescape する
+        //todo: " とかから始まってたら \ unescape する
+
+        valueSpan = valueSpan.Trim('"');
+        valueSpan = valueSpan.Trim('\'');
+
         //todo: regex 認める？ それか正規表現マッチは文法自体変える？
         return Compare<string>.Create(comparison, valueSpan.ToString());
     }
