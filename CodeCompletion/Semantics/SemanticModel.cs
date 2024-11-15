@@ -23,13 +23,13 @@ public class SemanticModel
 
     public IEnumerable<Node?> Nodes => _nodes;
 
-    public IReadOnlyList<Candidate> GetCandidates()
+    public void GetCandidates(IList<Candidate> results)
     {
         var (pos, _) = Texts.GetPosition();
-        if (GetNode(pos) is not { } node) return [];
+        if (GetNode(pos) is not { } node) return;
 
         var token = Texts.Tokens[pos];
-        return node.Filter(token.Span);
+        node.Filter(token.Span, results);
     }
 
     private Node? GetNode(int pos)
