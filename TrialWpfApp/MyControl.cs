@@ -1,9 +1,11 @@
-﻿using CodeCompletion.Semantics;
+using CodeCompletion.Semantics;
 using CodeCompletion.Text;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.TextFormatting;
 
 namespace TrialWpfApp;
 
@@ -24,11 +26,73 @@ public class MyControl : TextBlock
         Focusable = true;
         Margin = new(5);
 
+        var drawingBrush = new DrawingBrush();
+        Background = drawingBrush;
+
         Loaded += (_, _) =>
         {
             Height = Math.Ceiling(FontFamily.LineSpacing * FontSize);
         };
 
+#if true
+        void show(ViewModel vm)
+        {
+            vm.Refresh();
+
+            var textDest = new DrawingGroup();
+            DrawingContext dc = textDest.Open();
+
+            var formatter = TextFormatter.Create();
+            var prop = new GenericTextRunProperties(FontSize, FontSize, new Typeface(FontFamily, FontStyle, FontWeight, FontStretch));
+            var textSource = new MyTextSource(vm.Semantics, prop);
+            var linePosition = new Point(0, 0);
+
+            //TextParagraphProperties
+
+            int textStorePosition = 0;
+            while (textStorePosition < vm.Texts.TotalLength)
+            {
+                // Create a textline from the text store using the TextFormatter object.
+                using (var myTextLine = formatter.FormatLine(
+                    textSource,
+                    textStorePosition,
+                    96 * 6,
+                    new ParaProp(Height, prop),
+                    null))
+                {
+                    // Draw the formatted text into the drawing context.
+                    myTextLine.Draw(dc, linePosition, InvertAxes.None);
+
+                    // Update the index position in the text store.
+                    textStorePosition += myTextLine.Length;
+
+                    // Update the line position coordinate for the displayed line.
+                    linePosition.Y += myTextLine.Height;
+                }
+            }
+
+            dc.Close();
+
+            drawingBrush.Drawing = textDest;
+            //Rectangle r; r.Fill
+
+            /*
+<Rectangle>
+    <Rectangle.Fill>
+        <DrawingBrush x:Name="myDrawingBrush" Stretch="None" 
+            AlignmentY="Top" AlignmentX="Left" >
+            <DrawingBrush.Drawing>
+                <DrawingGroup x:Name="textDest" />
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+    </Rectangle.Fill>
+</Rectangle>
+             */
+            //myDrawingBrush.Drawing = textDest;
+
+            ShowDiag(vm);
+        }
+#else
         void show(ViewModel vm)
         {
             vm.Refresh();
@@ -61,14 +125,9 @@ public class MyControl : TextBlock
 
             //todo: 補完候補をポップアップ。
 
-            var (t, p) = buffer.GetPosition();
-            System.Diagnostics.Debug.WriteLine($"""
-cursor: {buffer.Cursor} token: {t} pos: {p}
-nodes: {string.Join(", ", vm.Semantics.Nodes)}
-candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {vm.SelectedCandidateIndex})
-
-""");
+            ShowDiag(vm);
         }
+#endif
 
         //todo: InputBindings KeyBinding でやった方がいい？
         TextInput += (sender, e) =>
@@ -138,5 +197,17 @@ candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {v
 
             if (table.TryGetValue(key, out var action)) action(vm);
         };
+    }
+
+    private static void ShowDiag(ViewModel vm)
+    {
+        var buffer = vm.Texts;
+        var (t, p) = buffer.GetPosition();
+        System.Diagnostics.Debug.WriteLine($"""
+cursor: {buffer.Cursor} token: {t} pos: {p}
+nodes: {string.Join(", ", vm.Semantics.Nodes)}
+candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {vm.SelectedCandidateIndex})
+
+""");
     }
 }

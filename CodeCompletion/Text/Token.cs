@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 
 namespace CodeCompletion.Text;
 
@@ -16,6 +16,12 @@ public struct Token()
     /// 中身。
     /// </summary>
     public readonly ReadOnlySpan<char> Span => Text.AsSpan(0, Written);
+
+    /// <summary>
+    /// 中身。
+    /// 描画都合で生配列が必要な時用。
+    /// </summary>
+    public readonly ArraySegment<char> ArraySegment => new(Text, 0, Written);
 
     /// <summary>
     /// <paramref name="position"/> の位置に <paramref name="s"/> を挿入する。

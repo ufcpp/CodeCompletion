@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace CodeCompletion.Text;
@@ -219,8 +219,10 @@ public class TextBuffer : ISpanFormattable
     /// <summary>
     /// <see cref="Cursor"/> 位置が何トークン目の何文字目かを取得。
     /// </summary>
-    public (int token, int position) GetPosition()
-        => GetPosition(CollectionsMarshal.AsSpan(_tokens), _cursor);
+    public (int token, int position) GetPosition() => GetPosition(_cursor);
+
+    public (int token, int position) GetPosition(int cursor)
+        => GetPosition(CollectionsMarshal.AsSpan(_tokens), cursor);
 
     private static (int token, int position) GetPosition(Span<Token> tokens, int cursor)
     {
