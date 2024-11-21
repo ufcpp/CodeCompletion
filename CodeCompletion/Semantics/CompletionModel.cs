@@ -6,7 +6,8 @@ public class CompletionModel(Type type)
 {
     public SemanticModel Semantics { get; } = new(type);
 
-    public IReadOnlyList<Candidate> Candidates { get; private set; } = [];
+    public IReadOnlyList<Candidate> Candidates => _candidates;
+    private readonly List<Candidate> _candidates = [];
     public int SelectedCandidateIndex { get; private set; }
 
     public TextBuffer Texts => Semantics.Texts;
@@ -16,7 +17,7 @@ public class CompletionModel(Type type)
     public void Refresh()
     {
         Semantics.Refresh();
-        Candidates = Semantics.GetCandidates();
+        Semantics.GetCandidates(_candidates);
     }
 
     /// <summary>

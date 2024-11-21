@@ -9,18 +9,17 @@ public abstract class Node
 
     public abstract IEnumerable<Candidate> GetCandidates();
 
-    public IReadOnlyList<Candidate> Filter(ReadOnlySpan<char> text)
+    public void Filter(ReadOnlySpan<char> text, IList<Candidate> results)
     {
-        List<Candidate>? candidates = null;
+        results.Clear();
         foreach (var candidate in GetCandidates())
         {
             if (candidate.Text is not { } ct
                 || ct.AsSpan().StartsWith(text, StringComparison.OrdinalIgnoreCase))
             {
-                (candidates ??= []).Add(candidate);
+                results.Add(candidate);
             }
         }
-        return candidates ?? [];
     }
 
     public virtual Candidate? Select(ReadOnlySpan<char> text)

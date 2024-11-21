@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace CodeCompletion.Text;
 
@@ -169,18 +170,46 @@ public class TextBuffer : ISpanFormattable
         var (token, position) = GetPosition(tokens, _cursor);
         ref var currentToken = ref tokens[token];
 
-        if (s.IsWhiteSpace())
+        //todo: s.EnumerateRunes でループ回す？
+        // IME で長文入力したときだけが関係するんだけど。
+        Rune.DecodeFromUtf16(s, out var c, out _);
+        var cat = TokenCategorizer.Categorize(currentToken.Span, c);
+
+        switch (cat)
+        {
+            case TokenSplit.Split:
+                split(ref currentToken);
+                break;
+            case TokenSplit.Insert:
+                insert(ref currentToken, s);
+                break;
+            case TokenSplit.InsertThenSplit:
+                insert(ref currentToken, s);
+                position += s.Length;
+                split(ref currentToken);
+                break;
+            case TokenSplit.SplitThenInsert:
+                split(ref currentToken);
+                if (position <= currentToken.Written)
+                {
+                    position = 0;
+                    insert(ref CollectionsMarshal.AsSpan(_tokens)[token + 1], s);
+                }
+                break;
+        }
+
+        void split(ref Token currentToken)
         {
             var newToken = currentToken.Split(position);
             _tokens.Insert(token + 1, newToken);
             _cursor++;
-            return;
         }
 
-        if (position > currentToken.Written) return;
-
-        currentToken.Insert(position, s);
-        _cursor += s.Length;
+        void insert(ref Token currentToken, ReadOnlySpan<char> s)
+        {
+            currentToken.Insert(position, s);
+            _cursor += s.Length;
+        }
     }
 
     public void Replace(ReadOnlySpan<char> s)
