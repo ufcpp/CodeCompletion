@@ -2,25 +2,22 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 
 namespace TrialWpfApp.Controls;
 
 public partial class CodeCompletionControl : ContentControl
 {
+
     private readonly TextView _text;
-    private readonly Line _caret;
-    private readonly Storyboard _caretBlink;
+    private readonly CaretView _caret;
 
     public CodeCompletionControl()
     {
         _text = new(this);
-        _caret = new() { StrokeThickness = 1, Stroke = Brushes.Black };
-        _caretBlink = Blink(_caret);
+        _caret = new();
         Content = new Canvas
         {
-            Children = { _text, _caret },
+            Children = { _text, _caret.Line },
         };
 
         Focusable = true;
@@ -110,38 +107,5 @@ candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {v
 """);
     }
 
-    private static Storyboard Blink(UIElement x)
-    {
-        var a = new DoubleAnimationUsingKeyFrames
-        {
-            KeyFrames =
-            {
-                new DiscreteDoubleKeyFrame(1, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(0))),
-                new DiscreteDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(500))),
-            }
-        };
-
-        var s = new Storyboard
-        {
-            Duration = TimeSpan.FromMilliseconds(1000),
-            RepeatBehavior = RepeatBehavior.Forever,
-            Children = { a },
-        };
-
-        Storyboard.SetTarget(a, x);
-        Storyboard.SetTargetProperty(a, new PropertyPath(OpacityProperty));
-        s.Begin();
-
-        return s;
-    }
-
-    internal void UpdateCaret(double x)
-    {
-        _caret.X1 = x;
-        _caret.Y1 = 0;
-        _caret.X2 = x;
-        _caret.Y2 = Height; // 改行を想定してない
-
-        _caretBlink.Seek(default);
-    }
+    internal void UpdateCaret(double x) => _caret.Update(x, Height);
 }
