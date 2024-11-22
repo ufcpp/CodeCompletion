@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -7,17 +8,31 @@ namespace TrialWpfApp.Controls;
 
 public partial class CodeCompletionControl : ContentControl
 {
-
     private readonly TextView _text;
     private readonly CaretView _caret;
+    private readonly CandidateSelector _candidates;
+    private readonly Popup _popup;
 
     public CodeCompletionControl()
     {
         _text = new(this);
         _caret = new();
+        _candidates = new();
+
+        _popup = new Popup
+        {
+            Child = _candidates,
+            PlacementTarget = this,
+            HorizontalOffset = 0,
+            VerticalOffset = 0,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            PopupAnimation = PopupAnimation.Slide,
+        };
+
         Content = new Canvas
         {
-            Children = { _text, _caret.Line },
+            Children = { _text, _caret.Line, _popup },
         };
 
         Focusable = true;
@@ -29,6 +44,7 @@ public partial class CodeCompletionControl : ContentControl
         void show(ViewModel vm)
         {
             vm.Refresh();
+            _candidates.Candidates = vm.Candidates;
             _text.InvalidateVisual();
             ShowDiag(vm);
         }
@@ -107,5 +123,10 @@ candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {v
 """);
     }
 
-    internal void UpdateCaret(double x) => _caret.Update(x, Height);
+    internal void UpdateCaret(double x)
+    {
+        _caret.Update(x, Height);
+        _popup.IsOpen = true;
+        _popup.HorizontalOffset = x;
+    }
 }
