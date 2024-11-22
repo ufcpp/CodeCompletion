@@ -1,4 +1,3 @@
-using CodeCompletion.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -53,65 +52,16 @@ public class MyControl : TextBlock
             show(vm);
         };
 
-        var table = new Dictionary<int, Action<ViewModel>>();
-
-        void neutral(Key key, Action<ViewModel> action) => table[(int)key] = action;
-        void ctrl(Key key, Action<ViewModel> action) => table[256 + (int)key] = action;
-        void either(Key key, Action<ViewModel> action) { neutral(key, action); ctrl(key, action); }
-
-        neutral(Key.Enter, vm =>
-        {
-            if (vm.Complete())
-            {
-                show(vm);
-            }
-        });
-
-        ctrl(Key.Enter, vm => vm.Filter());
-
-        either(Key.Down, vm => { vm.Next(); show(vm); });
-        either(Key.Up, vm => { vm.Prev(); show(vm); });
-
-        void move(ViewModel vm, CursorMove m)
-        {
-            vm.Texts.Move(m);
-            System.Diagnostics.Debug.WriteLine($"move: {m}");
-            show(vm);
-        }
-
-        neutral(Key.Left, vm => move(vm, CursorMove.Back));
-        neutral(Key.Right, vm => move(vm, CursorMove.Forward));
-        ctrl(Key.Left, vm => move(vm, CursorMove.StartToken));
-        ctrl(Key.Right, vm => move(vm, CursorMove.EndToken));
-        either(Key.Home, vm => move(vm, CursorMove.StartText));
-        either(Key.End, vm => move(vm, CursorMove.EndText));
-
-        void remove(ViewModel vm, CursorMove m)
-        {
-            vm.Texts.Remove(m);
-            System.Diagnostics.Debug.WriteLine($"remove: {m}");
-            show(vm);
-        }
-
-        neutral(Key.Back, vm => remove(vm, CursorMove.Back));
-        neutral(Key.Delete, vm => remove(vm, CursorMove.Forward));
-        ctrl(Key.Back, vm => remove(vm, CursorMove.StartToken));
-        ctrl(Key.Delete, vm => remove(vm, CursorMove.EndToken));
-
         KeyDown += (sender, e) =>
         {
             if (DataContext is not ViewModel vm) return;
 
-            var key = (int)e.Key;
+            var ctrl = Keyboard.GetKeyStates(Key.LeftCtrl).HasFlag(KeyStates.Down)
+                || Keyboard.GetKeyStates(Key.RightCtrl).HasFlag(KeyStates.Down);
 
-            if (Keyboard.GetKeyStates(Key.LeftCtrl).HasFlag(KeyStates.Down)
-                || Keyboard.GetKeyStates(Key.RightCtrl).HasFlag(KeyStates.Down)) key += 256;
-
-            if (table.TryGetValue(key, out var action))
-            {
-                action(vm);
-                e.Handled = true;
-            }
+            var (handled, invalidates) = Keybind.Handle(e.Key, ctrl, vm);
+            if (invalidates) show(vm);
+            if (handled) e.Handled = true;
         };
     }
 
