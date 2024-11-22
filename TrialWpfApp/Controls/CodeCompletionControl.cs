@@ -57,7 +57,7 @@ public class CodeCompletionControl : Control
         if (DataContext is not ViewModel vm) return;
 
         var formatter = TextFormatter.Create();
-        var prop = new GenericTextRunProperties(FontSize, FontSize, new Typeface(FontFamily, FontStyle, FontWeight, FontStretch));
+        var prop = new CommonTextProperties(FontSize, FontFamily, FontStyle, FontWeight, FontStretch);
         var textSource = new CodeCompletionTextSource(vm.Semantics, prop);
         var linePosition = new Point(0, 0);
 
@@ -71,7 +71,7 @@ public class CodeCompletionControl : Control
                 textSource,
                 textStorePosition,
                 96 * 6,
-                new ParaProp(Height, prop),
+                new GenericTextParagraphProperties(Height, prop),
                 null);
 
             // Draw the formatted text into the drawing context.
