@@ -33,7 +33,7 @@ internal class CodeCompletionTextSource(SemanticModel semantics, CommonTextPrope
         var (token, pos) = buffer.GetPosition(textSourceCharacterIndex);
         var array = buffer.Tokens[token].ArraySegment;
 
-        if (array.Count == 0) return new TextEndOfParagraph(1);
+        if (array.Count == 0) return new TextCharacters(" ", new GenericTextRunProperties(Brushes.Black, textRunProperties)); ;
         if (array.Count == pos) return new TextCharacters(" ", new GenericTextRunProperties(Brushes.Black, textRunProperties));
 
         var props = GetTextRunProperties(token);
