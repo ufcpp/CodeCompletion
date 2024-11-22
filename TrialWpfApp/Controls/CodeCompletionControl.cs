@@ -41,14 +41,15 @@ public class CodeCompletionControl : Control
         {
             if (DataContext is not ViewModel vm) return;
 
-            var ctrl = Keyboard.GetKeyStates(Key.LeftCtrl).HasFlag(KeyStates.Down)
-                || Keyboard.GetKeyStates(Key.RightCtrl).HasFlag(KeyStates.Down);
-
-            var (handled, invalidates) = Keybind.Handle(e.Key, ctrl, vm);
+            var (handled, invalidates) = Keybind.Handle(e.Key, CtrlKeyDown, vm);
             if (invalidates) show(vm);
             if (handled) e.Handled = true;
         };
     }
+
+    private static bool CtrlKeyDown
+        => Keyboard.GetKeyStates(Key.LeftCtrl).HasFlag(KeyStates.Down)
+        || Keyboard.GetKeyStates(Key.RightCtrl).HasFlag(KeyStates.Down);
 
     protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
     {
