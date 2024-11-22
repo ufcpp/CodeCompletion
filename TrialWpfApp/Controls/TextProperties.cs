@@ -28,13 +28,13 @@ internal class GenericTextRunProperties(Brush foregroundBrush, CommonTextPropert
     public override TextEffectCollection TextEffects => [];
 }
 
-internal class GenericTextParagraphProperties(double height, CommonTextProperties generalProps) : TextParagraphProperties
+internal class GenericTextParagraphProperties(double lineHeight, CommonTextProperties generalProps) : TextParagraphProperties
 {
-    public override TextRunProperties DefaultTextRunProperties => new GenericTextRunProperties(Brushes.Black, generalProps);
+    public override TextRunProperties DefaultTextRunProperties { get; } = new GenericTextRunProperties(Brushes.Black, generalProps);
     public override bool FirstLineInParagraph => true;
     public override FlowDirection FlowDirection => FlowDirection.LeftToRight;
     public override double Indent => 0;
-    public override double LineHeight => height;
+    public override double LineHeight => lineHeight;
     public override TextAlignment TextAlignment => TextAlignment.Left;
     public override TextMarkerProperties TextMarkerProperties => null!;
     public override TextWrapping TextWrapping => TextWrapping.Wrap;

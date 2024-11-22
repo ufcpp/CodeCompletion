@@ -5,9 +5,11 @@ using System.Windows.Media.TextFormatting;
 
 namespace TrialWpfApp.Controls;
 
-internal class CodeCompletionTextSource(SemanticModel semantics, CommonTextProperties textRunProperties) : TextSource
+internal class CodeCompletionTextSource(SemanticModel semantics, CommonTextProperties textRunProperties, double lineHeight) : TextSource
 {
     public int Length => semantics.Texts.TotalLength;
+
+    public GenericTextParagraphProperties ParagraphProperties { get; } = new(lineHeight, textRunProperties);
 
     public override TextSpan<CultureSpecificCharacterBufferRange> GetPrecedingText(int textSourceCharacterIndexLimit)
     {

@@ -73,16 +73,15 @@ public class CodeCompletionControl : Control
 
     private void UpdateTextProperties(bool updatesHeight = false)
     {
-        if (updatesHeight) Height = Math.Ceiling(FontFamily.LineSpacing * FontSize);
+        if (updatesHeight) Height = Math.Ceiling(FontFamily.LineSpacing * FontSize); // 改行を想定してない
         _textProperties = new CommonTextProperties(FontSize, FontFamily, FontStyle, FontWeight, FontStretch);
-
         UpdateViewModel();
     }
 
     private void UpdateViewModel()
     {
         _textSource = DataContext is ViewModel vm && _textProperties is { } prop
-            ? new(vm.Semantics, prop)
+            ? new(vm.Semantics, prop, Height) // 改行を想定してない
             : null;
     }
 
@@ -93,7 +92,7 @@ public class CodeCompletionControl : Control
         if (_textSource is not { } textSource) return;
 
         var formatter = TextFormatter.Create();
-        var prop = _textProperties;
+        var para = textSource.ParagraphProperties;
         var linePosition = new Point(0, 0);
 
         int textStorePosition = 0;
@@ -103,7 +102,7 @@ public class CodeCompletionControl : Control
                 textSource,
                 textStorePosition,
                 96 * 6,
-                new GenericTextParagraphProperties(Height, prop),
+                para,
                 null);
 
             myTextLine.Draw(drawingContext, linePosition, InvertAxes.None);
