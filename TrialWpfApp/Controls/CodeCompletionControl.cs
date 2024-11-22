@@ -14,6 +14,7 @@ public class CodeCompletionControl : Control
         Margin = new(5);
 
         Loaded += (_, _) => UpdateTextProperties(true);
+        DataContextChanged += (_, _) => UpdateViewModel();
 
         void show(ViewModel vm)
         {
@@ -68,30 +69,36 @@ public class CodeCompletionControl : Control
     }
 
     private CommonTextProperties _textProperties;
+    private CodeCompletionTextSource? _textSource;
 
     private void UpdateTextProperties(bool updatesHeight = false)
     {
         if (updatesHeight) Height = Math.Ceiling(FontFamily.LineSpacing * FontSize);
         _textProperties = new CommonTextProperties(FontSize, FontFamily, FontStyle, FontWeight, FontStretch);
+
+        UpdateViewModel();
+    }
+
+    private void UpdateViewModel()
+    {
+        _textSource = DataContext is ViewModel vm && _textProperties is { } prop
+            ? new(vm.Semantics, prop)
+            : null;
     }
 
     protected override void OnRender(DrawingContext drawingContext)
     {
         base.OnRender(drawingContext);
 
-        if (DataContext is not ViewModel vm) return;
+        if (_textSource is not { } textSource) return;
 
         var formatter = TextFormatter.Create();
         var prop = _textProperties;
-        var textSource = new CodeCompletionTextSource(vm.Semantics, prop);
         var linePosition = new Point(0, 0);
 
-        //TextParagraphProperties
-
         int textStorePosition = 0;
-        while (textStorePosition < vm.Texts.TotalLength)
+        while (textStorePosition < textSource.Length)
         {
-            // Create a textline from the text store using the TextFormatter object.
             using var myTextLine = formatter.FormatLine(
                 textSource,
                 textStorePosition,
@@ -99,13 +106,8 @@ public class CodeCompletionControl : Control
                 new GenericTextParagraphProperties(Height, prop),
                 null);
 
-            // Draw the formatted text into the drawing context.
             myTextLine.Draw(drawingContext, linePosition, InvertAxes.None);
-
-            // Update the index position in the text store.
             textStorePosition += myTextLine.Length;
-
-            // Update the line position coordinate for the displayed line.
             linePosition.Y += myTextLine.Height;
         }
     }

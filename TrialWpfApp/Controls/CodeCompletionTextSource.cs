@@ -1,6 +1,5 @@
 using CodeCompletion.Semantics;
 using System.Globalization;
-using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
 
@@ -8,6 +7,8 @@ namespace TrialWpfApp.Controls;
 
 internal class CodeCompletionTextSource(SemanticModel semantics, CommonTextProperties textRunProperties) : TextSource
 {
+    public int Length => semantics.Texts.TotalLength;
+
     public override TextSpan<CultureSpecificCharacterBufferRange> GetPrecedingText(int textSourceCharacterIndexLimit)
     {
         var buffer = semantics.Texts;
