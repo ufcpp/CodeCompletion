@@ -1,8 +1,6 @@
-using CodeCompletion.Semantics;
 using CodeCompletion.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
@@ -11,16 +9,6 @@ namespace TrialWpfApp;
 
 public class MyControl : TextBlock
 {
-    private static Brush? GetBrush(Node? n) => n switch
-    {
-        PropertyNode => Brushes.MidnightBlue,
-        PrimitivePropertyNode => Brushes.DarkGreen,
-        CompareNode => Brushes.DimGray,
-        LiteralNode => Brushes.DarkRed,
-        KeywordNode => Brushes.Blue,
-        _ => null,
-    };
-
     public MyControl()
     {
         Focusable = true;
@@ -39,7 +27,6 @@ public class MyControl : TextBlock
             Height = Math.Ceiling(FontFamily.LineSpacing * FontSize);
         };
 
-#if true
         void show(ViewModel vm)
         {
             vm.Refresh();
@@ -58,81 +45,29 @@ public class MyControl : TextBlock
             while (textStorePosition < vm.Texts.TotalLength)
             {
                 // Create a textline from the text store using the TextFormatter object.
-                using (var myTextLine = formatter.FormatLine(
+                using var myTextLine = formatter.FormatLine(
                     textSource,
                     textStorePosition,
                     96 * 6,
                     new ParaProp(Height, prop),
-                    null))
-                {
-                    // Draw the formatted text into the drawing context.
-                    myTextLine.Draw(dc, linePosition, InvertAxes.None);
+                    null);
 
-                    // Update the index position in the text store.
-                    textStorePosition += myTextLine.Length;
+                // Draw the formatted text into the drawing context.
+                myTextLine.Draw(dc, linePosition, InvertAxes.None);
 
-                    // Update the line position coordinate for the displayed line.
-                    linePosition.Y += myTextLine.Height;
-                }
+                // Update the index position in the text store.
+                textStorePosition += myTextLine.Length;
+
+                // Update the line position coordinate for the displayed line.
+                linePosition.Y += myTextLine.Height;
             }
 
             dc.Close();
 
             drawingBrush.Drawing = textDest;
-            //Rectangle r; r.Fill
-
-            /*
-<Rectangle>
-    <Rectangle.Fill>
-        <DrawingBrush x:Name="myDrawingBrush" Stretch="None" 
-            AlignmentY="Top" AlignmentX="Left" >
-            <DrawingBrush.Drawing>
-                <DrawingGroup x:Name="textDest" />
-            </DrawingBrush.Drawing>
-        </DrawingBrush>
-    </Rectangle.Fill>
-</Rectangle>
-             */
-            //myDrawingBrush.Drawing = textDest;
 
             ShowDiag(vm);
         }
-#else
-        void show(ViewModel vm)
-        {
-            vm.Refresh();
-
-            var buffer = vm.Texts;
-
-            //todo: 変化した Token に対応する部分だけ更新できないか。
-            Inlines.Clear();
-            var part = false;
-            for (var i = 0; i < vm.Texts.Tokens.Length; ++i)
-            {
-                if (part) Inlines.Add(" ");
-                else part = true;
-
-                var token = vm.Texts.Tokens[i];
-                var node = vm.Semantics.Nodes.ElementAtOrDefault(i);
-
-                //todo: Node のタイプで色分け。
-                if (GetBrush(node) is { } brush)
-                {
-                    Inlines.Add(new Run() { Text = token.Span.ToString(), Foreground = brush });
-                }
-                else
-                {
-                    Inlines.Add(token.Span.ToString());
-                }
-            }
-
-            //todo: カレット表示。
-
-            //todo: 補完候補をポップアップ。
-
-            ShowDiag(vm);
-        }
-#endif
 
         //todo: InputBindings KeyBinding でやった方がいい？
         TextInput += (sender, e) =>
