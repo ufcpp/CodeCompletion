@@ -6,7 +6,7 @@ using System.Windows.Media.TextFormatting;
 
 namespace TrialWpfApp;
 
-public class MyTextSource(SemanticModel semantics, GenericTextRunProperties textRunProperties) : TextSource
+public class CodeCompletionTextSource(SemanticModel semantics, GenericTextRunProperties textRunProperties) : TextSource
 {
     public override TextSpan<CultureSpecificCharacterBufferRange> GetPrecedingText(int textSourceCharacterIndexLimit)
     {

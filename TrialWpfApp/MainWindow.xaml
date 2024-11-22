@@ -18,7 +18,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <local:MyControl x:Name="texts" />
+        <local:CodeCompletionControl x:Name="texts" />
 
         <DataGrid Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{Binding FilteredItems}">
             <DataGrid.Columns>

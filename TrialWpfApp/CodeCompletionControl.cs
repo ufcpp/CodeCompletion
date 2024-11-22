@@ -6,9 +6,9 @@ using System.Windows.Media.TextFormatting;
 
 namespace TrialWpfApp;
 
-public class MyControl : Control
+public class CodeCompletionControl : Control
 {
-    public MyControl()
+    public CodeCompletionControl()
     {
         Focusable = true;
         Margin = new(5);
@@ -58,7 +58,7 @@ public class MyControl : Control
 
         var formatter = TextFormatter.Create();
         var prop = new GenericTextRunProperties(FontSize, FontSize, new Typeface(FontFamily, FontStyle, FontWeight, FontStretch));
-        var textSource = new MyTextSource(vm.Semantics, prop);
+        var textSource = new CodeCompletionTextSource(vm.Semantics, prop);
         var linePosition = new Point(0, 0);
 
         //TextParagraphProperties
