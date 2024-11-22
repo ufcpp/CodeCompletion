@@ -2,14 +2,24 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.TextFormatting;
+using System.Windows.Shapes;
 
 namespace TrialWpfApp.Controls;
 
-public class CodeCompletionControl : Control
+public partial class CodeCompletionControl : ContentControl
 {
+    private readonly TextView _text;
+    private readonly Line _caret;
+
     public CodeCompletionControl()
     {
+        _text = new(this);
+        _caret = new() { StrokeThickness = 1, Stroke = Brushes.Black };
+        Content = new Canvas
+        {
+            Children = { _text, _caret },
+        };
+
         Focusable = true;
         Margin = new(5);
 
@@ -19,7 +29,7 @@ public class CodeCompletionControl : Control
         void show(ViewModel vm)
         {
             vm.Refresh();
-            InvalidateVisual();
+            _text.InvalidateVisual();
             ShowDiag(vm);
         }
 
@@ -69,7 +79,7 @@ public class CodeCompletionControl : Control
     }
 
     private CommonTextProperties _textProperties;
-    private CodeCompletionTextSource? _textSource;
+    internal CodeCompletionTextSource? TextSource { get; private set; }
 
     private void UpdateTextProperties(bool updatesHeight = false)
     {
@@ -80,55 +90,10 @@ public class CodeCompletionControl : Control
 
     private void UpdateViewModel()
     {
-        _textSource = DataContext is ViewModel vm && _textProperties is { } prop
+        TextSource = DataContext is ViewModel vm && _textProperties is { } prop
             ? new(vm.Semantics, prop, Height) // 改行を想定してない
             : null;
     }
-
-    protected override void OnRender(DrawingContext drawingContext)
-    {
-        base.OnRender(drawingContext);
-
-        if (_textSource is not { } textSource) return;
-
-        var formatter = TextFormatter.Create();
-        var para = textSource.ParagraphProperties;
-        var linePosition = new Point(0, 0);
-
-        Point caretTop = default;
-        Point caretBottom = default;
-
-        int textStorePosition = 0;
-        while (textStorePosition < textSource.Length)
-        {
-            using var line = formatter.FormatLine(
-                textSource,
-                textStorePosition,
-                96 * 6,
-                para,
-                null);
-
-            line.Draw(drawingContext, linePosition, InvertAxes.None);
-
-            var prev = textStorePosition;
-            textStorePosition += line.Length;
-
-            var caret = textSource.CaretIndex;
-            if (prev <= caret && caret < textStorePosition)
-            {
-                var l = line.GetTextBounds(caret, 1)[0].Rectangle.Left;
-                var t = linePosition.Y;
-                caretTop = new Point(l, t);
-                caretBottom = new Point(l, t + line.Height);
-            }
-
-            linePosition.Y += line.Height;
-        }
-
-        drawingContext.DrawLine(CaretPen, caretTop, caretBottom);
-    }
-
-    private static readonly Pen CaretPen = new(Brushes.Black, 1);
 
     private static void ShowDiag(ViewModel vm)
     {
@@ -140,5 +105,13 @@ nodes: {string.Join(", ", vm.Semantics.Nodes)}
 candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {vm.SelectedCandidateIndex})
 
 """);
+    }
+
+    internal void UpdateCaret(double x)
+    {
+        _caret.X1 = x;
+        _caret.Y1 = 0;
+        _caret.X2 = x;
+        _caret.Y2 = Height; // 改行を想定してない
     }
 }
