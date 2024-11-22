@@ -4,9 +4,9 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
 
-namespace TrialWpfApp;
+namespace TrialWpfApp.Controls;
 
-public class CodeCompletionTextSource(SemanticModel semantics, GenericTextRunProperties textRunProperties) : TextSource
+internal class CodeCompletionTextSource(SemanticModel semantics, GenericTextRunProperties textRunProperties) : TextSource
 {
     public override TextSpan<CultureSpecificCharacterBufferRange> GetPrecedingText(int textSourceCharacterIndexLimit)
     {

@@ -4,7 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
 
-namespace TrialWpfApp;
+namespace TrialWpfApp.Controls;
 
 public class CodeCompletionControl : Control
 {

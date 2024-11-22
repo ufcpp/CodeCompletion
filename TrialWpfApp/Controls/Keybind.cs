@@ -1,7 +1,7 @@
 ﻿using CodeCompletion.Text;
 using System.Windows.Input;
 
-namespace TrialWpfApp;
+namespace TrialWpfApp.Controls;
 
 internal static class Keybind
 {
@@ -52,7 +52,7 @@ internal static class Keybind
     private static void Ctrl(this Dictionary<int, Func<ViewModel, bool>> table, Key key, Action<ViewModel> action) => table.Add(CtrlOffset + (int)key, action);
     private static void Either(this Dictionary<int, Func<ViewModel, bool>> table, Key key, Action<ViewModel> action) { table.Neutral(key, action); table.Ctrl(key, action); }
     private static void Neutral(this Dictionary<int, Func<ViewModel, bool>> table, Key key, Func<ViewModel, bool> func) => table.Add((int)key, func);
-    private static void Ctrl(this Dictionary<int, Func<ViewModel, bool>>  table, Key key, Func<ViewModel, bool> func) => table.Add(CtrlOffset + (int)key, func);
+    private static void Ctrl(this Dictionary<int, Func<ViewModel, bool>> table, Key key, Func<ViewModel, bool> func) => table.Add(CtrlOffset + (int)key, func);
 
     private static bool ReturnTrue<T>(this Action<T> action, T arg)
     {
