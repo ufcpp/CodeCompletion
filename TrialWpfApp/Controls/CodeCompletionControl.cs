@@ -95,21 +95,40 @@ public class CodeCompletionControl : Control
         var para = textSource.ParagraphProperties;
         var linePosition = new Point(0, 0);
 
+        Point caretTop = default;
+        Point caretBottom = default;
+
         int textStorePosition = 0;
         while (textStorePosition < textSource.Length)
         {
-            using var myTextLine = formatter.FormatLine(
+            using var line = formatter.FormatLine(
                 textSource,
                 textStorePosition,
                 96 * 6,
                 para,
                 null);
 
-            myTextLine.Draw(drawingContext, linePosition, InvertAxes.None);
-            textStorePosition += myTextLine.Length;
-            linePosition.Y += myTextLine.Height;
+            line.Draw(drawingContext, linePosition, InvertAxes.None);
+
+            var prev = textStorePosition;
+            textStorePosition += line.Length;
+
+            var caret = textSource.CaretIndex;
+            if (prev <= caret && caret < textStorePosition)
+            {
+                var l = line.GetTextBounds(caret, 1)[0].Rectangle.Left;
+                var t = linePosition.Y;
+                caretTop = new Point(l, t);
+                caretBottom = new Point(l, t + line.Height);
+            }
+
+            linePosition.Y += line.Height;
         }
+
+        drawingContext.DrawLine(CaretPen, caretTop, caretBottom);
     }
+
+    private static readonly Pen CaretPen = new(Brushes.Black, 1);
 
     private static void ShowDiag(ViewModel vm)
     {

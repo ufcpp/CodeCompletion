@@ -8,6 +8,7 @@ namespace TrialWpfApp.Controls;
 internal class CodeCompletionTextSource(SemanticModel semantics, CommonTextProperties textRunProperties, double lineHeight) : TextSource
 {
     public int Length => semantics.Texts.TotalLength;
+    public int CaretIndex => semantics.Texts.Cursor;
 
     public GenericTextParagraphProperties ParagraphProperties { get; } = new(lineHeight, textRunProperties);
 
