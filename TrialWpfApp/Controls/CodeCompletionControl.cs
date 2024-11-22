@@ -50,6 +50,24 @@ public class CodeCompletionControl : Control
         };
     }
 
+    protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+
+        if (e.Property == FontSizeProperty
+            || e.Property == FontFamilyProperty)
+        {
+            Height = Math.Ceiling(FontFamily.LineSpacing * FontSize);
+            InvalidateVisual();
+        }
+        else if (e.Property == FontStyleProperty
+            || e.Property == FontWeightProperty
+            || e.Property == FontStretchProperty)
+        {
+            InvalidateVisual();
+        }
+    }
+
     protected override void OnRender(DrawingContext drawingContext)
     {
         base.OnRender(drawingContext);
