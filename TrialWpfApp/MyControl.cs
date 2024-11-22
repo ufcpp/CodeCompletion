@@ -6,20 +6,12 @@ using System.Windows.Media.TextFormatting;
 
 namespace TrialWpfApp;
 
-public class MyControl : TextBlock
+public class MyControl : Control
 {
     public MyControl()
     {
         Focusable = true;
         Margin = new(5);
-
-        var drawingBrush = new DrawingBrush
-        {
-            Stretch = Stretch.None,
-            AlignmentX = AlignmentX.Left,
-            AlignmentY = AlignmentY.Top,
-        };
-        Background = drawingBrush;
 
         Loaded += (_, _) =>
         {
@@ -29,14 +21,7 @@ public class MyControl : TextBlock
         void show(ViewModel vm)
         {
             vm.Refresh();
-
-            var textDest = new DrawingGroup();
-            DrawingContext dc = textDest.Open();
-
-            Render(vm, dc);
-
-            drawingBrush.Drawing = textDest;
-
+            InvalidateVisual();
             ShowDiag(vm);
         }
 
@@ -65,8 +50,12 @@ public class MyControl : TextBlock
         };
     }
 
-    private void Render(ViewModel vm, DrawingContext dc)
+    protected override void OnRender(DrawingContext drawingContext)
     {
+        base.OnRender(drawingContext);
+
+        if (DataContext is not ViewModel vm) return;
+
         var formatter = TextFormatter.Create();
         var prop = new GenericTextRunProperties(FontSize, FontSize, new Typeface(FontFamily, FontStyle, FontWeight, FontStretch));
         var textSource = new MyTextSource(vm.Semantics, prop);
@@ -86,7 +75,7 @@ public class MyControl : TextBlock
                 null);
 
             // Draw the formatted text into the drawing context.
-            myTextLine.Draw(dc, linePosition, InvertAxes.None);
+            myTextLine.Draw(drawingContext, linePosition, InvertAxes.None);
 
             // Update the index position in the text store.
             textStorePosition += myTextLine.Length;
@@ -94,8 +83,6 @@ public class MyControl : TextBlock
             // Update the line position coordinate for the displayed line.
             linePosition.Y += myTextLine.Height;
         }
-
-        dc.Close();
     }
 
     private static void ShowDiag(ViewModel vm)
