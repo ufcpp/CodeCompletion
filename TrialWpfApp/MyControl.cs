@@ -34,35 +34,7 @@ public class MyControl : TextBlock
             var textDest = new DrawingGroup();
             DrawingContext dc = textDest.Open();
 
-            var formatter = TextFormatter.Create();
-            var prop = new GenericTextRunProperties(FontSize, FontSize, new Typeface(FontFamily, FontStyle, FontWeight, FontStretch));
-            var textSource = new MyTextSource(vm.Semantics, prop);
-            var linePosition = new Point(0, 0);
-
-            //TextParagraphProperties
-
-            int textStorePosition = 0;
-            while (textStorePosition < vm.Texts.TotalLength)
-            {
-                // Create a textline from the text store using the TextFormatter object.
-                using var myTextLine = formatter.FormatLine(
-                    textSource,
-                    textStorePosition,
-                    96 * 6,
-                    new ParaProp(Height, prop),
-                    null);
-
-                // Draw the formatted text into the drawing context.
-                myTextLine.Draw(dc, linePosition, InvertAxes.None);
-
-                // Update the index position in the text store.
-                textStorePosition += myTextLine.Length;
-
-                // Update the line position coordinate for the displayed line.
-                linePosition.Y += myTextLine.Height;
-            }
-
-            dc.Close();
+            Render(vm, dc);
 
             drawingBrush.Drawing = textDest;
 
@@ -141,6 +113,39 @@ public class MyControl : TextBlock
                 e.Handled = true;
             }
         };
+    }
+
+    private void Render(ViewModel vm, DrawingContext dc)
+    {
+        var formatter = TextFormatter.Create();
+        var prop = new GenericTextRunProperties(FontSize, FontSize, new Typeface(FontFamily, FontStyle, FontWeight, FontStretch));
+        var textSource = new MyTextSource(vm.Semantics, prop);
+        var linePosition = new Point(0, 0);
+
+        //TextParagraphProperties
+
+        int textStorePosition = 0;
+        while (textStorePosition < vm.Texts.TotalLength)
+        {
+            // Create a textline from the text store using the TextFormatter object.
+            using var myTextLine = formatter.FormatLine(
+                textSource,
+                textStorePosition,
+                96 * 6,
+                new ParaProp(Height, prop),
+                null);
+
+            // Draw the formatted text into the drawing context.
+            myTextLine.Draw(dc, linePosition, InvertAxes.None);
+
+            // Update the index position in the text store.
+            textStorePosition += myTextLine.Length;
+
+            // Update the line position coordinate for the displayed line.
+            linePosition.Y += myTextLine.Height;
+        }
+
+        dc.Close();
     }
 
     private static void ShowDiag(ViewModel vm)
