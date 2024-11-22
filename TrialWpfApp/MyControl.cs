@@ -26,7 +26,12 @@ public class MyControl : TextBlock
         Focusable = true;
         Margin = new(5);
 
-        var drawingBrush = new DrawingBrush();
+        var drawingBrush = new DrawingBrush
+        {
+            Stretch = Stretch.None,
+            AlignmentX = AlignmentX.Left,
+            AlignmentY = AlignmentY.Top,
+        };
         Background = drawingBrush;
 
         Loaded += (_, _) =>
