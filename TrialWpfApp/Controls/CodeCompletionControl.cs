@@ -13,10 +13,7 @@ public class CodeCompletionControl : Control
         Focusable = true;
         Margin = new(5);
 
-        Loaded += (_, _) =>
-        {
-            Height = Math.Ceiling(FontFamily.LineSpacing * FontSize);
-        };
+        Loaded += (_, _) => UpdateTextProperties(true);
 
         void show(ViewModel vm)
         {
@@ -58,15 +55,24 @@ public class CodeCompletionControl : Control
         if (e.Property == FontSizeProperty
             || e.Property == FontFamilyProperty)
         {
-            Height = Math.Ceiling(FontFamily.LineSpacing * FontSize);
+            UpdateTextProperties(true);
             InvalidateVisual();
         }
         else if (e.Property == FontStyleProperty
             || e.Property == FontWeightProperty
             || e.Property == FontStretchProperty)
         {
+            UpdateTextProperties();
             InvalidateVisual();
         }
+    }
+
+    private CommonTextProperties _textProperties;
+
+    private void UpdateTextProperties(bool updatesHeight = false)
+    {
+        if (updatesHeight) Height = Math.Ceiling(FontFamily.LineSpacing * FontSize);
+        _textProperties = new CommonTextProperties(FontSize, FontFamily, FontStyle, FontWeight, FontStretch);
     }
 
     protected override void OnRender(DrawingContext drawingContext)
@@ -76,7 +82,7 @@ public class CodeCompletionControl : Control
         if (DataContext is not ViewModel vm) return;
 
         var formatter = TextFormatter.Create();
-        var prop = new CommonTextProperties(FontSize, FontFamily, FontStyle, FontWeight, FontStretch);
+        var prop = _textProperties;
         var textSource = new CodeCompletionTextSource(vm.Semantics, prop);
         var linePosition = new Point(0, 0);
 
