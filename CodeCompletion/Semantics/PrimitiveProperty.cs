@@ -44,6 +44,7 @@ public class PrimitivePropertyNode(Type type) : Node
             new CompareCandidate(type, ComparisonType.LessThanOrEqual),
             new CompareCandidate(type, ComparisonType.GreaterThan),
             new CompareCandidate(type, ComparisonType.GreaterThanOrEqual),
+            new FixedCandidate("~", new RegexNode()), //todo: 演算子何にするか問題。他に / とかもありかも。
             new FixedCandidate(IntrinsicNames.Length, new IntrinsicNode(IntrinsicNames.Length, typeof(string), typeof(int))),
         ];
         else if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return
@@ -73,4 +74,10 @@ public class PrimitivePropertyNode(Type type) : Node
     }
 
     public override string ToString() => $"Property of {Type.Name}";
+}
+
+public class RegexNode : Node
+{
+    private static readonly Candidate[] _candidates = [new FixedCandidate(null, new LiteralNode(typeof(string)))];
+    public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context) => _candidates;
 }

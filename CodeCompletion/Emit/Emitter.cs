@@ -39,6 +39,11 @@ internal class Emitter
                 if (matcher is null) return null;
                 return Intrinsic.Create(intrinsic.Name, intrinsic.SourceType, matcher);
             }
+            else if (next.Head is RegexNode)
+            {
+                if (next.Next().Head is not LiteralNode) return null;
+                return new RegexMatcher(next.Token.Span.ToString());
+            }
 
             if (next.Head is not CompareNode c) return null;
 
