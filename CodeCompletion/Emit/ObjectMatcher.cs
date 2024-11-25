@@ -8,6 +8,12 @@ internal abstract class ObjectMatcher
     public abstract bool Match(object? value);
 }
 
+internal abstract class ObjectMatcher<T> : ObjectMatcher
+{
+    public override bool Match(object? value) => value is T x && Match(x);
+    public abstract bool Match(T value);
+}
+
 internal class And(params ObjectMatcher[] children) : ObjectMatcher
 {
     public override bool Match(object? value)
@@ -136,34 +142,34 @@ internal class Compare<T>
         _ => throw new NotImplementedException()
     };
 
-    private class Equal(T operand) : ObjectMatcher
+    private class Equal(T operand) : ObjectMatcher<T>
     {
-        public override bool Match(object? value) => value is T t && t.CompareTo(operand) == 0;
+        public override bool Match(T value) => value.CompareTo(operand) == 0;
     }
 
-    private class NotEqual(T operand) : ObjectMatcher
+    private class NotEqual(T operand) : ObjectMatcher<T>
     {
-        public override bool Match(object? value) => value is T t && t.CompareTo(operand) != 0;
+        public override bool Match(T value) => value.CompareTo(operand) != 0;
     }
 
-    private class GreaterThan(T operand) : ObjectMatcher
+    private class GreaterThan(T operand) : ObjectMatcher<T>
     {
-        public override bool Match(object? value) => value is T t && t.CompareTo(operand) > 0;
+        public override bool Match(T value) => value.CompareTo(operand) > 0;
     }
 
-    private class GreaterThanOrEqual(T operand) : ObjectMatcher
+    private class GreaterThanOrEqual(T operand) : ObjectMatcher<T>
     {
-        public override bool Match(object? value) => value is T t && t.CompareTo(operand) >= 0;
+        public override bool Match(T value) => value.CompareTo(operand) >= 0;
     }
 
-    private class LessThan(T operand) : ObjectMatcher
+    private class LessThan(T operand) : ObjectMatcher<T>
     {
-        public override bool Match(object? value) => value is T t && t.CompareTo(operand) < 0;
+        public override bool Match(T value) => value.CompareTo(operand) < 0;
     }
 
-    private class LessThanOrEqual(T operand) : ObjectMatcher
+    private class LessThanOrEqual(T operand) : ObjectMatcher<T>
     {
-        public override bool Match(object? value) => value is T t && t.CompareTo(operand) <= 0;
+        public override bool Match(T value) => value.CompareTo(operand) <= 0;
     }
 }
 
@@ -174,7 +180,7 @@ internal static class Intrinsic
         if (type == typeof(float)) return FloatIntrinsic<float>.Create(name, matcher);
         if (type == typeof(double)) return FloatIntrinsic<double>.Create(name, matcher);
         if (type == typeof(decimal)) return FloatIntrinsic<decimal>.Create(name, matcher);
-        if (type == typeof(string) && name == ".length") return new Length(matcher);
+        if (type == typeof(string) && name == IntrinsicNames.Length) return new Length(matcher);
         return null;
     }
 }
@@ -190,18 +196,18 @@ internal static class FloatIntrinsic<T>
         _ => null
     };
 
-    private class Ceiling(ObjectMatcher matcher) : ObjectMatcher
+    private class Ceiling(ObjectMatcher matcher) : ObjectMatcher<T>
     {
-        public override bool Match(object? value) => value is T t && matcher.Match(T.ConvertToInteger<long>(T.Ceiling(t)));
+        public override bool Match(T value) => matcher.Match(T.ConvertToInteger<long>(T.Ceiling(value)));
     }
 
-    private class Floor(ObjectMatcher matcher) : ObjectMatcher
+    private class Floor(ObjectMatcher matcher) : ObjectMatcher<T>
     {
-        public override bool Match(object? value) => value is T t && matcher.Match(T.ConvertToInteger<long>(T.Floor(t)));
+        public override bool Match(T value) => matcher.Match(T.ConvertToInteger<long>(T.Floor(value)));
     }
 
-    private class Round(ObjectMatcher matcher) : ObjectMatcher
+    private class Round(ObjectMatcher matcher) : ObjectMatcher<T>
     {
-        public override bool Match(object? value) => value is T t && matcher.Match(T.ConvertToInteger<long>(T.Round(t)));
+        public override bool Match(T value) => matcher.Match(T.ConvertToInteger<long>(T.Round(value)));
     }
 }
