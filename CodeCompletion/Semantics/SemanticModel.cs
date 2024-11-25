@@ -21,7 +21,9 @@ public class SemanticModel
         Refresh();
     }
 
+    public Node Root => _root;
     public IEnumerable<Node?> Nodes => _nodes;
+    internal ReadOnlySpan<Node?> NodesAsSpan => CollectionsMarshal.AsSpan(_nodes);
 
     public void GetCandidates(IList<Candidate> results)
     {
@@ -60,10 +62,7 @@ public class SemanticModel
 
     public Func<object?, bool>? Emit()
     {
-        var c = new EmitContext((PropertyNode)_root,
-            CollectionsMarshal.AsSpan(_nodes)!,
-            Texts.Tokens);
-
-        return Emitter.Emit(c);
+        var tree = new SyntaxTree(this);
+        return tree.Emit();
     }
 }

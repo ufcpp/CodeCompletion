@@ -2,31 +2,9 @@
 
 namespace CodeCompletion.Emit;
 
-public class Emitter
+internal class Emitter
 {
-    // Node 自体にインスタンスメソッドで持たせる？
-    // その場合、「Compare は後ろの Literal を参照する」みたいなのとか、
-    // AND/OR をどうやろう？
-    // やっぱ AST なレイヤー要る？
-
-    // エラーどうしよう？
-    // Func or Error な union 返す？
-    // 例外？
-    public static Func<object?, bool>? Emit(EmitContext context)
-    {
-        var matcher = EmitInternal(context);
-
-        if (matcher is null)
-        {
-            // 例外？
-            // Result<Func, Error> ?
-            return null;
-        }
-
-        return matcher.Match;
-    }
-
-    private static ObjectMatcher? EmitInternal(EmitContext context)
+    public static ObjectMatcher? Emit(EmitContext context)
     {
         if (context.IsDefault) return null;
 
@@ -46,7 +24,7 @@ public class Emitter
                 };
             }
 
-            var matcher = EmitInternal(context.Next());
+            var matcher = Emit(context.Next());
             if (matcher is null) return null;
             return new Property(context.Token.Span.ToString(), matcher);
         }
