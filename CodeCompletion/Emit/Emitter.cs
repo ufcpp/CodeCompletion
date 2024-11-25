@@ -33,11 +33,11 @@ internal class Emitter
         {
             var next = context.Next();
 
-            if (next.Head is LengthNode)
+            if (next.Head is IntrinsicNode intrinsic)
             {
                 var matcher = Emit(next);
                 if (matcher is null) return null;
-                return new Length(matcher);
+                return Intrinsic.Create(intrinsic.Name, intrinsic.SourceType, matcher);
             }
 
             if (next.Head is not CompareNode c) return null;

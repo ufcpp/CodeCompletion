@@ -1,4 +1,5 @@
 ﻿using CodeCompletion.Semantics;
+using System.Numerics;
 
 namespace CodeCompletion.Emit;
 
@@ -166,3 +167,41 @@ internal class Compare<T>
     }
 }
 
+internal static class Intrinsic
+{
+    public static ObjectMatcher? Create(string name, Type type, ObjectMatcher matcher)
+    {
+        if (type == typeof(float)) return FloatIntrinsic<float>.Create(name, matcher);
+        if (type == typeof(double)) return FloatIntrinsic<double>.Create(name, matcher);
+        if (type == typeof(decimal)) return FloatIntrinsic<decimal>.Create(name, matcher);
+        if (type == typeof(string) && name == ".length") return new Length(matcher);
+        return null;
+    }
+}
+
+internal static class FloatIntrinsic<T>
+    where T : IFloatingPoint<T>
+{
+    public static ObjectMatcher? Create(string name, ObjectMatcher matcher) => name switch
+    {
+        IntrinsicNames.Ceiling => new Ceiling(matcher),
+        IntrinsicNames.Floor => new Floor(matcher),
+        IntrinsicNames.Round => new Round(matcher),
+        _ => null
+    };
+
+    private class Ceiling(ObjectMatcher matcher) : ObjectMatcher
+    {
+        public override bool Match(object? value) => value is T t && matcher.Match(T.ConvertToInteger<long>(T.Ceiling(t)));
+    }
+
+    private class Floor(ObjectMatcher matcher) : ObjectMatcher
+    {
+        public override bool Match(object? value) => value is T t && matcher.Match(T.ConvertToInteger<long>(T.Floor(t)));
+    }
+
+    private class Round(ObjectMatcher matcher) : ObjectMatcher
+    {
+        public override bool Match(object? value) => value is T t && matcher.Match(T.ConvertToInteger<long>(T.Round(t)));
+    }
+}

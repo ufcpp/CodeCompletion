@@ -44,7 +44,19 @@ public class PrimitivePropertyNode(Type type) : Node
             new CompareCandidate(type, ComparisonType.LessThanOrEqual),
             new CompareCandidate(type, ComparisonType.GreaterThan),
             new CompareCandidate(type, ComparisonType.GreaterThanOrEqual),
-            new FixedCandidate(".length", new LengthNode()),
+            new FixedCandidate(IntrinsicNames.Length, new IntrinsicNode(IntrinsicNames.Length, typeof(string), typeof(int))),
+        ];
+        else if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return
+        [
+            new CompareCandidate(type, ComparisonType.Equal),
+            new CompareCandidate(type, ComparisonType.NotEqual),
+            new CompareCandidate(type, ComparisonType.LessThan),
+            new CompareCandidate(type, ComparisonType.LessThanOrEqual),
+            new CompareCandidate(type, ComparisonType.GreaterThan),
+            new CompareCandidate(type, ComparisonType.GreaterThanOrEqual),
+            new FixedCandidate(IntrinsicNames.Ceiling, new IntrinsicNode(IntrinsicNames.Ceiling, type, typeof(long))),
+            new FixedCandidate(IntrinsicNames.Floor, new IntrinsicNode(IntrinsicNames.Floor, type, typeof(long))),
+            new FixedCandidate(IntrinsicNames.Round, new IntrinsicNode(IntrinsicNames.Round, type, typeof(long))),
         ];
         else return
         [
@@ -60,11 +72,23 @@ public class PrimitivePropertyNode(Type type) : Node
         //todo: 時刻系、hour, min, sec, ...?
     }
 
-
     public override string ToString() => $"Property of {Type.Name}";
 }
 
-public class LengthNode() : PrimitivePropertyNode(typeof(int))
+internal class IntrinsicNames
 {
-    public override string ToString() => ".length";
+    public const string Length = ".length";
+    public const string Ceiling = ".ceil";
+    public const string Floor = ".floor";
+    public const string Round = ".round";
+}
+
+/// <summary>
+/// 文字列に対する .length みたいな、組み込みプロパティ。
+/// </summary>
+public class IntrinsicNode(string name, Type sourceType, Type resultType) : PrimitivePropertyNode(resultType)
+{
+    public string Name { get; } = name;
+    public Type SourceType { get; } = sourceType;
+    public override string ToString() => $"Intrinsic {Name}";
 }
