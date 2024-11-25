@@ -44,6 +44,18 @@ internal class Property(string name, ObjectMatcher mather) : ObjectMatcher
     }
 }
 
+internal class Length(ObjectMatcher mather) : ObjectMatcher
+{
+    public override bool Match(object? value)
+    {
+        if (value is null) return false;
+
+        if (value is string s) return mather.Match(s.Length);
+        //todo: T[] 対応
+        return false;
+    }
+}
+
 internal static class Compare
 {
     public static ObjectMatcher? Create(ComparisonType comparison, Type type, ReadOnlySpan<char> valueSpan)

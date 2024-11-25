@@ -24,7 +24,7 @@ internal class Emitter
                 };
             }
 
-            var matcher = Emit(context.Next());
+            var matcher = Emit(next);
             if (matcher is null) return null;
             return new Property(context.Token.Span.ToString(), matcher);
         }
@@ -32,6 +32,14 @@ internal class Emitter
         if (context.Head is PrimitivePropertyNode p)
         {
             var next = context.Next();
+
+            if (next.Head is LengthNode)
+            {
+                var matcher = Emit(next);
+                if (matcher is null) return null;
+                return new Length(matcher);
+            }
+
             if (next.Head is not CompareNode c) return null;
 
             var next2 = next.Next();
