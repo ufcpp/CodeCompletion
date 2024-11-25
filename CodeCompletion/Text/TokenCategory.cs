@@ -13,6 +13,7 @@ public enum TokenCategory
     HexNumber,
     Operator,
     String,
+    Punctuation,
 }
 
 public enum TokenSplit
@@ -66,6 +67,8 @@ public static class TokenCategorizer
 
         if (c is '"' or '\'') return TokenCategory.String;
 
+        if (c is ',' or '(' or ')') return TokenCategory.Punctuation;
+
         return TokenCategory.Unknown;
     }
 
@@ -105,6 +108,8 @@ public static class TokenCategorizer
                 if (c.Value is '"' or '\'') return TokenSplit.InsertThenSplit;
                 //todo: \" とかの escape 判定
                 return TokenSplit.Insert;
+            case TokenCategory.Punctuation:
+                return TokenSplit.SplitThenInsert;
         }
 
         if (isWhiteSpace(c)) return TokenSplit.Split;
