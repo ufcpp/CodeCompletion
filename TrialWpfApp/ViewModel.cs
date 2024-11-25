@@ -1,6 +1,7 @@
 ﻿using CodeCompletion.Semantics;
 using CodeCompletion.Text;
 using System.Collections;
+using System.Collections.Specialized;
 using System.ComponentModel;
 
 namespace TrialWpfApp;
@@ -30,8 +31,15 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
     public SemanticModel Semantics => Completion.Semantics;
     public TextBuffer Texts => Semantics.Texts;
 
-    public void Refresh() => Completion.Refresh();
-    public IReadOnlyList<Candidate> Candidates => Completion.Candidates;
+    private Wrap<Candidate>? _candidates;
+    public IReadOnlyList<Candidate> Candidates => _candidates ??= new(Completion.Candidates);
+
+    public void Refresh()
+    {
+        Completion.Refresh();
+        _candidates?.Invalidate();
+    }
+
     public int SelectedCandidateIndex => Completion.SelectedCandidateIndex;
     public bool Complete() => Completion.Complete();
     public void Next() => Completion.Next();
@@ -62,5 +70,24 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+}
+
+class Wrap<T>(IReadOnlyList<T> inner) : IReadOnlyList<T>, INotifyCollectionChanged
+{
+    public T this[int index] => inner[index];
+    public int Count => inner.Count;
+    public IEnumerator<T> GetEnumerator() => inner.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)inner).GetEnumerator();
+
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
+
+    private static NotifyCollectionChangedEventArgs _reset = new(NotifyCollectionChangedAction.Reset);
+
+    public void Invalidate() => CollectionChanged?.Invoke(this, _reset);
+}
+
+static class WrapExtensions
+{
+    public static Wrap<T> Wrap<T>(this IReadOnlyList<T> inner) => new(inner);
 }
 
