@@ -19,4 +19,13 @@ public partial class CandidateSelector : UserControl
 
     public static readonly DependencyProperty CandidatesProperty =
         DependencyProperty.Register(nameof(Candidates), typeof(IReadOnlyList<Candidate>), typeof(CandidateSelector), new PropertyMetadata(null));
+
+    public int SelectedIndex
+    {
+        get { return (int)GetValue(SelectedIndexProperty); }
+        set { SetValue(SelectedIndexProperty, value); }
+    }
+
+    public static readonly DependencyProperty SelectedIndexProperty =
+        DependencyProperty.Register(nameof(SelectedIndex), typeof(int), typeof(CandidateSelector), new PropertyMetadata(0));
 }

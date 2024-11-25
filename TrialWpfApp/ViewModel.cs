@@ -31,16 +31,31 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
     public SemanticModel Semantics => Completion.Semantics;
     public TextBuffer Texts => Semantics.Texts;
 
-    private Wrap<Candidate>? _candidates;
-    public IReadOnlyList<Candidate> Candidates => _candidates ??= new(Completion.Candidates);
-
     public void Refresh()
     {
         Completion.Refresh();
         _candidates?.Invalidate();
+        SelectedCandidateIndex = Completion.SelectedCandidateIndex;
     }
 
-    public int SelectedCandidateIndex => Completion.SelectedCandidateIndex;
+    private Wrap<Candidate>? _candidates;
+    public IReadOnlyList<Candidate> Candidates => _candidates ??= new(Completion.Candidates);
+
+    private int _index;
+    public int SelectedCandidateIndex
+    {
+        get => _index;
+        set
+        {
+            if(_index != value)
+            {
+                _index = value;
+                PropertyChanged?.Invoke(this, SelectedCandidateIndexChanged);
+            }
+        }
+    }
+    private static readonly PropertyChangedEventArgs SelectedCandidateIndexChanged = new(nameof(SelectedCandidateIndex));
+
     public bool Complete() => Completion.Complete();
     public void Next() => Completion.Next();
     public void Prev() => Completion.Prev();
@@ -49,9 +64,9 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
     public IEnumerable FilteredItems
     {
         get => _filteredItems;
-        private set { _filteredItems = value; PropertyChanged?.Invoke(this, _filteredItemsChanged); }
+        private set { _filteredItems = value; PropertyChanged?.Invoke(this, FilteredItemsChanged); }
     }
-    private static readonly PropertyChangedEventArgs _filteredItemsChanged = new(nameof(FilteredItems));
+    private static readonly PropertyChangedEventArgs FilteredItemsChanged = new(nameof(FilteredItems));
 
     public void Filter()
     {

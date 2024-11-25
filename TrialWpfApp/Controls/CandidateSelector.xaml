@@ -7,7 +7,9 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="root">
-    <ListBox ItemsSource="{Binding Candidates, ElementName=root}">
+    <ListBox
+        ItemsSource="{Binding Candidates, ElementName=root}"
+        SelectedIndex="{Binding SelectedIndex, ElementName=root}">
         <ListBox.ItemTemplate>
             <DataTemplate>
                 <TextBlock Text="{Binding Text}" />

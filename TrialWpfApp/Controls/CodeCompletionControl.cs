@@ -45,6 +45,7 @@ public partial class CodeCompletionControl : ContentControl
         {
             vm.Refresh();
             _candidates.Candidates = vm.Candidates;
+            _candidates.SelectedIndex = vm.SelectedCandidateIndex;
             _text.InvalidateVisual();
             ShowDiag(vm);
         }
