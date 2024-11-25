@@ -1,24 +1,14 @@
 ﻿namespace CodeCompletion.Semantics;
 
-public class KeywordNode(string keyword) : Node
+public class KeywordNode(string keyword) : ValueNode
 {
     public string Keyword { get; } = keyword;
-
-    public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context) => [
-            // , &, |, )
-        ];
     public override string ToString() => $"Keyword {Keyword}";
 }
 
-public class KeywordCandidate(string keyword) : Candidate
+static class KeywordCandidate
 {
-    public override string? Text => keyword;
-
-    private readonly KeywordNode _singleton = new(keyword);
-
-    public override Node GetNode() => _singleton;
-
-    public static readonly KeywordCandidate Null = new("null");
-    public static readonly KeywordCandidate True = new("true");
-    public static readonly KeywordCandidate False = new("false");
+    public static readonly FixedCandidate Null = new("null", new KeywordNode("null"));
+    public static readonly FixedCandidate True = new("true", new KeywordNode("true"));
+    public static readonly FixedCandidate False = new("false", new KeywordNode("false"));
 }

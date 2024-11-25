@@ -19,7 +19,7 @@ public class CompareNode(Type type, ComparisonType comparison) : Node
         type == typeof(bool) ? [KeywordCandidate.True, KeywordCandidate.False] :
         //todo: nullable struct
         //todo: string は [ KeywordCandidate.Null, new LiteralCandidate(type)] にする？
-        [new LiteralCandidate(type)];
+        [new FixedCandidate(null, new LiteralNode(type))];
 
     public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context) => _candidates;
 
