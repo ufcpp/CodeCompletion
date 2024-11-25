@@ -5,14 +5,52 @@ namespace CodeCompletion.Text;
 
 public enum TokenCategory
 {
+    /// <summary>
+    /// 不明。
+    /// </summary>
     Unknown,
+
+    /// <summary>
+    /// 空文字列。
+    /// </summary>
     Empty,
+
+    /// <summary>
+    /// 空白。
+    /// </summary>
     WhiteSpace,
+
+    /// <summary>
+    /// 識別子。
+    /// </summary>
     Identifier,
+
+    /// <summary>
+    /// 10進リテラル。
+    /// </summary>
     Number,
+
+    /// <summary>
+    /// 16進リテラル。
+    /// </summary>
     HexNumber,
+
+    /// <summary>
+    /// 演算子。
+    /// といいつつ、equality, comparison のみ。
+    /// </summary>
     Operator,
+
+    /// <summary>
+    /// ""
+    /// </summary>
     String,
+
+    /// <summary>
+    /// 組み込み演算みたいなのを . 開始 + ASCII letter にした。
+    /// (.length とか .floor とか。)
+    /// </summary>
+    DotIntrinsics,
 
     /// <summary>
     /// , とか。
@@ -72,15 +110,15 @@ public static class TokenCategorizer
             else return TokenCategory.Number;
         }
 
-        if (c is >= '1' and <= '9') return TokenCategory.Number;
-
-        if (c is '<' or '>' or '=' or '!') return TokenCategory.Operator;
-
-        if (c is '"' or '\'') return TokenCategory.String;
-
-        if (c is ',' or '(' or ')' or '~') return TokenCategory.Isolation;
-
-        return TokenCategory.Unknown;
+        return c switch
+        {
+            >= '1' and <= '9' => TokenCategory.Number,
+            '<' or '>' or '=' or '!' => TokenCategory.Operator,
+            '"' or '\'' => TokenCategory.String,
+            '.' => TokenCategory.DotIntrinsics,
+            ',' or '(' or ')' or '~' => TokenCategory.Isolation,
+            _ => TokenCategory.Unknown
+        };
     }
 
     public static TokenSplit Categorize(ReadOnlySpan<char> text, Rune c)
@@ -119,6 +157,9 @@ public static class TokenCategorizer
                 if (c.Value is '"' or '\'') return TokenSplit.InsertThenSplit;
                 //todo: \" とかの escape 判定
                 return TokenSplit.Insert;
+            case TokenCategory.DotIntrinsics:
+                if (c.IsAscii && (uint)uc <= 4) return TokenSplit.Insert;
+                return split(c);
             case TokenCategory.Isolation:
                 return split(c);
         }
