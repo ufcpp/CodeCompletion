@@ -13,7 +13,18 @@ public enum TokenCategory
     HexNumber,
     Operator,
     String,
-    Punctuation,
+
+    /// <summary>
+    /// , とか。
+    /// </summary>
+    /// <remarks>
+    /// 最初は Punctuation って名前で , ( ) を含めてたけど、
+    /// regex 演算子足したことで「孤立トークン」(1文字限りのトークン)に変えた。
+    /// regex だけ分ける意味もなく。
+    ///
+    /// <see cref="Operator"/> の方を Comparison とかに返る方がいいかもしれない。
+    /// </remarks>
+    Isolation,
 }
 
 public enum TokenSplit
@@ -67,7 +78,7 @@ public static class TokenCategorizer
 
         if (c is '"' or '\'') return TokenCategory.String;
 
-        if (c is ',' or '(' or ')') return TokenCategory.Punctuation;
+        if (c is ',' or '(' or ')' or '~') return TokenCategory.Isolation;
 
         return TokenCategory.Unknown;
     }
@@ -108,8 +119,8 @@ public static class TokenCategorizer
                 if (c.Value is '"' or '\'') return TokenSplit.InsertThenSplit;
                 //todo: \" とかの escape 判定
                 return TokenSplit.Insert;
-            case TokenCategory.Punctuation:
-                return TokenSplit.SplitThenInsert;
+            case TokenCategory.Isolation:
+                return split(c);
         }
 
         if (isWhiteSpace(c)) return TokenSplit.Split;
