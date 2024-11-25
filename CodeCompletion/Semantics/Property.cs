@@ -24,7 +24,7 @@ public class PropertyNode(Type type, bool isNullable = false) : Node
         return i.ReadState != NullabilityState.NotNull;
     }
 
-    public override IEnumerable<Candidate> GetCandidates()
+    public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context)
     {
         if (isNullable)
         {

@@ -2,7 +2,7 @@
 
 public class LiteralNode(Type type) : Node
 {
-    public override IEnumerable<Candidate> GetCandidates() => [
+    public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context) => [
             // , &, |, )
         ];
 

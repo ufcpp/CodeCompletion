@@ -30,7 +30,7 @@ public class PrimitivePropertyNode(Type type) : Node
 
     public Type Type { get; } = type;
 
-    public override IEnumerable<Candidate> GetCandidates() => _candidates;
+    public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context) => _candidates;
 
     private readonly Candidate[] _candidates =
     [

@@ -21,7 +21,7 @@ public class CompareNode(Type type, ComparisonType comparison) : Node
         //todo: string は [ KeywordCandidate.Null, new LiteralCandidate(type)] にする？
         [new LiteralCandidate(type)];
 
-    public override IEnumerable<Candidate> GetCandidates() => _candidates;
+    public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context) => _candidates;
 
     public override string ToString() => $"Compare {type.Name} {ComparisonType}";
 }

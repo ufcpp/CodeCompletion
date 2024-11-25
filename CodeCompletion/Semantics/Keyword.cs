@@ -4,7 +4,7 @@ public class KeywordNode(string keyword) : Node
 {
     public string Keyword { get; } = keyword;
 
-    public override IEnumerable<Candidate> GetCandidates() => [
+    public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context) => [
             // , &, |, )
         ];
     public override string ToString() => $"Keyword {Keyword}";

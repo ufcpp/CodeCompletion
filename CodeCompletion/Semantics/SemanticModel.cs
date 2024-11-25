@@ -29,7 +29,7 @@ public class SemanticModel
         if (GetNode(pos) is not { } node) return;
 
         var token = Texts.Tokens[pos];
-        node.Filter(token.Span, results);
+        node.Filter(token.Span, new(_root), results);
     }
 
     private Node? GetNode(int pos)
@@ -41,11 +41,12 @@ public class SemanticModel
     public void Refresh()
     {
         var node = _root;
+        var context = new GetCandidatesContext(node);
 
         _nodes.Clear();
         foreach (var token in Texts.Tokens)
         {
-            if (node.Select(token.Span) is { } candidate)
+            if (node.Select(token.Span, context) is { } candidate)
             {
                 node = candidate.GetNode();
                 _nodes.Add(node);
