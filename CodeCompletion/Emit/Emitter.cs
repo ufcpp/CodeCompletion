@@ -1,4 +1,4 @@
-﻿using CodeCompletion.Semantics;
+using CodeCompletion.Semantics;
 
 namespace CodeCompletion.Emit;
 
@@ -42,7 +42,7 @@ internal class Emitter
             else if (next.Head is RegexNode)
             {
                 if (next.Next().Head is not LiteralNode) return null;
-                return new RegexMatcher(next.Token.Span.ToString());
+                return RegexMatcher.Create(next.Token.Span);
             }
 
             if (next.Head is not CompareNode c) return null;
