@@ -3,7 +3,7 @@ using System.Text;
 
 namespace CodeCompletion.Text;
 
-public static class TokenCategorizer
+public static class Tokenizer
 {
     public static TokenCategory Categorize(ReadOnlySpan<char> text)
     {

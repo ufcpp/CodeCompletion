@@ -173,7 +173,7 @@ public class TextBuffer : ISpanFormattable
         //todo: s.EnumerateRunes でループ回す？
         // IME で長文入力したときだけが関係するんだけど。
         Rune.DecodeFromUtf16(s, out var c, out _);
-        var cat = TokenCategorizer.Categorize(currentToken.Span, c);
+        var cat = Tokenizer.Categorize(currentToken.Span, c);
 
         switch (cat)
         {
@@ -278,12 +278,12 @@ public class TextBuffer : ISpanFormattable
         var prev = TokenCategory.Unknown;
         foreach (var token in _tokens)
         {
-            var cat = TokenCategorizer.Categorize(token.Span);
+            var cat = Tokenizer.Categorize(token.Span);
 
             if (!part) part = true;
             else
             {
-                if (TokenCategorizer.NeedsWhitespace(prev, cat))
+                if (Tokenizer.NeedsWhitespace(prev, cat))
                 {
                     if (destination.Length == 0) return false;
                     destination[0] = ' ';
