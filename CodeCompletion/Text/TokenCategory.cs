@@ -20,6 +20,9 @@ public enum TokenCategory
     /// <summary>
     /// 識別子。
     /// </summary>
+    /// <remarks>
+    /// といいつつ、キーワード(true, false, null 等)もこれ使ってる。
+    /// </remarks>
     Identifier,
 
     /// <summary>

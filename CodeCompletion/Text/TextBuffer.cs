@@ -275,35 +275,32 @@ public class TextBuffer : ISpanFormattable
     {
         charsWritten = 0;
         bool part = false;
+        var prev = TokenCategory.Unknown;
         foreach (var token in _tokens)
         {
+            var cat = TokenCategorizer.Categorize(token.Span);
+
             if (!part) part = true;
             else
             {
-                if (destination.Length == 0) return false;
-                destination[0] = ' ';
-                destination = destination[1..];
-                charsWritten++;
+                if (TokenCategorizer.NeedsWhitespace(prev, cat))
+                {
+                    if (destination.Length == 0) return false;
+                    destination[0] = ' ';
+                    destination = destination[1..];
+                    charsWritten++;
+                }
             }
 
             if (token.Written > destination.Length) return false;
             token.Span.CopyTo(destination);
             destination = destination[token.Written..];
             charsWritten += token.Written;
+
+            prev = cat;
         }
         return true;
     }
 
-    public string ToString(string? format, IFormatProvider? formatProvider)
-    {
-        var s = new DefaultInterpolatedStringHandler(_tokens.Sum(x => x.Written + 1), 0);
-        bool part = false;
-        foreach (var token in _tokens)
-        {
-            if (part) s.AppendFormatted(' ');
-            else part = true;
-            s.AppendFormatted(token.Span);
-        }
-        return s.ToStringAndClear();
-    }
+    public string ToString(string? format, IFormatProvider? formatProvider) => $"{this}";
 }

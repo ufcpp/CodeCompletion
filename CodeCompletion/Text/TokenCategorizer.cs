@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text;
 
 namespace CodeCompletion.Text;
@@ -83,4 +83,11 @@ public static class TokenCategorizer
         if (isWhiteSpace(c)) return TokenSplit.Split;
         else return TokenSplit.Insert;
     }
+
+    /// <summary>
+    /// 2つのトークンの間に空白が必要かどうか。
+    /// </summary>
+    public static bool NeedsWhitespace(TokenCategory former, TokenCategory latter)
+        => former is TokenCategory.Identifier or TokenCategory.Number or TokenCategory.String or TokenCategory.DotIntrinsics
+        && latter is TokenCategory.Identifier or TokenCategory.Number or TokenCategory.String;
 }
