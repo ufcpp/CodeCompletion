@@ -1,4 +1,4 @@
-﻿namespace CodeCompletion.Semantics;
+namespace CodeCompletion.Semantics;
 
 /// <summary>
 /// And とか Or とかの共通基底。
@@ -21,7 +21,6 @@ public class LowerAndNode : ConjunctionNode
     public override string ToString() => "and";
 }
 
-#if false // 予定
 /// <summary>
 /// or。
 /// </summary>
@@ -40,4 +39,3 @@ public class AndNode : ConjunctionNode
 {
     public override string ToString() => "And";
 }
-#endif

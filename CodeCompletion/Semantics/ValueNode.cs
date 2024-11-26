@@ -1,4 +1,4 @@
-﻿namespace CodeCompletion.Semantics;
+namespace CodeCompletion.Semantics;
 
 /// <summary>
 /// Keyword (null, true, false) と Literal (数値、文字列等) の共通基底。
@@ -10,7 +10,7 @@ public abstract class ValueNode : Node
     private static readonly FixedCandidate[] _candidates =
     [
         new(",", new LowerAndNode()),
-        //new("|", new OrNode()),
-        //new("&", new AndNode()),
+        new("|", new OrNode()),
+        new("&", new AndNode()),
     ];
 }
