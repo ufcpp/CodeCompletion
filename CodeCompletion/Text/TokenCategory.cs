@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text;
 
 namespace CodeCompletion.Text;
@@ -30,10 +30,8 @@ public enum TokenCategory
     /// </summary>
     Number,
 
-    /// <summary>
-    /// 16進リテラル。
-    /// </summary>
-    HexNumber,
+    // 16進リテラル (Emit 側でちゃんとやってないのでいったんなくす。)
+    //HexNumber,
 
     /// <summary>
     /// 演算子。
@@ -104,15 +102,16 @@ public static class TokenCategorizer
             || uc == UnicodeCategory.LetterNumber
             || c == '_') return TokenCategory.Identifier;
 
-        if (c == '0')
-        {
-            if (text is [_, 'x' or 'X', ..]) return TokenCategory.HexNumber;
-            else return TokenCategory.Number;
-        }
+        //if (c == '0')
+        //{
+        //    if (text is [_, 'x' or 'X', ..]) return TokenCategory.HexNumber;
+        //    else return TokenCategory.Number;
+        //}
 
         return c switch
         {
-            >= '1' and <= '9' => TokenCategory.Number,
+            >= '0' and <= '9' => TokenCategory.Number,
+            //>= '1' and <= '9' => TokenCategory.Number,
             '<' or '>' or '=' or '!' => TokenCategory.Operator,
             '"' or '\'' => TokenCategory.String,
             '.' => TokenCategory.DotIntrinsics,
@@ -145,11 +144,11 @@ public static class TokenCategorizer
                 return split(c);
             case TokenCategory.Number:
                 if (c.Value is (>= '0' and <= '9') or '.') return TokenSplit.Insert;
-                if (text is ['0'] && c.Value is 'x' or 'X') return TokenSplit.Insert;
+                //if (text is ['0'] && c.Value is 'x' or 'X') return TokenSplit.Insert;
                 return split(c);
-            case TokenCategory.HexNumber:
-                if (c.Value is (>= '0' and <= '9') or (>= 'a' and <= 'z') or (>= 'A' and <= 'Z')) return TokenSplit.Insert;
-                return split(c);
+            //case TokenCategory.HexNumber:
+            //    if (c.Value is (>= '0' and <= '9') or (>= 'a' and <= 'z') or (>= 'A' and <= 'Z')) return TokenSplit.Insert;
+            //    return split(c);
             case TokenCategory.Operator:
                 if (c.Value is '<' or '>' or '=' or '!') return TokenSplit.Insert;
                 return split(c);
