@@ -46,6 +46,7 @@ public partial class CodeCompletionControl : ContentControl
             vm.Refresh();
             _candidates.Candidates = vm.Candidates;
             _candidates.SelectedIndex = vm.SelectedCandidateIndex;
+            _candidates.Visibility = vm.Candidates.Any() ? Visibility.Visible : Visibility.Collapsed;
             _text.InvalidateVisual();
             ShowDiag(vm);
         }

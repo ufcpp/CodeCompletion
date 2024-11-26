@@ -1,4 +1,4 @@
-﻿using CodeCompletion.Semantics;
+using CodeCompletion.Semantics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -11,14 +11,14 @@ public partial class CandidateSelector : UserControl
         InitializeComponent();
     }
 
-    public IReadOnlyList<Candidate> Candidates
+    public IEnumerable<Candidate> Candidates
     {
-        get { return (IReadOnlyList<Candidate>)GetValue(CandidatesProperty); }
+        get { return (IEnumerable<Candidate>)GetValue(CandidatesProperty); }
         set { SetValue(CandidatesProperty, value); }
     }
 
     public static readonly DependencyProperty CandidatesProperty =
-        DependencyProperty.Register(nameof(Candidates), typeof(IReadOnlyList<Candidate>), typeof(CandidateSelector), new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(Candidates), typeof(IEnumerable<Candidate>), typeof(CandidateSelector), new PropertyMetadata(null));
 
     public int SelectedIndex
     {

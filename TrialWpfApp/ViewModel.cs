@@ -1,4 +1,4 @@
-﻿using CodeCompletion.Semantics;
+using CodeCompletion.Semantics;
 using CodeCompletion.Text;
 using System.Collections;
 using System.Collections.Specialized;
@@ -39,7 +39,7 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
     }
 
     private Wrap<Candidate>? _candidates;
-    public IReadOnlyList<Candidate> Candidates => _candidates ??= new(Completion.Candidates);
+    public IEnumerable<Candidate> Candidates => _candidates ??= new(Completion.Candidates.Where(x => x.Text != null));
 
     private int _index;
     public int SelectedCandidateIndex
@@ -87,16 +87,14 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 }
 
-class Wrap<T>(IReadOnlyList<T> inner) : IReadOnlyList<T>, INotifyCollectionChanged
+class Wrap<T>(IEnumerable<T> inner) : IEnumerable<T>, INotifyCollectionChanged
 {
-    public T this[int index] => inner[index];
-    public int Count => inner.Count;
     public IEnumerator<T> GetEnumerator() => inner.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)inner).GetEnumerator();
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
-    private static NotifyCollectionChangedEventArgs _reset = new(NotifyCollectionChangedAction.Reset);
+    private static readonly NotifyCollectionChangedEventArgs _reset = new(NotifyCollectionChangedAction.Reset);
 
     public void Invalidate() => CollectionChanged?.Invoke(this, _reset);
 }
