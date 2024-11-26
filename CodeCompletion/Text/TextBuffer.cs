@@ -303,4 +303,26 @@ public class TextBuffer : ISpanFormattable
     }
 
     public string ToString(string? format, IFormatProvider? formatProvider) => $"{this}";
+
+    /// <summary>
+    /// 内容を完全に置き換え。
+    /// </summary>
+    /// <remarks>
+    /// <paramref name="source"/>を parse して、トークンに分割して、それに置き換える。
+    /// </remarks>
+    public void Reset(ReadOnlySpan<char> source)
+    {
+        _tokens.Clear();
+        _tokens.Add(new());
+        _cursor = 0;
+
+        while (source.Length > 0)
+        {
+            // 一文字一文字 Insert。
+            //todo: 「Split すべき文字が来たらそこで区切り」みたいな処理にする方が軽いので頑張るかどうか。
+            var size = char.IsSurrogate(source[0]) ? 2 : 1;
+            Insert(source[..size]);
+            source = source[size..];
+        }
+    }
 }

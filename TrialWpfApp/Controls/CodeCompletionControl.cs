@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -39,17 +40,7 @@ public partial class CodeCompletionControl : ContentControl
         Margin = new(5);
 
         Loaded += (_, _) => UpdateTextProperties(true);
-        DataContextChanged += (_, _) => UpdateViewModel();
-
-        void show(ViewModel vm)
-        {
-            vm.Refresh();
-            _candidates.Candidates = vm.Candidates;
-            _candidates.SelectedIndex = vm.SelectedCandidateIndex;
-            _candidates.Visibility = vm.Candidates.Any() ? Visibility.Visible : Visibility.Collapsed;
-            _text.InvalidateVisual();
-            ShowDiag(vm);
-        }
+        DataContextChanged += (_, args) => UpdateViewModel(args.OldValue, args.NewValue);
 
         //todo: InputBindings KeyBinding でやった方がいい？
         TextInput += (sender, e) =>
@@ -60,7 +51,7 @@ public partial class CodeCompletionControl : ContentControl
             if (char.GetUnicodeCategory(e.Text[0]) == System.Globalization.UnicodeCategory.Control) return;
 
             vm.Texts.Insert(e.Text);
-            show(vm);
+            Show(vm);
         };
 
         KeyDown += (sender, e) =>
@@ -68,9 +59,19 @@ public partial class CodeCompletionControl : ContentControl
             if (DataContext is not ViewModel vm) return;
 
             var (handled, invalidates) = Keybind.Handle(e.Key, CtrlKeyDown, vm);
-            if (invalidates) show(vm);
+            if (invalidates) Show(vm);
             if (handled) e.Handled = true;
         };
+    }
+
+    private void Show(ViewModel vm)
+    {
+        vm.Refresh();
+        _candidates.Candidates = vm.Candidates;
+        _candidates.SelectedIndex = vm.SelectedCandidateIndex;
+        _candidates.Visibility = vm.Candidates.Any() ? Visibility.Visible : Visibility.Collapsed;
+        _text.InvalidateVisual();
+        ShowDiag(vm);
     }
 
     private static bool CtrlKeyDown
@@ -106,12 +107,28 @@ public partial class CodeCompletionControl : ContentControl
         UpdateViewModel();
     }
 
-    private void UpdateViewModel()
+    private void UpdateViewModel(object? oldValue, object? newValue)
     {
-        TextSource = DataContext is ViewModel vm && _textProperties is { } prop
+        void propChanged(object? sender, PropertyChangedEventArgs args)
+        {
+            var vm = (ViewModel)sender!;
+            Show(vm);
+        }
+
+        if (oldValue is ViewModel oldVm) oldVm.PropertyChanged -= propChanged;
+        if (newValue is ViewModel newVm) newVm.PropertyChanged += propChanged;
+
+        UpdateViewModel(newValue);
+    }
+
+    private void UpdateViewModel(object? newValue)
+    {
+        TextSource = newValue is ViewModel vm && _textProperties is { } prop
             ? new(vm.Semantics, prop, Height) // 改行を想定してない
             : null;
     }
+
+    private void UpdateViewModel() => UpdateViewModel(DataContext);
 
     private static void ShowDiag(ViewModel vm)
     {

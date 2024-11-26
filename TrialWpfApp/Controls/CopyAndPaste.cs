@@ -29,7 +29,10 @@ internal static class CopyAndPaste
 
         e.CommandBindings.Add(new CommandBinding(ApplicationCommands.Paste, (sender, arg) =>
         {
-            // todo: Clipboard.GetData → Parse
+            if (sender is not FrameworkElement e) return;
+            if (e.DataContext is not ViewModel vm) return;
+            if (Clipboard.GetData(DataFormats.Text) is not string s) return;
+            vm.Reset(s);
         }));
     }
 }

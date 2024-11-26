@@ -1,4 +1,4 @@
-﻿using CodeCompletion.Emit;
+using CodeCompletion.Emit;
 using CodeCompletion.Text;
 using System.Runtime.InteropServices;
 
@@ -58,6 +58,12 @@ public class SemanticModel
                 break;
             }
         }
+    }
+
+    public void Reset(ReadOnlySpan<char> source)
+    {
+        Texts.Reset(source);
+        Refresh();
     }
 
     public Func<object?, bool>? Emit()

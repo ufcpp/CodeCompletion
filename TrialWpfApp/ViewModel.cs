@@ -85,6 +85,14 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    public void Reset(ReadOnlySpan<char> source)
+    {
+        Semantics.Reset(source);
+        PropertyChanged?.Invoke(this, TextsChanged);
+    }
+
+    private static readonly PropertyChangedEventArgs TextsChanged = new(nameof(Texts));
 }
 
 class Wrap<T>(IEnumerable<T> inner) : IEnumerable<T>, INotifyCollectionChanged
