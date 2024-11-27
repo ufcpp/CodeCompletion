@@ -5,6 +5,9 @@ using System.Runtime.InteropServices;
 
 namespace CodeCompletion.TypedText;
 
+/// <summary>
+/// コード補完候補を出すために、<see cref="TextBuffer.Tokens"/> に型情報を与えるためのモデル。
+/// </summary>
 public class TypedTextModel
 {
     private readonly TypedToken _root;
