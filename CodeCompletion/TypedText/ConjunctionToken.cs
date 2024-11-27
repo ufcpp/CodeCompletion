@@ -1,9 +1,9 @@
-namespace CodeCompletion.Semantics;
+namespace CodeCompletion.TypedText;
 
 /// <summary>
 /// And とか Or とかの共通基底。
 /// </summary>
-public abstract class ConjunctionNode : Node
+public abstract class ConjunctionToken : TypedToken
 {
     public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context)
         => context.Root.GetCandidates(context); //todo: () 対応とか
@@ -16,7 +16,7 @@ public abstract class ConjunctionNode : Node
 /// A=1 , B=2 | C=3 だと A=1 & (B=2 | C=3) の意味。
 /// A=1 & B=2 | C=3 だと (A=1 & B=2) | C=3 の意味。
 /// </remarks>
-public class CommaNode : ConjunctionNode
+public class CommaToken : ConjunctionToken
 {
     public override string ToString() => "and";
 }
@@ -24,7 +24,7 @@ public class CommaNode : ConjunctionNode
 /// <summary>
 /// or。
 /// </summary>
-public class OrNode : ConjunctionNode
+public class OrToken : ConjunctionToken
 {
     public override string ToString() => "Or";
 }
@@ -33,9 +33,9 @@ public class OrNode : ConjunctionNode
 /// and。
 ///
 /// 結合優先度高い。
-/// <see cref="CommaNode"/>
+/// <see cref="CommaToken"/>
 /// </summary>
-public class AndNode : ConjunctionNode
+public class AndToken : ConjunctionToken
 {
     public override string ToString() => "And";
 }

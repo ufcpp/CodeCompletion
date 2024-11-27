@@ -1,12 +1,12 @@
 ﻿using System.Reflection;
 
-namespace CodeCompletion.Semantics;
+namespace CodeCompletion.TypedText;
 
-public class PropertyNode(Type type, bool isNullable = false) : Node
+public class PropertyToken(Type type, bool isNullable = false) : TypedToken
 {
     public Type Type { get; } = type;
 
-    public PropertyNode(PropertyInfo p) : this(p.PropertyType, IsNullable(p)) { }
+    public PropertyToken(PropertyInfo p) : this(p.PropertyType, IsNullable(p)) { }
 
     private static bool IsNullable(PropertyInfo p)
     {
@@ -49,9 +49,9 @@ public class PropertyCandidate(PropertyInfo property) : Candidate
 
     //public string? ToolTip
 
-    public override Node GetNode()
+    public override TypedToken GetToken()
     {
         var t = property.PropertyType;
-        return (Node?)PrimitivePropertyNode.Get(t) ?? new PropertyNode(property);
+        return (TypedToken?)PrimitivePropertyToken.Get(t) ?? new PropertyToken(property);
     }
 }

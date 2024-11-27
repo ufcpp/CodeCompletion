@@ -1,10 +1,10 @@
-﻿namespace CodeCompletion.Semantics;
+﻿namespace CodeCompletion.TypedText;
 
-public class PrimitivePropertyNode(Type type) : Node
+public class PrimitivePropertyToken(Type type) : TypedToken
 {
-    private static readonly PrimitivePropertyNode _int = new(typeof(int));
+    private static readonly PrimitivePropertyToken _int = new(typeof(int));
 
-    private static readonly Dictionary<Type, PrimitivePropertyNode> _map = new()
+    private static readonly Dictionary<Type, PrimitivePropertyToken> _map = new()
     {
         { typeof(int), _int },
         { typeof(uint), new(typeof(uint)) },
@@ -26,7 +26,7 @@ public class PrimitivePropertyNode(Type type) : Node
         { typeof(string), new(typeof(string)) },
     };
 
-    public static PrimitivePropertyNode? Get(Type type) => _map.TryGetValue(type, out var x) ? x : null;
+    public static PrimitivePropertyToken? Get(Type type) => _map.TryGetValue(type, out var x) ? x : null;
 
     public Type Type { get; } = type;
 
@@ -44,8 +44,8 @@ public class PrimitivePropertyNode(Type type) : Node
             new CompareCandidate(type, ComparisonType.LessThanOrEqual),
             new CompareCandidate(type, ComparisonType.GreaterThan),
             new CompareCandidate(type, ComparisonType.GreaterThanOrEqual),
-            new FixedCandidate("~", new RegexNode()), //todo: 演算子何にするか問題。他に / とかもありかも。
-            new FixedCandidate(IntrinsicNames.Length, new IntrinsicNode(IntrinsicNames.Length, typeof(string), typeof(int))),
+            new FixedCandidate("~", new RegexToken()), //todo: 演算子何にするか問題。他に / とかもありかも。
+            new FixedCandidate(IntrinsicNames.Length, new IntrinsicToken(IntrinsicNames.Length, typeof(string), typeof(int))),
         ];
         else if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return
         [
@@ -55,9 +55,9 @@ public class PrimitivePropertyNode(Type type) : Node
             new CompareCandidate(type, ComparisonType.LessThanOrEqual),
             new CompareCandidate(type, ComparisonType.GreaterThan),
             new CompareCandidate(type, ComparisonType.GreaterThanOrEqual),
-            new FixedCandidate(IntrinsicNames.Ceiling, new IntrinsicNode(IntrinsicNames.Ceiling, type, typeof(long))),
-            new FixedCandidate(IntrinsicNames.Floor, new IntrinsicNode(IntrinsicNames.Floor, type, typeof(long))),
-            new FixedCandidate(IntrinsicNames.Round, new IntrinsicNode(IntrinsicNames.Round, type, typeof(long))),
+            new FixedCandidate(IntrinsicNames.Ceiling, new IntrinsicToken(IntrinsicNames.Ceiling, type, typeof(long))),
+            new FixedCandidate(IntrinsicNames.Floor, new IntrinsicToken(IntrinsicNames.Floor, type, typeof(long))),
+            new FixedCandidate(IntrinsicNames.Round, new IntrinsicToken(IntrinsicNames.Round, type, typeof(long))),
         ];
         else return
         [
@@ -76,8 +76,8 @@ public class PrimitivePropertyNode(Type type) : Node
     public override string ToString() => $"Property of {Type.Name}";
 }
 
-public class RegexNode : Node
+public class RegexToken : TypedToken
 {
-    private static readonly Candidate[] _candidates = [new FixedCandidate(null, new LiteralNode(typeof(string)))];
+    private static readonly Candidate[] _candidates = [new FixedCandidate(null, new LiteralToken(typeof(string)))];
     public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context) => _candidates;
 }

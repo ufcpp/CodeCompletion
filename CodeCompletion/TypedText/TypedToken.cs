@@ -1,10 +1,16 @@
-﻿namespace CodeCompletion.Semantics;
+﻿namespace CodeCompletion.TypedText;
 
-public abstract class Node
+/// <summary>
+/// <see cref="Text.Token"/> に型情報を持たせる。
+/// </summary>
+/// <remarks>
+/// 型情報のみで、実際のトークン文字列は <see cref="Text.Token"/> を別途参照しないとダメ。
+/// </remarks>
+public abstract class TypedToken
 {
-    public static Node Create(Type type)
+    public static TypedToken Create(Type type)
     {
-        return new PropertyNode(type);
+        return new PropertyToken(type);
     }
 
     public abstract IEnumerable<Candidate> GetCandidates(GetCandidatesContext context);
@@ -38,15 +44,15 @@ public abstract class Node
 }
 
 /// <summary>
-/// <see cref="Node.GetCandidates"/> に渡すコンテキスト。
+/// <see cref="TypedToken.GetCandidates"/> に渡すコンテキスト。
 /// </summary>
 /// <remarks>
 /// A B (C1 > 1, C2 < 5) みたいなのを作れるようにする予定。
-/// , の後ろで ( の直前の Node から取れる候補に巻き戻さないとダメで、そのために ( のたびにその直前を FILO 保存する必要あり。
+/// , の後ろで ( の直前の Token から取れる候補に巻き戻さないとダメで、そのために ( のたびにその直前を FILO 保存する必要あり。
 ///
 /// 現状は ( を実装してないので、常に root ノードだけ保持。
 /// </remarks>
-public readonly struct GetCandidatesContext(Node root)
+public readonly struct GetCandidatesContext(TypedToken root)
 {
-    public Node Root { get; } = root;
+    public TypedToken Root { get; } = root;
 }

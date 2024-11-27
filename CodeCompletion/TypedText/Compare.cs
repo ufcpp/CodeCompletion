@@ -1,4 +1,4 @@
-﻿namespace CodeCompletion.Semantics;
+﻿namespace CodeCompletion.TypedText;
 
 public enum ComparisonType
 {
@@ -10,7 +10,7 @@ public enum ComparisonType
     GreaterThanOrEqual
 }
 
-public class CompareNode(Type type, ComparisonType comparison) : Node
+public class CompareToken(Type type, ComparisonType comparison) : TypedToken
 {
     public ComparisonType ComparisonType { get; } = comparison;
 
@@ -19,7 +19,7 @@ public class CompareNode(Type type, ComparisonType comparison) : Node
         type == typeof(bool) ? [KeywordCandidate.True, KeywordCandidate.False] :
         //todo: nullable struct
         //todo: string は [ KeywordCandidate.Null, new LiteralCandidate(type)] にする？
-        [new FixedCandidate(null, new LiteralNode(type))];
+        [new FixedCandidate(null, new LiteralToken(type))];
 
     public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context) => _candidates;
 
@@ -39,7 +39,7 @@ public class CompareCandidate(Type type, ComparisonType comparison) : Candidate
         _ => throw new NotImplementedException()
     };
 
-    private readonly CompareNode _singleton = new(type, comparison);
+    private readonly CompareToken _singleton = new(type, comparison);
 
-    public override Node GetNode() => _singleton;
+    public override TypedToken GetToken() => _singleton;
 }

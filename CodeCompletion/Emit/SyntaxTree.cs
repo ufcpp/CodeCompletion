@@ -1,4 +1,4 @@
-﻿using CodeCompletion.Semantics;
+﻿using CodeCompletion.TypedText;
 
 namespace CodeCompletion.Emit;
 
@@ -15,24 +15,20 @@ namespace CodeCompletion.Emit;
 /// </remarks>
 public readonly struct SyntaxTree
 {
-    private readonly SemanticModel _semantics;
+    private readonly TypedTextModel _semantics;
 
     // , しかないうちは , のインデックス一覧だけ取っておけば事足りる。
     private readonly List<int> _indexes;
 
-    // syntax が semantics に依存してるのだいぶきもいけども…
-    // SematicModel、実際にはほぼ tokenizer 層で。
-    // (コード補完のために各トークンに型情報とか持たせてることを指して semantics って言ってる。
-    // 実際それは tokenizer の手に余る。)
-    public SyntaxTree(SemanticModel semantics)
+    public SyntaxTree(TypedTextModel semantics)
     {
         _semantics = semantics;
 
         var indexes = new List<int>();
         var i = 0;
-        foreach (var node in semantics.Nodes)
+        foreach (var token in semantics.Tokens)
         {
-            if (node is CommaNode)
+            if (token is CommaToken)
                 indexes.Add(i);
             i++;
         }
@@ -43,7 +39,7 @@ public readonly struct SyntaxTree
     public Func<object?, bool>? Emit()
     {
         var root = _semantics.Root;
-        var nodes = _semantics.NodesAsSpan;
+        var typedTokens = _semantics.TokensAsSpan;
         var tokens = _semantics.Texts.Tokens;
 
         var children = new List<ObjectMatcher>();
@@ -51,8 +47,8 @@ public readonly struct SyntaxTree
         var prev = 0;
         foreach (var i in _indexes)
         {
-            var c = new EmitContext((PropertyNode)root,
-                nodes[prev..i]!,
+            var c = new EmitContext((PropertyToken)root,
+                typedTokens[prev..i]!,
                 tokens[prev..i]);
 
             if (Emitter.Emit(c) is { } m) children.Add(m);

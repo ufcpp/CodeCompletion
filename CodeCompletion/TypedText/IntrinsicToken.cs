@@ -1,9 +1,9 @@
-﻿namespace CodeCompletion.Semantics;
+﻿namespace CodeCompletion.TypedText;
 
 /// <summary>
 /// 文字列に対する .length みたいな、組み込みプロパティ。
 /// </summary>
-public class IntrinsicNode(string name, Type sourceType, Type resultType) : PrimitivePropertyNode(resultType)
+public class IntrinsicToken(string name, Type sourceType, Type resultType) : PrimitivePropertyToken(resultType)
 {
     public string Name { get; } = name;
     public Type SourceType { get; } = sourceType;

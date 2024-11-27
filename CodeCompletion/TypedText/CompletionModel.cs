@@ -1,10 +1,10 @@
 ﻿using CodeCompletion.Text;
 
-namespace CodeCompletion.Semantics;
+namespace CodeCompletion.TypedText;
 
 public class CompletionModel(Type type)
 {
-    public SemanticModel Semantics { get; } = new(type);
+    public TypedTextModel Semantics { get; } = new(type);
 
     public IReadOnlyList<Candidate> Candidates => _candidates;
     private readonly List<Candidate> _candidates = [];

@@ -136,7 +136,7 @@ public partial class CodeCompletionControl : ContentControl
         var (t, p) = buffer.GetPosition();
         System.Diagnostics.Debug.WriteLine($"""
 cursor: {buffer.Cursor} token: {t} pos: {p}
-nodes: {string.Join(", ", vm.Semantics.Nodes)}
+tokens: {string.Join(", ", vm.Semantics.Tokens)}
 candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {vm.SelectedCandidateIndex})
 
 """);

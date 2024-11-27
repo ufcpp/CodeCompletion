@@ -1,11 +1,11 @@
-using CodeCompletion.Semantics;
+using CodeCompletion.TypedText;
 using System.Globalization;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
 
 namespace TrialWpfApp.Controls;
 
-internal class CodeCompletionTextSource(SemanticModel semantics, CommonTextProperties textRunProperties, double lineHeight) : TextSource
+internal class CodeCompletionTextSource(TypedTextModel semantics, CommonTextProperties textRunProperties, double lineHeight) : TextSource
 {
     public int Length => semantics.Texts.TotalLength;
     public int CaretIndex => semantics.Texts.Cursor;
@@ -48,11 +48,11 @@ internal class CodeCompletionTextSource(SemanticModel semantics, CommonTextPrope
 
     private GenericTextRunProperties GetTextRunProperties(int token)
     {
-        var node = semantics.Nodes.ElementAtOrDefault(token);
-        return GetTextRunProperties(node);
+        var t = semantics.Tokens.ElementAtOrDefault(token);
+        return GetTextRunProperties(t);
     }
 
-    private static readonly Brush[] _nodeBrushes =
+    private static readonly Brush[] _tokenBrushes =
     [
         Brushes.Black,
         Brushes.MidnightBlue,
@@ -62,21 +62,21 @@ internal class CodeCompletionTextSource(SemanticModel semantics, CommonTextPrope
         Brushes.Blue,
     ];
 
-    private static int GetBrushIndex(Node? node) => node switch
+    private static int GetBrushIndex(TypedToken? token) => token switch
     {
-        PropertyNode => 1,
-        PrimitivePropertyNode => 2,
-        CompareNode => 3,
-        LiteralNode => 4,
-        KeywordNode => 5,
+        PropertyToken => 1,
+        PrimitivePropertyToken => 2,
+        CompareToken => 3,
+        LiteralToken => 4,
+        KeywordToken => 5,
         _ => 0,
     };
 
-    private readonly GenericTextRunProperties?[] _runProps = new GenericTextRunProperties[_nodeBrushes.Length];
+    private readonly GenericTextRunProperties?[] _runProps = new GenericTextRunProperties[_tokenBrushes.Length];
 
-    private GenericTextRunProperties GetTextRunProperties(Node? node)
+    private GenericTextRunProperties GetTextRunProperties(TypedToken? token)
     {
-        var i = GetBrushIndex(node);
-        return _runProps[i] ?? new(_nodeBrushes[i], textRunProperties);
+        var i = GetBrushIndex(token);
+        return _runProps[i] ?? new(_tokenBrushes[i], textRunProperties);
     }
 }

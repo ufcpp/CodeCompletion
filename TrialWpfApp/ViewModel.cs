@@ -1,4 +1,4 @@
-using CodeCompletion.Semantics;
+using CodeCompletion.TypedText;
 using CodeCompletion.Text;
 using System.Collections;
 using System.Collections.Specialized;
@@ -28,7 +28,7 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
     }
 
     public CompletionModel Completion { get; set; } = new(GetElementType(itemsSource));
-    public SemanticModel Semantics => Completion.Semantics;
+    public TypedTextModel Semantics => Completion.Semantics;
     public TextBuffer Texts => Semantics.Texts;
 
     public void Refresh()

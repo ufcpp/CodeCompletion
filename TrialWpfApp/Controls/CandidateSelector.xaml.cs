@@ -1,4 +1,4 @@
-using CodeCompletion.Semantics;
+using CodeCompletion.TypedText;
 using System.Windows;
 using System.Windows.Controls;
 

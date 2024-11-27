@@ -1,4 +1,4 @@
-using CodeCompletion.Semantics;
+using CodeCompletion.TypedText;
 
 namespace CodeCompletion.Emit;
 

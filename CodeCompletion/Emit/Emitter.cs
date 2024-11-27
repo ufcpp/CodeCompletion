@@ -1,4 +1,4 @@
-using CodeCompletion.Semantics;
+using CodeCompletion.TypedText;
 
 namespace CodeCompletion.Emit;
 
@@ -8,13 +8,13 @@ internal class Emitter
     {
         if (context.IsDefault) return null;
 
-        if (context.Head is PropertyNode)
+        if (context.Head is PropertyToken)
         {
             var next = context.Next();
-            if (next.Head is CompareNode c)
+            if (next.Head is CompareToken c)
             {
                 var next2 = next.Next();
-                if (next2.Head is not KeywordNode { Keyword: "null" }) return null;
+                if (next2.Head is not KeywordToken { Keyword: "null" }) return null;
 
                 return c.ComparisonType switch
                 {
@@ -29,27 +29,27 @@ internal class Emitter
             return new Property(context.Token.Span.ToString(), matcher);
         }
 
-        if (context.Head is PrimitivePropertyNode p)
+        if (context.Head is PrimitivePropertyToken p)
         {
             var next = context.Next();
 
-            if (next.Head is IntrinsicNode intrinsic)
+            if (next.Head is IntrinsicToken intrinsic)
             {
                 var matcher = Emit(next);
                 if (matcher is null) return null;
                 return Intrinsic.Create(intrinsic.Name, intrinsic.SourceType, matcher);
             }
-            else if (next.Head is RegexNode)
+            else if (next.Head is RegexToken)
             {
-                if (next.Next().Head is not LiteralNode) return null;
+                if (next.Next().Head is not LiteralToken) return null;
                 return RegexMatcher.Create(next.Token.Span);
             }
 
-            if (next.Head is not CompareNode c) return null;
+            if (next.Head is not CompareToken c) return null;
 
             var next2 = next.Next();
 
-            if (next2.Head is KeywordNode { Keyword: var keyword })
+            if (next2.Head is KeywordToken { Keyword: var keyword })
             {
                 return keyword switch
                 {
@@ -59,7 +59,7 @@ internal class Emitter
                 };
             }
 
-            if (next2.Head is not LiteralNode) return null;
+            if (next2.Head is not LiteralToken) return null;
 
             return Compare.Create(c.ComparisonType, p.Type, next.Token.Span);
         }
