@@ -108,6 +108,10 @@ public class Parser
             not (TokenCategory.Identifier or TokenCategory.Number or TokenCategory.String))
             return (end, -1);
 
+        //todo: 今、comp(member, value) な木構造だけど、
+        // member(comp(value)) な木構造の方が Emit は楽。
+        // そういう生成できるかちょっと頑張ってみる。
+
         var valueIndex = builder.New(new(end + 1, end + 2), NodeType.Value, -1, -1);
         var compIndex = builder.New(new(end, end + 1), op, memberIndex, valueIndex);
         return (end + 2, compIndex);
