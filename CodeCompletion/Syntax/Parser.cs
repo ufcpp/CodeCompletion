@@ -13,6 +13,11 @@ public class Parser
         return new Node(source, builder.GetBuckets(), root);
     }
 
+    /// <summary>
+    /// comma_expression
+    ///   | or_expression
+    ///   | or_expression ',' comma_expression
+    /// </summary>
     private static (int end, int nodeIndex) CommaExpression(ReadOnlySpan<Token> span, int start, Builder builder)
     {
         var (end, firstIndex) = OrExpression(span, start, builder);
@@ -22,6 +27,11 @@ public class Parser
         return (end, i);
     }
 
+    /// <summary>
+    /// or_expression
+    ///   | and_expression
+    ///   | and_expression '|' or_expression
+    /// </summary>
     private static (int end, int nodeIndex) OrExpression(ReadOnlySpan<Token> span, int start, Builder builder)
     {
         var (end, firstIndex) = AndExpression(span, start, builder);
@@ -31,6 +41,11 @@ public class Parser
         return (end, i);
     }
 
+    /// <summary>
+    /// and_expression
+    ///   | primary_expression
+    ///   | primary_expression '&' and_expression
+    /// </summary>
     private static (int end, int nodeIndex) AndExpression(ReadOnlySpan<Token> span, int start, Builder builder)
     {
         var (end, firstIndex) = PrimaryExpression(span, start, builder);
@@ -40,6 +55,11 @@ public class Parser
         return (end, i);
     }
 
+    /// <summary>
+    /// primary_expression
+    ///   | token
+    ///   | '(' comma_expression ')'
+    /// </summary>
     private static (int end, int nodeIndex) PrimaryExpression(ReadOnlySpan<Token> span, int start, Builder builder)
     {
         int x = IndexOfAny(span[start..]);
