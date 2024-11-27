@@ -32,7 +32,7 @@ public static class Tokenizer
             '<' or '>' or '=' or '!' => TokenCategory.Operator,
             '"' or '\'' => TokenCategory.String,
             '.' => TokenCategory.DotIntrinsics,
-            ',' or '(' or ')' or '~' => TokenCategory.Isolation,
+            ',' or '|' or '&' or '(' or ')' or '~' => TokenCategory.Isolation,
             _ => TokenCategory.Unknown
         };
     }
