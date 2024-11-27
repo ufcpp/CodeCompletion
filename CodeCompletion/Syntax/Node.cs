@@ -33,7 +33,9 @@ public readonly struct Node
     /// <summary>
     /// <see cref="TextBuffer.Tokens"/> の区間。
     /// </summary>
-    public Range Span => _buckets[_index].Span;
+    public Range Range => _buckets[_index].Span;
+
+    public ReadOnlySpan<Token> Span => _source.Tokens[Range];
 
     /// <summary>
     /// 第1子。

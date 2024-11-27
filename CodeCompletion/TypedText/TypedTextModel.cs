@@ -1,4 +1,5 @@
 using CodeCompletion.Emit;
+using CodeCompletion.Syntax;
 using CodeCompletion.Text;
 using System.Runtime.InteropServices;
 
@@ -68,7 +69,8 @@ public class TypedTextModel
 
     public Func<object?, bool>? Emit()
     {
-        var tree = new SyntaxTree(this);
-        return tree.Emit();
+        var node = Parser.Parse(Texts);
+        var m = Emitter.Emit(node, Root, TokensAsSpan!)!;
+        return m.Match;
     }
 }

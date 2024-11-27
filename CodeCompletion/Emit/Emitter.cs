@@ -1,9 +1,30 @@
+using CodeCompletion.Syntax;
 using CodeCompletion.TypedText;
 
 namespace CodeCompletion.Emit;
 
 internal class Emitter
 {
+    public static ObjectMatcher? Emit(Node node, TypedToken head, ReadOnlySpan<TypedToken> tail) => node.Type switch
+    {
+        NodeType.Term => Emit(new EmitContext(head, tail[node.Range], node.Span)),
+        NodeType.Comma => new And(EmitChildren(node, head, tail)),
+        NodeType.Or => new Or(EmitChildren(node, head, tail)),
+        NodeType.And => new And(EmitChildren(node, head, tail)),
+        _ => null,
+    };
+
+    private static ObjectMatcher[] EmitChildren(Node node, TypedToken head, ReadOnlySpan<TypedToken> typedTokens)
+    {
+        var childNodes = node.GetChildren();
+        var children = new ObjectMatcher[childNodes.Length];
+        for (var i = 0; i < children.Length; ++i)
+        {
+            children[i] = Emit(childNodes[i], head, typedTokens)!;
+        }
+        return children;
+    }
+
     public static ObjectMatcher? Emit(EmitContext context)
     {
         if (context.IsDefault) return null;
