@@ -5,96 +5,91 @@ namespace CodeCompletion.Emit;
 
 internal class Emitter
 {
-    public static ObjectMatcher? Emit(Node node, TypedToken head, ReadOnlySpan<TypedToken> tail) => node.Type switch
+    public static ObjectMatcher? Emit(Node node, Type root) => node.Type switch
     {
-        NodeType.Comma => new And(EmitChildren(node, head, tail)),
-        NodeType.Or => new Or(EmitChildren(node, head, tail)),
-        NodeType.And => new And(EmitChildren(node, head, tail)),
+        NodeType.Comma => new And(EmitChildren(node, root)),
+        NodeType.Or => new Or(EmitChildren(node, root)),
+        NodeType.And => new And(EmitChildren(node, root)),
         NodeType.Equal or NodeType.NotEqual
             or NodeType.LessThan or NodeType.LessThanOrEqual
             or NodeType.GreaterThan or NodeType.GreaterThanOrEqual
             or NodeType.Regex
-            => Compare(node, head, tail),
-        _ => null, // óàÇ»Ç¢ÇÕÇ∏
+            => Compare(node, root),
+        _ => null, // Êù•„Å™„ÅÑ„ÅØ„Åö
     };
 
-    private static ObjectMatcher?[] EmitChildren(Node node, TypedToken head, ReadOnlySpan<TypedToken> typedTokens)
+    private static ObjectMatcher?[] EmitChildren(Node node, Type root)
     {
         var childNodes = node.GetChildren();
         var children = new ObjectMatcher?[childNodes.Length];
         for (var i = 0; i < children.Length; ++i)
         {
-            children[i] = Emit(childNodes[i], head, typedTokens);
+            children[i] = Emit(childNodes[i], root);
         }
         return children;
     }
 
-    private static ObjectMatcher? Compare(Node node, TypedToken head, ReadOnlySpan<TypedToken> typedTokens)
+    private static Type? GetPropertyType(Node member, Type t)
     {
-        var compToken = typedTokens[node.Range][0];
+        if (member.IsNull) return t;
 
-        var valueToken = node.Right.Span[0].Span;
+        var name = member.Span[0].Span.ToString();
 
-        var comp =
-            compToken is CompareToken c ? CodeCompletion.Emit.Compare.Create(c.ComparisonType, c.Type, valueToken) :
-            compToken is RegexToken ? RegexMatcher.Create(valueToken) :
-            null;
+        if (name == IntrinsicNames.Length) return typeof(int);
 
-        if (comp is null) return null;
+        if (name is IntrinsicNames.Ceiling
+            or IntrinsicNames.Floor
+            or IntrinsicNames.Round) return typeof(long);
 
-        var t = new TypedTokenList(head, typedTokens);
-        return MemberAccess(node.Left, t[node.Left.Range], comp);
+        if (t.GetProperty(name) is not { } p) return null;
+
+        return GetPropertyType(member.Left, p.PropertyType);
     }
 
-    private static ObjectMatcher? MemberAccess(Node node, TypedTokenList tokens, ObjectMatcher comp)
+    private static ObjectMatcher? Compare(Node node, Type root)
+    {
+        static ObjectMatcher? GetComparer(Node node, Type root)
+        {
+            var valueToken = node.Right.Span[0].Span;
+
+            if (node.Type == NodeType.Regex) return RegexMatcher.Create(valueToken);
+
+            var t = GetPropertyType(node.Left, root);
+            if (t is null) return null;
+
+            var compType = node.Type switch
+            {
+                NodeType.Equal => ComparisonType.Equal,
+                NodeType.NotEqual => ComparisonType.NotEqual,
+                NodeType.LessThan => ComparisonType.LessThan,
+                NodeType.LessThanOrEqual => ComparisonType.LessThanOrEqual,
+                NodeType.GreaterThan => ComparisonType.GreaterThan,
+                NodeType.GreaterThanOrEqual => ComparisonType.GreaterThanOrEqual,
+                _ => (ComparisonType)0,
+            };
+
+            return CodeCompletion.Emit.Compare.Create(compType, t, valueToken);
+        }
+
+        if (GetComparer(node, root) is not { } comp) return null;
+
+        return MemberAccess(node.Left, root, comp);
+    }
+
+    private static ObjectMatcher? MemberAccess(Node node, Type root, ObjectMatcher comp)
     {
         if (node.IsNull) return comp;
 
-        var typedToken = tokens.Tail[0];
+        var name = node.Span[0].Span.ToString();
 
-        if (typedToken is IntrinsicToken i)
-        {
-            return Intrinsic.Create(i.Name, i.SourceType, comp);
-        }
+        if (name is ['.', ..]) return Intrinsic.Create(name, root, comp);
 
-        var child = MemberAccess(node.Left, tokens.Next(), comp);
+        if (root.GetProperty(name) is not { } p) return null;
+
+        var child = MemberAccess(node.Left, p.PropertyType, comp);
         if (child is null) return null;
 
-        var token = node.Span[0];
-
-        if (typedToken is PrimitivePropertyToken or PropertyToken)
-        {
-            return new Property(token.Span.ToString(), child);
-        }
-
-        return null;
-    }
-
-    private readonly ref struct TypedTokenList(TypedToken head, ReadOnlySpan<TypedToken> tail)
-    {
-        public readonly TypedToken Head = head;
-        public readonly ReadOnlySpan<TypedToken> Tail = tail;
-
-        public bool IsDefault => Head is null;
-
-        public TypedTokenList Next()
-        {
-            if (Tail.Length == 0) return default;
-
-            var nextHead = Tail[0];
-            return new(nextHead, Tail[1..]);
-        }
-
-        public TypedTokenList this[Range range]
-        {
-            get
-            {
-                var s = range.Start.Value;
-                var head = s == 0 ? Head : Tail[s];
-                var tail = Tail[range];
-                return new(head, tail);
-            }
-        }
+        return new Property(name, child);
     }
 }
 

@@ -73,7 +73,8 @@ public class TypedTextModel
     public Func<object?, bool>? Emit()
     {
         var node = Parser.Parse(Texts);
-        var m = Emitter.Emit(node, Root, TokensAsSpan!)!;
+        var rootType = ((PropertyToken)_root).Type;
+        var m = Emitter.Emit(node, rootType)!;
         return m.Match;
     }
 }
