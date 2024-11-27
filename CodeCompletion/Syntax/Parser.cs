@@ -16,7 +16,7 @@ public class Parser
     private static (int end, int nodeIndex) CommaExpression(ReadOnlySpan<Token> span, int start, Builder builder)
     {
         var (end, firstIndex) = OrExpression(span, start, builder);
-        if (end == span.Length || span[end].Span[0] != ',') return (end, firstIndex);
+        if (end == span.Length || span[end].Span is not [',', ..]) return (end, firstIndex);
         (end, var secondIndex) = CommaExpression(span, end + 1, builder);
         var i = builder.New(new(start, end), NodeType.Comma, firstIndex, secondIndex);
         return (end, i);
@@ -25,7 +25,7 @@ public class Parser
     private static (int end, int nodeIndex) OrExpression(ReadOnlySpan<Token> span, int start, Builder builder)
     {
         var (end, firstIndex) = AndExpression(span, start, builder);
-        if (end == span.Length || span[end].Span[0] != '|') return (end, firstIndex);
+        if (end == span.Length || span[end].Span is not ['|', ..]) return (end, firstIndex);
         (end, var secondIndex) = OrExpression(span, end + 1, builder);
         var i = builder.New(new(start, end), NodeType.Or, firstIndex, secondIndex);
         return (end, i);
@@ -34,7 +34,7 @@ public class Parser
     private static (int end, int nodeIndex) AndExpression(ReadOnlySpan<Token> span, int start, Builder builder)
     {
         var (end, firstIndex) = PrimaryExpression(span, start, builder);
-        if (end == span.Length || span[end].Span[0] != '&') return (end, firstIndex);
+        if (end == span.Length || span[end].Span is not ['&', ..]) return (end, firstIndex);
         (end, var secondIndex) = AndExpression(span, end + 1, builder);
         var i = builder.New(new(start, end), NodeType.And, firstIndex, secondIndex);
         return (end, i);
@@ -44,7 +44,7 @@ public class Parser
     {
         int x = IndexOfAny(span[start..]);
 
-        if (x >= 0 && span[start + x].Span[0] == '(')
+        if (x >= 0 && span[start + x].Span is ['(', ..])
         {
             // (comma_expr)
             var (end, i) = CommaExpression(span, start + 1, builder);
@@ -71,7 +71,7 @@ public class Parser
             var i = 0;
             foreach (var token in span)
             {
-                if (token.Span is [',' or '|' or '&' or '(' or ')']) return i;
+                if (token.Span is [',' or '|' or '&' or '(' or ')'] or []) return i;
                 ++i;
             }
             return -1;

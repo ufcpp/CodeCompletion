@@ -14,13 +14,13 @@ internal class Emitter
         _ => null,
     };
 
-    private static ObjectMatcher[] EmitChildren(Node node, TypedToken head, ReadOnlySpan<TypedToken> typedTokens)
+    private static ObjectMatcher?[] EmitChildren(Node node, TypedToken head, ReadOnlySpan<TypedToken> typedTokens)
     {
         var childNodes = node.GetChildren();
-        var children = new ObjectMatcher[childNodes.Length];
+        var children = new ObjectMatcher?[childNodes.Length];
         for (var i = 0; i < children.Length; ++i)
         {
-            children[i] = Emit(childNodes[i], head, typedTokens)!;
+            children[i] = Emit(childNodes[i], head, typedTokens);
         }
         return children;
     }
