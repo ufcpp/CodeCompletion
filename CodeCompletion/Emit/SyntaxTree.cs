@@ -32,7 +32,7 @@ public readonly struct SyntaxTree
         var i = 0;
         foreach (var node in semantics.Nodes)
         {
-            if (node is LowerAndNode)
+            if (node is CommaNode)
                 indexes.Add(i);
             i++;
         }

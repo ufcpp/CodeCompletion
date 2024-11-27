@@ -16,7 +16,7 @@ public abstract class ConjunctionNode : Node
 /// A=1 , B=2 | C=3 だと A=1 & (B=2 | C=3) の意味。
 /// A=1 & B=2 | C=3 だと (A=1 & B=2) | C=3 の意味。
 /// </remarks>
-public class LowerAndNode : ConjunctionNode
+public class CommaNode : ConjunctionNode
 {
     public override string ToString() => "and";
 }
@@ -33,7 +33,7 @@ public class OrNode : ConjunctionNode
 /// and。
 ///
 /// 結合優先度高い。
-/// <see cref="LowerAndNode"/>
+/// <see cref="CommaNode"/>
 /// </summary>
 public class AndNode : ConjunctionNode
 {

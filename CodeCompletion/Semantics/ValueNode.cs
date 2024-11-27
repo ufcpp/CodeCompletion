@@ -9,7 +9,7 @@ public abstract class ValueNode : Node
 
     private static readonly FixedCandidate[] _candidates =
     [
-        new(",", new LowerAndNode()),
+        new(",", new CommaNode()),
         new("|", new OrNode()),
         new("&", new AndNode()),
     ];
