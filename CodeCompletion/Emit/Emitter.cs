@@ -7,11 +7,15 @@ internal class Emitter
 {
     public static ObjectMatcher? Emit(Node node, TypedToken head, ReadOnlySpan<TypedToken> tail) => node.Type switch
     {
-        NodeType.Term => Emit(new EmitContext(head, tail[node.Range], node.Span)),
         NodeType.Comma => new And(EmitChildren(node, head, tail)),
         NodeType.Or => new Or(EmitChildren(node, head, tail)),
         NodeType.And => new And(EmitChildren(node, head, tail)),
-        _ => null,
+        NodeType.Equal or NodeType.NotEqual
+            or NodeType.LessThan or NodeType.LessThanOrEqual
+            or NodeType.GreaterThan or NodeType.GreaterThanOrEqual
+            or NodeType.Regex
+            => Compare(node, head, tail),
+        _ => null, // —ˆ‚È‚¢‚Í‚¸
     };
 
     private static ObjectMatcher?[] EmitChildren(Node node, TypedToken head, ReadOnlySpan<TypedToken> typedTokens)
@@ -25,67 +29,72 @@ internal class Emitter
         return children;
     }
 
-    public static ObjectMatcher? Emit(EmitContext context)
+    private static ObjectMatcher? Compare(Node node, TypedToken head, ReadOnlySpan<TypedToken> typedTokens)
     {
-        if (context.IsDefault) return null;
+        var compToken = typedTokens[node.Range][0];
 
-        if (context.Head is PropertyToken)
+        var valueToken = node.Right.Span[0].Span;
+
+        var comp =
+            compToken is CompareToken c ? CodeCompletion.Emit.Compare.Create(c.ComparisonType, c.Type, valueToken) :
+            compToken is RegexToken ? RegexMatcher.Create(valueToken) :
+            null;
+
+        if (comp is null) return null;
+
+        var t = new TypedTokenList(head, typedTokens);
+        return MemberAccess(node.Left, t[node.Left.Range], comp);
+    }
+
+    private static ObjectMatcher? MemberAccess(Node node, TypedTokenList tokens, ObjectMatcher comp)
+    {
+        if (node.IsNull) return comp;
+
+        var typedToken = tokens.Tail[0];
+
+        if (typedToken is IntrinsicToken i)
         {
-            var next = context.Next();
-            if (next.Head is CompareToken c)
-            {
-                var next2 = next.Next();
-                if (next2.Head is not KeywordToken { Keyword: "null" }) return null;
-
-                return c.ComparisonType switch
-                {
-                    ComparisonType.Equal => Compare.IsNull,
-                    ComparisonType.NotEqual => Compare.IsNotNull,
-                    _ => null
-                };
-            }
-
-            var matcher = Emit(next);
-            if (matcher is null) return null;
-            return new Property(context.Token.Span.ToString(), matcher);
+            return Intrinsic.Create(i.Name, i.SourceType, comp);
         }
 
-        if (context.Head is PrimitivePropertyToken p)
+        var child = MemberAccess(node.Left, tokens.Next(), comp);
+        if (child is null) return null;
+
+        var token = node.Span[0];
+
+        if (typedToken is PrimitivePropertyToken or PropertyToken)
         {
-            var next = context.Next();
-
-            if (next.Head is IntrinsicToken intrinsic)
-            {
-                var matcher = Emit(next);
-                if (matcher is null) return null;
-                return Intrinsic.Create(intrinsic.Name, intrinsic.SourceType, matcher);
-            }
-            else if (next.Head is RegexToken)
-            {
-                if (next.Next().Head is not LiteralToken) return null;
-                return RegexMatcher.Create(next.Token.Span);
-            }
-
-            if (next.Head is not CompareToken c) return null;
-
-            var next2 = next.Next();
-
-            if (next2.Head is KeywordToken { Keyword: var keyword })
-            {
-                return keyword switch
-                {
-                    "true" => Compare<bool>.Create(c.ComparisonType, true),
-                    "false" => Compare<bool>.Create(c.ComparisonType, false),
-                    _ => null
-                };
-            }
-
-            if (next2.Head is not LiteralToken) return null;
-
-            return Compare.Create(c.ComparisonType, p.Type, next.Token.Span);
+            return new Property(token.Span.ToString(), child);
         }
 
         return null;
+    }
+
+    private readonly ref struct TypedTokenList(TypedToken head, ReadOnlySpan<TypedToken> tail)
+    {
+        public readonly TypedToken Head = head;
+        public readonly ReadOnlySpan<TypedToken> Tail = tail;
+
+        public bool IsDefault => Head is null;
+
+        public TypedTokenList Next()
+        {
+            if (Tail.Length == 0) return default;
+
+            var nextHead = Tail[0];
+            return new(nextHead, Tail[1..]);
+        }
+
+        public TypedTokenList this[Range range]
+        {
+            get
+            {
+                var s = range.Start.Value;
+                var head = s == 0 ? Head : Tail[s];
+                var tail = Tail[range];
+                return new(head, tail);
+            }
+        }
     }
 }
 

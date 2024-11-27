@@ -48,7 +48,7 @@ public class Parser
     /// </summary>
     private static (int end, int nodeIndex) AndExpression(ReadOnlySpan<Token> span, int start, Builder builder)
     {
-        var (end, firstIndex) = PrimaryExpression(span, start, builder);
+        var (end, firstIndex) = TermExpression(span, start, builder);
         if (end == span.Length || span[end].Span is not ['&', ..]) return (end, firstIndex);
         (end, var secondIndex) = AndExpression(span, end + 1, builder);
         var i = builder.New(new(start, end), NodeType.And, firstIndex, secondIndex);
@@ -56,15 +56,13 @@ public class Parser
     }
 
     /// <summary>
-    /// primary_expression
-    ///   | token
+    /// term_expression
     ///   | '(' comma_expression ')'
+    ///   | primary_expression
     /// </summary>
-    private static (int end, int nodeIndex) PrimaryExpression(ReadOnlySpan<Token> span, int start, Builder builder)
+    private static (int end, int nodeIndex) TermExpression(ReadOnlySpan<Token> span, int start, Builder builder)
     {
-        int x = IndexOfAny(span[start..]);
-
-        if (x >= 0 && span[start + x].Span is ['(', ..])
+        if (span[start].Span is ['(', ..])
         {
             // (comma_expr)
             var (end, i) = CommaExpression(span, start + 1, builder);
@@ -74,27 +72,60 @@ public class Parser
         }
         else
         {
-            // term
-            var end = x < 0 ? span.Length : start + x;
-            var i = builder.New((Span)new(start, end));
-            return (end, i);
-
-            //todo:
-            // いったん A B C = 1 みたいなやつはこの区間をまとめて1トークンとして返してる。
-            // せっかく Parse してるんだし、 Property(A, Proparty(B, Compare(C, Literal(1)))) みたいなノード作った方が後が楽かも。
+            return PrimaryExpression(span, start, builder);
         }
+    }
 
-        //todo: term(comma_expr) 対応
+    /// <summary>
+    /// primary_expression
+    ///   | member_access_expression operator value
+    ///   todo: | member_access_expression '(' comma_expression ')'
+    /// </summary>
+    private static (int end, int nodeIndex) PrimaryExpression(ReadOnlySpan<Token> span, int start, Builder builder)
+    {
+        var (end, memberIndex) = MemberAccessExpression(span, start, builder);
 
-        static int IndexOfAny(ReadOnlySpan<Token> span)
+        if (end + 1 >= span.Length) return (end, -1); // 例外にする？
+
+        var opSpan = span[end].Span;
+        var valueSpan = span[end + 1].Span;
+
+        var op = opSpan switch
         {
-            var i = 0;
-            foreach (var token in span)
-            {
-                if (token.Span is [',' or '|' or '&' or '(' or ')'] or []) return i;
-                ++i;
-            }
-            return -1;
-        }
+            "=" => NodeType.Equal,
+            "!=" => NodeType.NotEqual,
+            "<" => NodeType.LessThan,
+            "<=" => NodeType.LessThanOrEqual,
+            ">" => NodeType.GreaterThan,
+            ">=" => NodeType.GreaterThanOrEqual,
+            "~" => NodeType.Regex,
+            _ => NodeType.Error,
+        };
+
+        if (op == NodeType.Error) return (end, -1);
+
+        if (Tokenizer.Categorize(valueSpan) is
+            not (TokenCategory.Identifier or TokenCategory.Number or TokenCategory.String))
+            return (end, -1);
+
+        var valueIndex = builder.New(new(end + 1, end + 2), NodeType.Value, -1, -1);
+        var compIndex = builder.New(new(end, end + 1), op, memberIndex, valueIndex);
+        return (end + 2, compIndex);
+    }
+
+    /// <summary>
+    /// member_access_expression
+    ///   | identifier
+    ///   | identifier member_access_expression
+    /// </summary>
+    private static (int end, int nodeIndex) MemberAccessExpression(ReadOnlySpan<Token> span, int start, Builder builder)
+    {
+        var cat = Tokenizer.Categorize(span[start].Span);
+        if (cat is not (TokenCategory.Identifier or TokenCategory.DotIntrinsics)) return (start, -1);
+
+        var (end, nextIndex) = MemberAccessExpression(span, start + 1, builder);
+
+        var i = builder.New(new(start, end), NodeType.Member, nextIndex, -1);
+        return (end, i);
     }
 }

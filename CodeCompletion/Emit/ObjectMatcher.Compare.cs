@@ -23,7 +23,8 @@ internal static class Compare
         if (type == typeof(bool)) return CreateBool(comparison, valueSpan);
         if (type == typeof(string)) return CreateString(comparison, valueSpan);
 
-        // string, TimeSpan, DateTime(Offset)
+        if (comparison == ComparisonType.Equal && valueSpan is "null") return IsNull;
+        if (comparison == ComparisonType.NotEqual && valueSpan is "null") return IsNotNull;
 
         return null;
     }

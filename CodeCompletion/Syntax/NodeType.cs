@@ -2,8 +2,20 @@
 
 public enum NodeType : byte
 {
-    Term,
+    Error,
+    Member,
     Comma,
     Or,
     And,
+
+    Value,
+
+    Equal,
+    NotEqual,
+    LessThan,
+    LessThanOrEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
+
+    Regex,
 }

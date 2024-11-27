@@ -14,8 +14,6 @@ internal readonly struct Builder()
         return i;
     }
 
-    public int New(Span span) => New(new Bucket(span));
-
     public int New(Span span, NodeType type, int firstIndex, int secondIndex)
         => New(new Bucket(span, type, firstIndex, secondIndex));
 
