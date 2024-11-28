@@ -126,10 +126,6 @@ public class Parser
             not (TokenCategory.Identifier or TokenCategory.Number or TokenCategory.String))
             goto ERROR;
 
-        //todo: 今、comp(member, value) な木構造だけど、
-        // member(comp(value)) な木構造の方が Emit は楽。
-        // そういう生成できるかちょっと頑張ってみる。
-
         var compIndex = builder.New(new(start, start + 2), op, -1, -1);
         return (start + 2, compIndex);
 
