@@ -31,6 +31,12 @@ public class B
     public float F32 { get; set; }
     public double F64 { get; set; }
 
+    public DateTime D1 { get; set; }
+    public DateTimeOffset D2 { get; set; }
+    public DateOnly Date { get; set; }
+    public TimeOnly Time { get; set; }
+    public TimeSpan TimeSpan { get; set; }
+
     public E E1 { get; set; }
     public F E2 { get; set; }
 

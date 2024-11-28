@@ -33,5 +33,11 @@ internal class SampleData
         new() { Id = 27, Structs = [new(1,0), new(0,1), new(1,1)]},
         new() { Id = 28, Structs = [new(-1, 0)]},
         new() { Id = 29, Structs = [new(-5, 0), new(0, -5), new(5, 0), new(0, 5)]},
+
+        new() { Id = 30, Item = new() { D1 = new(2000, 1, 1, 10, 11, 12) } },
+        new() { Id = 31, Item = new() { D2 = new(new DateTime(2000, 1, 1, 10, 11, 12), TimeSpan.FromHours(9)) } },
+        new() { Id = 32, Item = new() { Date = new(2000, 1, 1) } },
+        new() { Id = 33, Item = new() { Time = new(10, 11, 12) } },
+        new() { Id = 34, Item = new() { TimeSpan = TimeSpan.FromHours(2) } },
     ];
 }

@@ -17,93 +17,127 @@ internal static class Compare
         if (type == typeof(float)) return CreateParsable<float>(comparison, valueSpan);
         if (type == typeof(double)) return CreateParsable<double>(comparison, valueSpan);
         if (type == typeof(decimal)) return CreateParsable<decimal>(comparison, valueSpan);
-        if (type == typeof(TimeSpan)) return CreateParsable<TimeSpan>(comparison, valueSpan);
-        if (type == typeof(DateTime)) return CreateParsable<DateTime>(comparison, valueSpan);
-        if (type == typeof(DateTimeOffset)) return CreateParsable<DateTimeOffset>(comparison, valueSpan);
         if (type == typeof(bool)) return CreateBool(comparison, valueSpan);
         if (type == typeof(string)) return CreateString(comparison, valueSpan);
 
         if (comparison == ComparisonType.Equal && valueSpan is "null") return IsNull;
         if (comparison == ComparisonType.NotEqual && valueSpan is "null") return IsNotNull;
 
+        if (Dynamic.Create(comparison, type, valueSpan) is { } c) return c;
+
         return null;
     }
 
     public static ObjectMatcher? CreateParsable<T>(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
         where T : IComparable<T>, ISpanParsable<T>
-    {
-        if (!T.TryParse(valueSpan, null, out var value)) return null;
-        return Compare<T>.Create(comparison, value);
-    }
+        => ComparableParseable<T>.Create(comparison, valueSpan);
 
     public static ObjectMatcher? CreateBool(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
     {
-        if (valueSpan.Equals("true", StringComparison.OrdinalIgnoreCase)) return Compare<bool>.Create(comparison, true);
-        if (valueSpan.Equals("false", StringComparison.OrdinalIgnoreCase)) return Compare<bool>.Create(comparison, false);
+        if (valueSpan.Equals("true", StringComparison.OrdinalIgnoreCase)) return Comparable<bool>.Create(comparison, true);
+        if (valueSpan.Equals("false", StringComparison.OrdinalIgnoreCase)) return Comparable<bool>.Create(comparison, false);
         return null;
     }
 
     public static ObjectMatcher? CreateString(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
     {
         valueSpan = StringHelper.Unescape(valueSpan);
-        return Compare<string>.Create(comparison, valueSpan.ToString());
+        return Comparable<string>.Create(comparison, valueSpan.ToString());
     }
 
     public static readonly ObjectMatcher IsNull = new IsNullMatcher();
     public static readonly ObjectMatcher IsNotNull = new IsNotNullMatcher();
 
-    internal class IsNullMatcher : ObjectMatcher
+    private class IsNullMatcher : ObjectMatcher
     {
         public override bool Match(object? value) => value is null;
     }
 
-    internal class IsNotNullMatcher : ObjectMatcher
+    private class IsNotNullMatcher : ObjectMatcher
     {
         public override bool Match(object? value) => value is { };
     }
-}
 
-internal class Compare<T>
-    where T : IComparable<T>
-{
-    public static ObjectMatcher Create(ComparisonType comparison, T operand) => comparison switch
+    private class Dynamic
     {
-        ComparisonType.Equal => new Equal(operand),
-        ComparisonType.NotEqual => new NotEqual(operand),
-        ComparisonType.GreaterThan => new GreaterThan(operand),
-        ComparisonType.GreaterThanOrEqual => new GreaterThanOrEqual(operand),
-        ComparisonType.LessThan => new LessThan(operand),
-        ComparisonType.LessThanOrEqual => new LessThanOrEqual(operand),
-        _ => throw new NotImplementedException()
-    };
+        public static ObjectMatcher? Create(ComparisonType comparison, Type type, ReadOnlySpan<char> valueSpan)
+        {
+            var comparable = false;
+            var parsable = false;
+            foreach (var i in type.GetInterfaces())
+            {
+                if (!i.IsGenericType) continue;
+                if (i.GetGenericTypeDefinition() == typeof(IComparable<>) && i.GenericTypeArguments[0] == type) comparable = true;
+                if (i.GetGenericTypeDefinition() == typeof(ISpanParsable<>) && i.GenericTypeArguments[0] == type) parsable = true;
+            }
+            if (parsable && comparable)
+            {
+                var t = typeof(ComparableParseable<>).MakeGenericType(type);
+                var m = t.GetMethod(nameof(ComparableParseable<int>.Create), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)!;
+                var f = m.CreateDelegate<Func<ComparisonType, ReadOnlySpan<char>, ObjectMatcher?>>();
+                return f(comparison, valueSpan);
+            }
 
-    private class Equal(T operand) : ObjectMatcher<T>
-    {
-        public override bool Match(T value) => value.CompareTo(operand) == 0;
+            //todo: Equatable のみのやつ
+
+            return null;
+        }
     }
 
-    private class NotEqual(T operand) : ObjectMatcher<T>
+    private class ComparableParseable<T>
+        where T : IComparable<T>, ISpanParsable<T>
     {
-        public override bool Match(T value) => value.CompareTo(operand) != 0;
+        public static ObjectMatcher? Create(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
+        {
+            valueSpan = StringHelper.Unescape(valueSpan); // Date 系、"" で囲まないと入力できない。
+
+            if (!T.TryParse(valueSpan, null, out var value)) return null;
+            return Comparable<T>.Create(comparison, value);
+        }
     }
 
-    private class GreaterThan(T operand) : ObjectMatcher<T>
+    private class Comparable<T>
+        where T : IComparable<T>
     {
-        public override bool Match(T value) => value.CompareTo(operand) > 0;
-    }
+        public static ObjectMatcher Create(ComparisonType comparison, T operand) => comparison switch
+        {
+            ComparisonType.Equal => new Equal(operand),
+            ComparisonType.NotEqual => new NotEqual(operand),
+            ComparisonType.GreaterThan => new GreaterThan(operand),
+            ComparisonType.GreaterThanOrEqual => new GreaterThanOrEqual(operand),
+            ComparisonType.LessThan => new LessThan(operand),
+            ComparisonType.LessThanOrEqual => new LessThanOrEqual(operand),
+            _ => throw new NotImplementedException()
+        };
 
-    private class GreaterThanOrEqual(T operand) : ObjectMatcher<T>
-    {
-        public override bool Match(T value) => value.CompareTo(operand) >= 0;
-    }
+        private class Equal(T operand) : ObjectMatcher<T>
+        {
+            public override bool Match(T value) => value.CompareTo(operand) == 0;
+        }
 
-    private class LessThan(T operand) : ObjectMatcher<T>
-    {
-        public override bool Match(T value) => value.CompareTo(operand) < 0;
-    }
+        private class NotEqual(T operand) : ObjectMatcher<T>
+        {
+            public override bool Match(T value) => value.CompareTo(operand) != 0;
+        }
 
-    private class LessThanOrEqual(T operand) : ObjectMatcher<T>
-    {
-        public override bool Match(T value) => value.CompareTo(operand) <= 0;
+        private class GreaterThan(T operand) : ObjectMatcher<T>
+        {
+            public override bool Match(T value) => value.CompareTo(operand) > 0;
+        }
+
+        private class GreaterThanOrEqual(T operand) : ObjectMatcher<T>
+        {
+            public override bool Match(T value) => value.CompareTo(operand) >= 0;
+        }
+
+        private class LessThan(T operand) : ObjectMatcher<T>
+        {
+            public override bool Match(T value) => value.CompareTo(operand) < 0;
+        }
+
+        private class LessThanOrEqual(T operand) : ObjectMatcher<T>
+        {
+            public override bool Match(T value) => value.CompareTo(operand) <= 0;
+        }
     }
 }
