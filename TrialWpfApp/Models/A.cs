@@ -31,8 +31,29 @@ public class B
     public float F32 { get; set; }
     public double F64 { get; set; }
 
+    public E E1 { get; set; }
+    public F E2 { get; set; }
+
     public string Description { get; set; }
 }
 
 public record class C(int X, int Y);
 public record struct D(int X, int Y);
+
+public enum E
+{
+    A,
+    B,
+    C,
+    C1 = C,
+}
+
+[Flags]
+public enum F
+{
+    A = 1,
+    B = 2,
+    C = 4,
+    AB = A | B,
+    ABC = A | B | C,
+}
