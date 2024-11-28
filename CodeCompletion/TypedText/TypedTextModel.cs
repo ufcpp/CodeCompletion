@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace CodeCompletion.TypedText;
 
 /// <summary>
-/// ƒR[ƒh•âŠ®Œó•â‚ğo‚·‚½‚ß‚ÉA<see cref="TextBuffer.Tokens"/> ‚ÉŒ^î•ñ‚ğ—^‚¦‚é‚½‚ß‚Ìƒ‚ƒfƒ‹B
+/// ã‚³ãƒ¼ãƒ‰è£œå®Œå€™è£œã‚’å‡ºã™ãŸã‚ã«ã€<see cref="TextBuffer.Tokens"/> ã«å‹æƒ…å ±ã‚’ä¸ãˆã‚‹ãŸã‚ã®ãƒ¢ãƒ‡ãƒ«ã€‚
 /// </summary>
 public class TypedTextModel
 {
@@ -75,6 +75,7 @@ public class TypedTextModel
         var node = Parser.Parse(Texts);
         var rootType = ((PropertyToken)_root).Type;
         var m = Emitter.Emit(node, rootType)!;
+        if (m is null) return null;
         return m.Match;
     }
 }
