@@ -10,8 +10,7 @@ internal class Emitter
         NodeType.Comma => new And(EmitChildren(node, root)),
         NodeType.Or => new Or(EmitChildren(node, root)),
         NodeType.And => new And(EmitChildren(node, root)),
-        NodeType.Member => Primary(node, root),
-        _ => null, // 来ないはず
+        _ => Primary(node, root),
     };
 
     private static ObjectMatcher?[] EmitChildren(Node node, Type root)
@@ -38,6 +37,7 @@ internal class Emitter
     {
         if (node.IsNull) return null;
 
+        // = とか > とか。
         if (node.Type.IsComparison())
         {
             var valueToken = node.Span[1].Span;
@@ -48,15 +48,21 @@ internal class Emitter
             return Compare.Create(compType, t, valueToken);
         }
 
+        // member (A=1, B=2) みたいなのの、() の部分。
+        // Comma, Or, And なので Emit 呼ぶ。
+        if(node.Type != NodeType.Member) return Emit(node, t);
+
         var name = node.Span[0].Span.ToString();
         if (name is ['.', ..] && GetIntrinsicType(name) is { } it)
         {
+            // .length とか。
             var child = Primary(node.Left, it);
             if (child is null) return null;
             return Intrinsic.Create(name, t, child);
         }
         else
         {
+            // プロパティアクセス。
             if (t.GetProperty(name) is not { } p) return null;
 
             var child = Primary(node.Left, p.PropertyType);

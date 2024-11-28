@@ -7,7 +7,7 @@ public enum NodeType : byte
     Error,
 
     /// <summary>
-    /// プロパティ参照とか。
+    /// プロパティ参照とか組み込みメンバー( .length とか)。
     /// </summary>
     Member,
 
