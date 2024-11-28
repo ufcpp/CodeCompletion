@@ -1,4 +1,4 @@
-﻿namespace CodeCompletion.TypedText;
+namespace CodeCompletion.TypedText;
 
 internal class Parenthesis
 {

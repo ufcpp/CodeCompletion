@@ -1,4 +1,4 @@
-﻿namespace CodeCompletion.TypedText;
+namespace CodeCompletion.TypedText;
 
 /// <summary>
 /// 文字列に対する .length みたいな、組み込みプロパティ。

@@ -1,4 +1,4 @@
-﻿namespace CodeCompletion.Syntax;
+namespace CodeCompletion.Syntax;
 
 /// <summary>
 /// <see cref="Node"/> の中身。

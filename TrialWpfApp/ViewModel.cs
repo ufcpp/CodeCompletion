@@ -47,7 +47,7 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
         get => _index;
         set
         {
-            if(_index != value)
+            if (_index != value)
             {
                 _index = value;
                 PropertyChanged?.Invoke(this, SelectedCandidateIndexChanged);

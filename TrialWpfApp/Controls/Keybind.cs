@@ -1,4 +1,4 @@
-﻿using CodeCompletion.Text;
+using CodeCompletion.Text;
 using System.Windows.Input;
 
 namespace TrialWpfApp.Controls;

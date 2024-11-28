@@ -1,4 +1,4 @@
-﻿namespace CodeCompletion.Text;
+namespace CodeCompletion.Text;
 
 public enum TokenSplit
 {

@@ -1,4 +1,4 @@
-﻿namespace CodeCompletion.Text;
+namespace CodeCompletion.Text;
 
 /// <summary>
 /// カーソル移動方法。

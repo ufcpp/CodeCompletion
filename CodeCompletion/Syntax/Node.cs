@@ -1,4 +1,4 @@
-﻿using CodeCompletion.Text;
+using CodeCompletion.Text;
 
 namespace CodeCompletion.Syntax;
 

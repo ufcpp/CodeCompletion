@@ -1,4 +1,4 @@
-﻿namespace CodeCompletion.TypedText;
+namespace CodeCompletion.TypedText;
 
 public class KeywordToken(string keyword) : ValueToken
 {

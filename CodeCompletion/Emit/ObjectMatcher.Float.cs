@@ -1,4 +1,4 @@
-﻿using CodeCompletion.TypedText;
+using CodeCompletion.TypedText;
 using System.Numerics;
 
 namespace CodeCompletion.Emit;

@@ -1,4 +1,4 @@
-﻿namespace CodeCompletion.Emit;
+namespace CodeCompletion.Emit;
 
 // Where(x => x != null) する負荷の方が高そうなので、nullable 受け取って中で無視することに。
 internal class And(params ObjectMatcher?[] children) : ObjectMatcher

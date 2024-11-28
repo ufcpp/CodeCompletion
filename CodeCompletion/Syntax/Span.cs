@@ -1,4 +1,4 @@
-﻿namespace CodeCompletion.Syntax;
+namespace CodeCompletion.Syntax;
 
 /// <summary>
 /// テキスト中の範囲。

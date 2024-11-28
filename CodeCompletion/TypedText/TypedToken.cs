@@ -1,4 +1,4 @@
-﻿namespace CodeCompletion.TypedText;
+namespace CodeCompletion.TypedText;
 
 /// <summary>
 /// <see cref="Text.Token"/> に型情報を持たせる。

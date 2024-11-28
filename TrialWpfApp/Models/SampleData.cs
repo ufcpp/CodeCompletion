@@ -1,4 +1,4 @@
-﻿namespace TrialWpfApp.Models;
+namespace TrialWpfApp.Models;
 
 internal class SampleData
 {
