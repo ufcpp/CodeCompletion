@@ -24,6 +24,9 @@ internal class IntrinsicNames
 public class ArrayToken(PropertyToken parent) : PropertyTokenBase
 {
     //todo: 今、元プロパティの候補を全部素通しだけど、 .any .all は除外した方がいいかも。
+
+    //todo: Primitive 配列のときは候補変えないとダメ。
+
     public override IEnumerable<Candidate> GetCandidates(PropertyTokenBase context) => parent.GetCandidates(context);
 }
 
