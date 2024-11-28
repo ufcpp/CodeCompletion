@@ -64,11 +64,7 @@ public class Parser
     {
         if (span[start].Span is ['(', ..])
         {
-            // (comma_expr)
-            var (end, i) = CommaExpression(span, start + 1, builder);
-            if (end < span.Length && span[end].Span[0] == ')') end++;
-            // () 用の Node を作らず中身をそのまま返してるので、Span は1マスずつ内側にずれる。
-            return (end, i);
+            return ParenthesizedExpression(span, start, builder);
         }
         else
         {
@@ -76,10 +72,19 @@ public class Parser
         }
     }
 
+    private static (int end, int nodeIndex) ParenthesizedExpression(ReadOnlySpan<Token> span, int start, Builder builder)
+    {
+        // (comma_expr)
+        var (end, i) = CommaExpression(span, start + 1, builder);
+        if (end < span.Length && span[end].Span[0] == ')') end++;
+        // () 用の Node を作らず中身をそのまま返してるので、Span は1マスずつ内側にずれる。
+        return (end, i);
+    }
+
     /// <summary>
     /// primary_expression
     ///   | member_access_expression operator value
-    ///   todo: | member_access_expression '(' comma_expression ')'
+    ///   | member_access_expression '(' comma_expression ')'
     ///
     /// member_access_expression
     ///   | identifier
@@ -90,6 +95,9 @@ public class Parser
         var cat = Tokenizer.Categorize(span[start].Span);
         if (cat is not (TokenCategory.Identifier or TokenCategory.DotIntrinsics))
         {
+            if (span[start].Span is "(")
+                return ParenthesizedExpression(span, start, builder);
+
             return Comparison(span, start, builder);
         }
 
@@ -117,8 +125,6 @@ public class Parser
             "~" => NodeType.Regex,
             _ => NodeType.Error,
         };
-
-        //todo: '(' comma_expression ')'
 
         if (op == NodeType.Error) goto ERROR;
 
