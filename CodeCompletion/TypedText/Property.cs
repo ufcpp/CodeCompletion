@@ -50,6 +50,8 @@ public class PropertyToken(Type type, bool isNullable = false) : PropertyTokenBa
         if (isArray)
         {
             yield return new FixedCandidate(IntrinsicNames.Length, new IntrinsicToken(IntrinsicNames.Length, Type, typeof(int)));
+            yield return new FixedCandidate(IntrinsicNames.Any, new ArrayAnyToken(this));
+            yield return new FixedCandidate(IntrinsicNames.All, new ArrayAllToken(this));
         }
 
         yield return Parenthesis.Open;

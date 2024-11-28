@@ -28,7 +28,7 @@ internal class SampleData
         new() { Id = 22, Points = [new(1,0), new(0,1), new(1,1)]},
         new() { Id = 23, Points = [new(-1, 0)]},
         new() { Id = 24, Points = [new(-5, 0), new(0, -5), new(5, 0), new(0, 5)]},
-        new() { Id = 25, Points = [new(0, 0)]},
+        new() { Id = 25, Points = [new(0, 0), new(0, 1), new(0, 2), new(0, 3), new(0, 4), new(0, 5)] },
         new() { Id = 26, Structs = [new(1,2)]},
         new() { Id = 27, Structs = [new(1,0), new(0,1), new(1,1)]},
         new() { Id = 28, Structs = [new(-1, 0)]},
