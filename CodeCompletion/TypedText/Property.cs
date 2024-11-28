@@ -68,6 +68,9 @@ public class PropertyCandidate(PropertyInfo property) : Candidate
 
     public override TypedToken GetToken()
     {
+        //todo: ISpanParseable かつ IComparable or IEquatable なものに対応
+        // 無差別に判定して PrimitivePropertyToken に流していい？困る？
+        // (今はコード補完だけ聞かない。Parse, Emit はできてる。)
         var t = property.PropertyType;
         return (TypedToken?)PrimitivePropertyToken.Get(t) ?? new PropertyToken(property);
     }

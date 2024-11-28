@@ -1,5 +1,7 @@
 #pragma warning disable CS8618
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace TrialWpfApp.Models;
 
 public class A
@@ -40,6 +42,8 @@ public class B
     public E E1 { get; set; }
     public F E2 { get; set; }
 
+    public Comparable Comparable { get; set; }
+
     public string Description { get; set; }
 }
 
@@ -62,4 +66,46 @@ public enum F
     C = 4,
     AB = A | B,
     ABC = A | B | C,
+}
+
+public readonly struct Comparable(int value) : IComparable<Comparable>, ISpanParsable<Comparable>
+{
+    public int Value => value;
+
+    public static Comparable Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
+        => new(int.Parse(s, provider));
+
+    public static Comparable Parse(string s, IFormatProvider? provider)
+        => new(int.Parse(s, provider));
+
+    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, [MaybeNullWhen(false)] out Comparable result)
+    {
+        if (int.TryParse(s, provider, out var value))
+        {
+            result = new Comparable(value);
+            return true;
+        }
+        else
+        {
+            result = default;
+            return false;
+        }
+    }
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out Comparable result)
+    {
+        if (int.TryParse(s, provider, out var value))
+        {
+            result = new Comparable(value);
+            return true;
+        }
+        else
+        {
+            result = default;
+            return false;
+        }
+    }
+
+    public int CompareTo(Comparable other) => value.CompareTo(other.Value);
+    public override string ToString() => value.ToString();
 }
