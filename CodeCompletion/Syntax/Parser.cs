@@ -1,4 +1,4 @@
-﻿using CodeCompletion.Text;
+using CodeCompletion.Text;
 
 namespace CodeCompletion.Syntax;
 
@@ -72,7 +72,7 @@ public class Parser
         }
         else
         {
-            return PrimaryExpression(span, start, builder);
+            return MemberAccessExpression(span, start, builder);
         }
     }
 
@@ -80,15 +80,31 @@ public class Parser
     /// primary_expression
     ///   | member_access_expression operator value
     ///   todo: | member_access_expression '(' comma_expression ')'
+    ///
+    /// member_access_expression
+    ///   | identifier
+    ///   | identifier member_access_expression
     /// </summary>
-    private static (int end, int nodeIndex) PrimaryExpression(ReadOnlySpan<Token> span, int start, Builder builder)
+    private static (int end, int nodeIndex) MemberAccessExpression(ReadOnlySpan<Token> span, int start, Builder builder)
     {
-        var (end, memberIndex) = MemberAccessExpression(span, start, builder);
+        var cat = Tokenizer.Categorize(span[start].Span);
+        if (cat is not (TokenCategory.Identifier or TokenCategory.DotIntrinsics))
+        {
+            return Comparison(span, start, builder);
+        }
 
-        if (end + 1 >= span.Length) return (end, -1); // 例外にする？
+        var (end, nextIndex) = MemberAccessExpression(span, start + 1, builder);
 
-        var opSpan = span[end].Span;
-        var valueSpan = span[end + 1].Span;
+        var i = builder.New(new(start, end), NodeType.Member, nextIndex, -1);
+        return (end, i);
+    }
+
+    private static (int end, int nodeIndex) Comparison(ReadOnlySpan<Token> span, int start, Builder builder)
+    {
+        if (start + 1 >= span.Length) goto ERROR;
+
+        var opSpan = span[start].Span;
+        var valueSpan = span[start + 1].Span;
 
         var op = opSpan switch
         {
@@ -102,34 +118,22 @@ public class Parser
             _ => NodeType.Error,
         };
 
-        if (op == NodeType.Error) return (end, -1);
+        //todo: '(' comma_expression ')'
+
+        if (op == NodeType.Error) goto ERROR;
 
         if (Tokenizer.Categorize(valueSpan) is
             not (TokenCategory.Identifier or TokenCategory.Number or TokenCategory.String))
-            return (end, -1);
+            goto ERROR;
 
         //todo: 今、comp(member, value) な木構造だけど、
         // member(comp(value)) な木構造の方が Emit は楽。
         // そういう生成できるかちょっと頑張ってみる。
 
-        var valueIndex = builder.New(new(end + 1, end + 2), NodeType.Value, -1, -1);
-        var compIndex = builder.New(new(end, end + 1), op, memberIndex, valueIndex);
-        return (end + 2, compIndex);
-    }
+        var compIndex = builder.New(new(start, start + 2), op, -1, -1);
+        return (start + 2, compIndex);
 
-    /// <summary>
-    /// member_access_expression
-    ///   | identifier
-    ///   | identifier member_access_expression
-    /// </summary>
-    private static (int end, int nodeIndex) MemberAccessExpression(ReadOnlySpan<Token> span, int start, Builder builder)
-    {
-        var cat = Tokenizer.Categorize(span[start].Span);
-        if (cat is not (TokenCategory.Identifier or TokenCategory.DotIntrinsics)) return (start, -1);
-
-        var (end, nextIndex) = MemberAccessExpression(span, start + 1, builder);
-
-        var i = builder.New(new(start, end), NodeType.Member, nextIndex, -1);
-        return (end, i);
+    ERROR:
+        return (span.Length, -1); // 例外にする？
     }
 }

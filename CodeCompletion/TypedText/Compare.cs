@@ -1,13 +1,14 @@
-﻿namespace CodeCompletion.TypedText;
+namespace CodeCompletion.TypedText;
 
 public enum ComparisonType
 {
-    Equal,
+    Equal = 1,
     NotEqual,
     LessThan,
     LessThanOrEqual,
     GreaterThan,
-    GreaterThanOrEqual
+    GreaterThanOrEqual,
+    Regex,
 }
 
 public class CompareToken(Type type, ComparisonType comparison) : TypedToken
