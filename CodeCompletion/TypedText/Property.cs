@@ -37,7 +37,7 @@ public class PropertyToken(Type type, bool isNullable = false) : TypedToken
             yield return new PropertyCandidate(property);
         }
 
-        //todo: is null, is not null
+        yield return Parenthesis.Open;
     }
 
     public override string ToString() => $"Property {Type.Name}";

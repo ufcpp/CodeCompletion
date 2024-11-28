@@ -46,6 +46,7 @@ public class PrimitivePropertyToken(Type type) : TypedToken
             new CompareCandidate(type, ComparisonType.GreaterThanOrEqual),
             new FixedCandidate("~", new RegexToken()), //todo: 演算子何にするか問題。他に / とかもありかも。
             new FixedCandidate(IntrinsicNames.Length, new IntrinsicToken(IntrinsicNames.Length, typeof(string), typeof(int))),
+            Parenthesis.Open,
         ];
         else if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return
         [
@@ -58,6 +59,7 @@ public class PrimitivePropertyToken(Type type) : TypedToken
             new FixedCandidate(IntrinsicNames.Ceiling, new IntrinsicToken(IntrinsicNames.Ceiling, type, typeof(long))),
             new FixedCandidate(IntrinsicNames.Floor, new IntrinsicToken(IntrinsicNames.Floor, type, typeof(long))),
             new FixedCandidate(IntrinsicNames.Round, new IntrinsicToken(IntrinsicNames.Round, type, typeof(long))),
+            Parenthesis.Open,
         ];
         else return
         [
@@ -67,9 +69,9 @@ public class PrimitivePropertyToken(Type type) : TypedToken
             new CompareCandidate(type, ComparisonType.LessThanOrEqual),
             new CompareCandidate(type, ComparisonType.GreaterThan),
             new CompareCandidate(type, ComparisonType.GreaterThanOrEqual),
+            Parenthesis.Open,
         ];
 
-        //todo: Float のとき、 Ceiling, Floor, Round
         //todo: 時刻系、hour, min, sec, ...?
     }
 
