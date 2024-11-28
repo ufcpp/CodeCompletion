@@ -31,7 +31,17 @@ internal static class Intrinsic
         if (type == typeof(float)) return FloatIntrinsic<float>.Create(name, matcher);
         if (type == typeof(double)) return FloatIntrinsic<double>.Create(name, matcher);
         if (type == typeof(decimal)) return FloatIntrinsic<decimal>.Create(name, matcher);
-        if (type == typeof(string) && name == IntrinsicNames.Length) return new Length(matcher);
+        if (name == IntrinsicNames.Length)
+        {
+            if (type == typeof(string)) return new StringLength(matcher);
+            if (type.IsArray) return new ArrayLength(matcher); //todo: IList? IEnumerable?
+        }
+
         return null;
     }
+}
+
+internal class ArrayLength(ObjectMatcher mather) : ObjectMatcher<Array>
+{
+    public override bool Match(Array value) => mather.Match(value.Length);
 }

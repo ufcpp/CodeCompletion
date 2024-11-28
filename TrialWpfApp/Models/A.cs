@@ -9,12 +9,13 @@ public class A
     public B Item { get; set; }
     public B? Nullable { get; set; }
     public bool Flag { get; set; }
+    public C[] Points { get; set; }
+    public D[] Structs { get; set; }
 }
 
 public class B
 {
     public int Number { get; set; }
-    public C[] Points { get; set; }
 
     public int[] Values { get; set; }
     public string[] Attributes { get; set; }
@@ -29,11 +30,9 @@ public class B
     public ulong U64 { get; set; }
     public float F32 { get; set; }
     public double F64 { get; set; }
-}
 
-public class C
-{
-    public int X { get; set; }
-    public int Y { get; set; }
     public string Description { get; set; }
 }
+
+public record class C(int X, int Y);
+public record struct D(int X, int Y);

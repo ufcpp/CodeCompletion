@@ -13,6 +13,7 @@ internal class SampleData
         new() { Id = 7, Name = "a7", Item = new() { F32 = 3.6f } },
         new() { Id = 8, Name = "a8", Nullable = new() },
         new() { Id = 9, Name = "a9", Flag = true },
+        new() { Id = 10, Name = "b" },
         new() { Id = 11, Name = "b1" },
         new() { Id = 12, Name = "b2b" },
         new() { Id = 13, Name = "b3bb" },
@@ -22,5 +23,15 @@ internal class SampleData
         new() { Id = 17, Name = "b7" },
         new() { Id = 18, Name = "b8", Nullable = new() },
         new() { Id = 19, Name = "b9", Flag = true },
+        new() { Id = 20, Points = []},
+        new() { Id = 21, Points = [new(1,2)]},
+        new() { Id = 22, Points = [new(1,0), new(0,1), new(1,1)]},
+        new() { Id = 23, Points = [new(-1, 0)]},
+        new() { Id = 24, Points = [new(-5, 0), new(0, -5), new(5, 0), new(0, 5)]},
+        new() { Id = 25, Points = [new(0, 0)]},
+        new() { Id = 26, Structs = [new(1,2)]},
+        new() { Id = 27, Structs = [new(1,0), new(0,1), new(1,1)]},
+        new() { Id = 28, Structs = [new(-1, 0)]},
+        new() { Id = 29, Structs = [new(-5, 0), new(0, -5), new(5, 0), new(0, 5)]},
     ];
 }

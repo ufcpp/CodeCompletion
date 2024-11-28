@@ -34,9 +34,22 @@ public class PropertyToken(Type type, bool isNullable = false) : PropertyTokenBa
             yield return new CompareCandidate(typeof(object), ComparisonType.NotEqual);
         }
 
-        foreach (var property in Type.GetProperties())
+        var t = Type;
+        bool isArray = t.IsArray;
+
+        if (isArray) //todo: IList? IEnumerable?
+        {
+            t = t.GetElementType()!;
+        }
+
+        foreach (var property in t.GetProperties())
         {
             yield return new PropertyCandidate(property);
+        }
+
+        if (isArray)
+        {
+            yield return new FixedCandidate(IntrinsicNames.Length, new IntrinsicToken(IntrinsicNames.Length, Type, typeof(int)));
         }
 
         yield return Parenthesis.Open;
