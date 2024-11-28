@@ -9,8 +9,8 @@ internal class Parenthesis
 public class OpenParenToken : TypedToken
 {
     // ConjunctionToken と共通化する？
-    public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context)
-        => context.Root.GetCandidates(context); //todo: token(comma_expression) 対応とか
+    public override IEnumerable<Candidate> GetCandidates(PropertyTokenBase context)
+        => context.GetCandidates(context);
 
     public override string ToString() => "(";
 }
@@ -18,7 +18,7 @@ public class OpenParenToken : TypedToken
 public class CloseParenToken : TypedToken
 {
     // ValueToken と共通化する？
-    public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context)
+    public override IEnumerable<Candidate> GetCandidates(PropertyTokenBase context)
         => ValueToken._candidates;
 
     public override string ToString() => ")";

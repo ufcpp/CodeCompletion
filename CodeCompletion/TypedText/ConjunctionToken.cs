@@ -5,8 +5,8 @@ namespace CodeCompletion.TypedText;
 /// </summary>
 public abstract class ConjunctionToken : TypedToken
 {
-    public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context)
-        => context.Root.GetCandidates(context); //todo: token(comma_expression) 対応とか
+    public override IEnumerable<Candidate> GetCandidates(PropertyTokenBase context)
+        => context.GetCandidates(context);
 }
 
 /// <summary>

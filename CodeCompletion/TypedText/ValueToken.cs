@@ -5,7 +5,7 @@ namespace CodeCompletion.TypedText;
 /// </summary>
 public abstract class ValueToken : TypedToken
 {
-    public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context) => _candidates;
+    public override IEnumerable<Candidate> GetCandidates(PropertyTokenBase context) => _candidates;
 
     internal static readonly FixedCandidate[] _candidates =
     [

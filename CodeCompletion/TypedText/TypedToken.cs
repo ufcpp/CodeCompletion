@@ -13,9 +13,19 @@ public abstract class TypedToken
         return new PropertyToken(type);
     }
 
-    public abstract IEnumerable<Candidate> GetCandidates(GetCandidatesContext context);
+    /// <summary>
+    /// 候補を取得。
+    /// </summary>
+    /// <param name="context">( の直前のプロパティ情報。</param>
+    public abstract IEnumerable<Candidate> GetCandidates(PropertyTokenBase context);
 
-    public void Filter(ReadOnlySpan<char> text, GetCandidatesContext context, IList<Candidate> results)
+    /// <summary>
+    /// <see cref="GetCandidates"/> から、<paramref name="text"/> でフィルタリングした候補を返す。
+    /// </summary>
+    /// <param name="text">現在の打ちかけのトーケン文字列。</param>
+    /// <param name="context">( の直前のプロパティ情報。</param>
+    /// <param name="results">結果の格納先。</param>
+    public void Filter(ReadOnlySpan<char> text, PropertyTokenBase context, IList<Candidate> results)
     {
         results.Clear();
         foreach (var candidate in GetCandidates(context))
@@ -28,7 +38,12 @@ public abstract class TypedToken
         }
     }
 
-    public virtual Candidate? Select(ReadOnlySpan<char> text, GetCandidatesContext context)
+    /// <summary>
+    /// <see cref="Filter"/> の最初の1個の候補を返す。
+    /// </summary>
+    /// <param name="text">現在の打ちかけのトーケン文字列。</param>
+    /// <param name="context">( の直前のプロパティ情報。</param>
+    public virtual Candidate? Select(ReadOnlySpan<char> text, PropertyTokenBase context)
     {
         foreach (var candidate in GetCandidates(context))
         {
@@ -41,18 +56,4 @@ public abstract class TypedToken
         return null;
 
     }
-}
-
-/// <summary>
-/// <see cref="TypedToken.GetCandidates"/> に渡すコンテキスト。
-/// </summary>
-/// <remarks>
-/// A B (C1 > 1, C2 < 5) みたいなのを作れるようにする予定。
-/// , の後ろで ( の直前の Token から取れる候補に巻き戻さないとダメで、そのために ( のたびにその直前を FILO 保存する必要あり。
-///
-/// 現状は ( を実装してないので、常に root ノードだけ保持。
-/// </remarks>
-public readonly struct GetCandidatesContext(TypedToken root)
-{
-    public TypedToken Root { get; } = root;
 }

@@ -35,7 +35,8 @@ public class TypedTextModel
         if (GetToken(pos) is not { } t) return;
 
         var token = Texts.Tokens[pos];
-        t.Filter(token.Span, new(_root), results);
+        var pt = GetPropertyToken(pos);
+        t.Filter(token.Span, pt, results);
     }
 
     private TypedToken? GetToken(int pos)
@@ -47,21 +48,58 @@ public class TypedTextModel
     public void Refresh()
     {
         var t = _root;
-        var context = new GetCandidatesContext(t);
 
         _tokens.Clear();
-        foreach (var token in Texts.Tokens)
+
+        var property = (PropertyTokenBase)_root;
+
+        var stack = new Stack<PropertyTokenBase>();
+        stack.Push(property);
+        _propertyTokens.Add((0, property));
+
+        var tokens = Texts.Tokens;
+
+        for (int i = 0; i < tokens.Length; i++)
         {
-            if (t.Select(token.Span, context) is { } candidate)
+            var token = tokens[i];
+
+            if (t.Select(token.Span, stack.Peek()) is { } candidate)
             {
                 t = candidate.GetToken();
                 _tokens.Add(t);
+
+                if (t is PropertyTokenBase pt)
+                {
+                    property = pt;
+                }
+                else if (t is OpenParenToken)
+                {
+                    stack.Push(property);
+                    _propertyTokens.Add((i, property));
+                }
+                else if (t is CloseParenToken)
+                {
+                    stack.Pop();
+                    _propertyTokens.Add((i, stack.Peek()));
+                }
             }
             else
             {
                 break;
             }
         }
+    }
+
+    /// <summary>
+    /// Item (A = 1, B = 2, Child X (>=1, <= 5)) みたいに書いたとき、
+    /// ( の直前の <see cref="PropertyToken"/> を保持しておくためのスタック。
+    /// </summary>
+    private readonly List<(int index, PropertyTokenBase token)> _propertyTokens = [];
+
+    private PropertyTokenBase GetPropertyToken(int index)
+    {
+        var (i, token) = _propertyTokens.LastOrDefault(x => x.index <= index);
+        return token;
     }
 
     public void Reset(ReadOnlySpan<char> source)

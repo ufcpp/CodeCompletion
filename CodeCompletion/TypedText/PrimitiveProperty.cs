@@ -1,6 +1,6 @@
 namespace CodeCompletion.TypedText;
 
-public class PrimitivePropertyToken(Type type) : TypedToken
+public class PrimitivePropertyToken(Type type) : PropertyTokenBase
 {
     private static readonly PrimitivePropertyToken _int = new(typeof(int));
 
@@ -30,7 +30,7 @@ public class PrimitivePropertyToken(Type type) : TypedToken
 
     public Type Type { get; } = type;
 
-    public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context) => _candidates;
+    public override IEnumerable<Candidate> GetCandidates(PropertyTokenBase context) => _candidates;
 
     private readonly Candidate[] _candidates = CreateCandidates(type);
 
@@ -81,5 +81,5 @@ public class PrimitivePropertyToken(Type type) : TypedToken
 public class RegexToken : TypedToken
 {
     private static readonly Candidate[] _candidates = [new FixedCandidate(null, new LiteralToken(typeof(string)))];
-    public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context) => _candidates;
+    public override IEnumerable<Candidate> GetCandidates(PropertyTokenBase context) => _candidates;
 }

@@ -2,7 +2,9 @@ using System.Reflection;
 
 namespace CodeCompletion.TypedText;
 
-public class PropertyToken(Type type, bool isNullable = false) : TypedToken
+public abstract class PropertyTokenBase : TypedToken;
+
+public class PropertyToken(Type type, bool isNullable = false) : PropertyTokenBase
 {
     public Type Type { get; } = type;
 
@@ -24,7 +26,7 @@ public class PropertyToken(Type type, bool isNullable = false) : TypedToken
         return i.ReadState != NullabilityState.NotNull;
     }
 
-    public override IEnumerable<Candidate> GetCandidates(GetCandidatesContext context)
+    public override IEnumerable<Candidate> GetCandidates(PropertyTokenBase context)
     {
         if (isNullable)
         {
