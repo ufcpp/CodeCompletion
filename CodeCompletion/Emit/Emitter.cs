@@ -37,6 +37,18 @@ internal class Emitter
     {
         if (node.IsNull) return null;
 
+        // Array X = 1 とか書いて、C# でいう x.Array.Any(x => x.X == 1) 扱い。
+
+        //todo: = null, != null だけは配列インスタンス自体の null 判定にした方がいいかも。
+        // (Any(x => x != null) の意味にしたければ Array .any != null とか書けるようにする。)
+        if (t.IsArray)
+        {
+            var et = t.GetElementType()!;
+            var elem = Primary(node, et);
+            if (elem is null) return null;
+            return new ArrayAny(elem);
+        }
+
         // = とか > とか。
         if (node.Type.IsComparison())
         {

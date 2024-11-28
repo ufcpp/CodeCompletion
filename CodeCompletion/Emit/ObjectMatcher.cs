@@ -40,8 +40,3 @@ internal static class Intrinsic
         return null;
     }
 }
-
-internal class ArrayLength(ObjectMatcher mather) : ObjectMatcher<Array>
-{
-    public override bool Match(Array value) => mather.Match(value.Length);
-}
