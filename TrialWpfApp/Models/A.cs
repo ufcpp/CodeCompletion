@@ -43,6 +43,7 @@ public class B
     public F E2 { get; set; }
 
     public Comparable Comparable { get; set; }
+    public Equatable Equatable { get; set; }
 
     public string Description { get; set; }
 }
@@ -71,41 +72,45 @@ public enum F
 public readonly struct Comparable(int value) : IComparable<Comparable>, ISpanParsable<Comparable>
 {
     public int Value => value;
-
-    public static Comparable Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
-        => new(int.Parse(s, provider));
-
-    public static Comparable Parse(string s, IFormatProvider? provider)
-        => new(int.Parse(s, provider));
+    public static Comparable Parse(ReadOnlySpan<char> s, IFormatProvider? provider) => new(int.Parse(s, provider));
+    public static Comparable Parse(string s, IFormatProvider? provider) => new(int.Parse(s, provider));
 
     public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, [MaybeNullWhen(false)] out Comparable result)
     {
-        if (int.TryParse(s, provider, out var value))
-        {
-            result = new Comparable(value);
-            return true;
-        }
-        else
-        {
-            result = default;
-            return false;
-        }
+        if (int.TryParse(s, provider, out var value)) { result = new(value); return true; }
+        else { result = default; return false; }
     }
 
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out Comparable result)
     {
-        if (int.TryParse(s, provider, out var value))
-        {
-            result = new Comparable(value);
-            return true;
-        }
-        else
-        {
-            result = default;
-            return false;
-        }
+        if (int.TryParse(s, provider, out var value)) { result = new(value); return true; }
+        else { result = default; return false; }
     }
 
     public int CompareTo(Comparable other) => value.CompareTo(other.Value);
+    public override string ToString() => value.ToString();
+}
+
+#pragma warning disable IDE0079
+#pragma warning disable CA1067
+public readonly struct Equatable(int value) : IEquatable<Equatable>, ISpanParsable<Equatable>
+{
+    public int Value => value;
+    public static Equatable Parse(ReadOnlySpan<char> s, IFormatProvider? provider) => new(int.Parse(s, provider));
+    public static Equatable Parse(string s, IFormatProvider? provider) => new(int.Parse(s, provider));
+
+    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, [MaybeNullWhen(false)] out Equatable result)
+    {
+        if (int.TryParse(s, provider, out var value)) { result = new(value); return true; }
+        else { result = default; return false; }
+    }
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out Equatable result)
+    {
+        if (int.TryParse(s, provider, out var value)) { result = new(value); return true; }
+        else { result = default; return false; }
+    }
+
+    public bool Equals(Equatable other) => value.Equals(other.Value);
     public override string ToString() => value.ToString();
 }

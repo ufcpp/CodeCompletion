@@ -63,22 +63,34 @@ internal static class Compare
         public static ObjectMatcher? Create(ComparisonType comparison, Type type, ReadOnlySpan<char> valueSpan)
         {
             var comparable = false;
+            var equatable = false;
             var parsable = false;
             foreach (var i in type.GetInterfaces())
             {
                 if (!i.IsGenericType) continue;
-                if (i.GetGenericTypeDefinition() == typeof(IComparable<>) && i.GenericTypeArguments[0] == type) comparable = true;
-                if (i.GetGenericTypeDefinition() == typeof(ISpanParsable<>) && i.GenericTypeArguments[0] == type) parsable = true;
+                var args = i.GenericTypeArguments;
+                if (args.Length != 1 || args[0] != type) continue;
+                if (i.GetGenericTypeDefinition() == typeof(IComparable<>)) comparable = true;
+                if (i.GetGenericTypeDefinition() == typeof(IEquatable<>)) equatable = true;
+                if (i.GetGenericTypeDefinition() == typeof(ISpanParsable<>)) parsable = true;
             }
-            if (parsable && comparable)
+            if (parsable)
             {
-                var t = typeof(ComparableParseable<>).MakeGenericType(type);
-                var m = t.GetMethod(nameof(ComparableParseable<int>.Create), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)!;
-                var f = m.CreateDelegate<Func<ComparisonType, ReadOnlySpan<char>, ObjectMatcher?>>();
-                return f(comparison, valueSpan);
+                if (comparable)
+                {
+                    var t = typeof(ComparableParseable<>).MakeGenericType(type);
+                    var m = t.GetMethod(nameof(ComparableParseable<int>.Create), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)!;
+                    var f = m.CreateDelegate<Func<ComparisonType, ReadOnlySpan<char>, ObjectMatcher?>>();
+                    return f(comparison, valueSpan);
+                }
+                if (equatable)
+                {
+                    var t = typeof(EquatableParseable<>).MakeGenericType(type);
+                    var m = t.GetMethod(nameof(ComparableParseable<int>.Create), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)!;
+                    var f = m.CreateDelegate<Func<ComparisonType, ReadOnlySpan<char>, ObjectMatcher?>>();
+                    return f(comparison, valueSpan);
+                }
             }
-
-            //todo: Equatable のみのやつ
 
             return null;
         }
@@ -107,7 +119,7 @@ internal static class Compare
             ComparisonType.GreaterThanOrEqual => new GreaterThanOrEqual(operand),
             ComparisonType.LessThan => new LessThan(operand),
             ComparisonType.LessThanOrEqual => new LessThanOrEqual(operand),
-            _ => throw new NotImplementedException()
+            _ => throw new NotImplementedException() // 他は null 返して単に無視してるのが多い
         };
 
         private class Equal(T operand) : ObjectMatcher<T>
@@ -138,6 +150,39 @@ internal static class Compare
         private class LessThanOrEqual(T operand) : ObjectMatcher<T>
         {
             public override bool Match(T value) => value.CompareTo(operand) <= 0;
+        }
+    }
+
+    private class EquatableParseable<T>
+        where T : IEquatable<T>, ISpanParsable<T>
+    {
+        public static ObjectMatcher? Create(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
+        {
+            valueSpan = StringHelper.Unescape(valueSpan); // Date 系、"" で囲まないと入力できない。
+
+            if (!T.TryParse(valueSpan, null, out var value)) return null;
+            return Equatable<T>.Create(comparison, value);
+        }
+    }
+
+    private class Equatable<T>
+        where T : IEquatable<T>
+    {
+        public static ObjectMatcher Create(ComparisonType comparison, T operand) => comparison switch
+        {
+            ComparisonType.Equal => new Equal(operand),
+            ComparisonType.NotEqual => new NotEqual(operand),
+            _ => throw new NotImplementedException() // 他は null 返して単に無視してるのが多い
+        };
+
+        private class Equal(T operand) : ObjectMatcher<T>
+        {
+            public override bool Match(T value) => value.Equals(operand);
+        }
+
+        private class NotEqual(T operand) : ObjectMatcher<T>
+        {
+            public override bool Match(T value) => !value.Equals(operand);
         }
     }
 }
