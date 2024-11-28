@@ -38,8 +38,15 @@ internal class Emitter
         if (node.IsNull) return null;
 
         // Array X = 1 とか書いて、C# でいう x.Array.Any(x => x.X == 1) 扱い。
-        if (t.IsArray)
+        if (TypeHelper.GetElementType(t) is { } et)
         {
+            if (node.Span[0].Span is IntrinsicNames.Length)
+            {
+                var child = Primary(node.Left, typeof(int));
+                if (child is null) return null;
+                return new ArrayLength(child);
+            }
+
             bool all = false;
             if (node.Span[0].Span is IntrinsicNames.Any)
             {
@@ -56,7 +63,6 @@ internal class Emitter
             //todo: = null, != null だけは配列インスタンス自体の null 判定にした方がいいかも。
             // (Any(x => x != null) の意味にしたければ Array .any != null とか書く。)
 
-            var et = t.GetElementType()!;
             var elem = Primary(node, et);
             if (elem is null) return null;
             return all ? new ArrayAll(elem) : new ArrayAny(elem);

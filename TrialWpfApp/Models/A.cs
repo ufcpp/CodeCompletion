@@ -45,6 +45,15 @@ public class B
     public Comparable Comparable { get; set; }
     public Equatable Equatable { get; set; }
 
+    // Item1, Item2 に化けちゃうと思うけども一応対応する？
+    // ただ、Item1 とかはフィールドなので、フィールドに対応するかどうか。
+    // public (int X, int Y) Tuple { get; set; }
+
+    public KeyValuePair<int, int> KeyValuePair { get; set; }
+
+    public List<D> List { get; set; }
+    public Dictionary<string, D> Dictionary { get; set; }
+
     public string Description { get; set; }
 }
 

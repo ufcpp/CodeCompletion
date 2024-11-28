@@ -35,11 +35,12 @@ public class PropertyToken(Type type, bool isNullable = false) : PropertyTokenBa
         }
 
         var t = Type;
-        bool isArray = t.IsArray;
+        bool isArray = false;
 
-        if (isArray) //todo: IList? IEnumerable?
+        if (TypeHelper.GetElementType(t) is { } et)
         {
-            t = t.GetElementType()!;
+            isArray = true;
+            t = et;
         }
 
         foreach (var property in t.GetProperties())

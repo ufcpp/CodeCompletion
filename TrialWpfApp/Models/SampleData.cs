@@ -39,5 +39,9 @@ internal class SampleData
         new() { Id = 32, Item = new() { Date = new(2000, 1, 1) } },
         new() { Id = 33, Item = new() { Time = new(10, 11, 12) } },
         new() { Id = 34, Item = new() { TimeSpan = TimeSpan.FromHours(2) } },
+        new() { Id = 35, Item = new() { List = [new(1, 2), new(1, 3)] } },
+        new() { Id = 36, Item = new() { List = [new(1, 2), new(3, 4)] } },
+        new() { Id = 37, Item = new() { Dictionary = new() { { "a", new(1, 2) }, { "b", new(1, 3) } } } },
+        new() { Id = 38, Item = new() { Dictionary = new() { { "a", new(1, 2) }, { "c", new(3, 4) } } } },
     ];
 }

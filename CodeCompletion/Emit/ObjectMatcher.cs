@@ -34,7 +34,7 @@ internal static class Intrinsic
         if (name == IntrinsicNames.Length)
         {
             if (type == typeof(string)) return new StringLength(matcher);
-            if (type.IsArray) return new ArrayLength(matcher); //todo: IList? IEnumerable?
+            if (TypeHelper.GetElementType(type) is { }) return new ArrayLength(matcher);
         }
 
         return null;
