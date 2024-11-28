@@ -27,7 +27,7 @@ public static class Tokenizer
 
         return c switch
         {
-            >= '0' and <= '9' => TokenCategory.Number,
+            >= '0' and <= '9' or '-' => TokenCategory.Number,
             //>= '1' and <= '9' => TokenCategory.Number,
             '<' or '>' or '=' or '!' => TokenCategory.Operator,
             '"' or '\'' => TokenCategory.String,
