@@ -26,7 +26,7 @@ public class PropertyToken(Type type, bool isNullable = false) : PropertyTokenBa
         return i.ReadState != NullabilityState.NotNull;
     }
 
-    public override IEnumerable<Candidate> GetCandidates(PropertyTokenBase context)
+    public override IEnumerable<Candidate> GetCandidates(PropertyHierarchy context)
     {
         if (isNullable)
         {

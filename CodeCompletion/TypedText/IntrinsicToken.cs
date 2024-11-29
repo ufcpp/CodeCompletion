@@ -26,7 +26,7 @@ public class ArrayToken(PropertyToken parent) : PropertyTokenBase
 
     //todo: Primitive 配列のときは候補変えないとダメ。
 
-    public override IEnumerable<Candidate> GetCandidates(PropertyTokenBase context) => parent.GetCandidates(context);
+    public override IEnumerable<Candidate> GetCandidates(PropertyHierarchy context) => parent.GetCandidates(context);
 }
 
 public class ArrayAnyToken(PropertyToken parent) : ArrayToken(parent);

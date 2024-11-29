@@ -5,8 +5,8 @@ namespace CodeCompletion.TypedText;
 /// </summary>
 public abstract class ConjunctionToken : TypedToken
 {
-    public override IEnumerable<Candidate> GetCandidates(PropertyTokenBase context)
-        => context.GetCandidates(context);
+    public override IEnumerable<Candidate> GetCandidates(PropertyHierarchy context)
+        => context.Parenthesis.GetCandidates(context);
 }
 
 /// <summary>

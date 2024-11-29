@@ -36,7 +36,7 @@ public class TypedTextModel
 
         var token = Texts.Tokens[pos];
         var pt = GetPropertyToken(pos);
-        t.Filter(token.Span, pt, results);
+        t.Filter(token.Span, new(pt), results);
     }
 
     private TypedToken? GetToken(int pos)
@@ -63,7 +63,7 @@ public class TypedTextModel
         {
             var token = tokens[i];
 
-            if (t.Select(token.Span, stack.Peek()) is { } candidate)
+            if (t.Select(token.Span, new(stack.Peek())) is { } candidate)
             {
                 t = candidate.GetToken();
                 _tokens.Add(t);

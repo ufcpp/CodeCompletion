@@ -22,7 +22,7 @@ public class CompareToken(Type type, ComparisonType comparison) : TypedToken
         //todo: string は [ KeywordCandidate.Null, new LiteralCandidate(type)] にする？
         [new FixedCandidate(null, new LiteralToken(type))];
 
-    public override IEnumerable<Candidate> GetCandidates(PropertyTokenBase context) => _candidates;
+    public override IEnumerable<Candidate> GetCandidates(PropertyHierarchy context) => _candidates;
 
     public override string ToString() => $"Compare {type.Name} {ComparisonType}";
 }

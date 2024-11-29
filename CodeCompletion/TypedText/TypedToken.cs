@@ -17,7 +17,7 @@ public abstract class TypedToken
     /// 候補を取得。
     /// </summary>
     /// <param name="context">( の直前のプロパティ情報。</param>
-    public abstract IEnumerable<Candidate> GetCandidates(PropertyTokenBase context);
+    public abstract IEnumerable<Candidate> GetCandidates(PropertyHierarchy context);
 
     /// <summary>
     /// <see cref="GetCandidates"/> から、<paramref name="text"/> でフィルタリングした候補を返す。
@@ -25,7 +25,7 @@ public abstract class TypedToken
     /// <param name="text">現在の打ちかけのトーケン文字列。</param>
     /// <param name="context">( の直前のプロパティ情報。</param>
     /// <param name="results">結果の格納先。</param>
-    public void Filter(ReadOnlySpan<char> text, PropertyTokenBase context, IList<Candidate> results)
+    public void Filter(ReadOnlySpan<char> text, PropertyHierarchy context, IList<Candidate> results)
     {
         results.Clear();
         foreach (var candidate in GetCandidates(context))
@@ -43,7 +43,7 @@ public abstract class TypedToken
     /// </summary>
     /// <param name="text">現在の打ちかけのトーケン文字列。</param>
     /// <param name="context">( の直前のプロパティ情報。</param>
-    public virtual Candidate? Select(ReadOnlySpan<char> text, PropertyTokenBase context)
+    public virtual Candidate? Select(ReadOnlySpan<char> text, PropertyHierarchy context)
     {
         foreach (var candidate in GetCandidates(context))
         {
@@ -57,3 +57,19 @@ public abstract class TypedToken
 
     }
 }
+
+/// <summary>
+/// <see cref="TypedToken.GetCandidates"/> に <see cref="TypedTextModel"/> から渡す情報。
+/// </summary>
+/// <param name="Direct">
+/// 直近の <see cref="PropertyTokenBase"/>。
+/// リテラルのところで null, true, false とか出したりするのに使う。
+/// </param>
+/// <param name="Parenthesis">
+/// ( 直前の <see cref="PropertyTokenBase"/>。
+/// , | &amp; ) 後ろでの候補を出すために必要。
+/// </param>
+public record struct PropertyHierarchy(
+    //PropertyTokenBase Direct, todo: 追加予定。
+    PropertyTokenBase Parenthesis
+    );
