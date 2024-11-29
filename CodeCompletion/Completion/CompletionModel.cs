@@ -1,6 +1,6 @@
 using CodeCompletion.Text;
 
-namespace CodeCompletion.TypedText;
+namespace CodeCompletion.Completion;
 
 public class CompletionModel(Type type)
 {

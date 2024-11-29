@@ -1,4 +1,4 @@
-using CodeCompletion.TypedText;
+using CodeCompletion.Completion;
 using CodeCompletion.Text;
 using System.Collections;
 using System.Collections.Specialized;

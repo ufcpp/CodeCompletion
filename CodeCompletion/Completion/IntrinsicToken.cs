@@ -1,5 +1,5 @@
 
-namespace CodeCompletion.TypedText;
+namespace CodeCompletion.Completion;
 
 internal class IntrinsicNames
 {

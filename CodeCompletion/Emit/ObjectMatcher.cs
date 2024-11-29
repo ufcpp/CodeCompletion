@@ -1,4 +1,4 @@
-using CodeCompletion.TypedText;
+using CodeCompletion.Completion;
 
 namespace CodeCompletion.Emit;
 

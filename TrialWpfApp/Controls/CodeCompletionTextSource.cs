@@ -1,5 +1,5 @@
 using CodeCompletion.Text;
-using CodeCompletion.TypedText;
+using CodeCompletion.Completion;
 using System.Globalization;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;

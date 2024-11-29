@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Reflection;
 
-namespace CodeCompletion.TypedText;
+namespace CodeCompletion.Completion;
 
 /// <summary>
 /// プロパティ情報。

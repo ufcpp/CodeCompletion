@@ -1,6 +1,6 @@
 using CodeCompletion.Syntax;
 using CodeCompletion.Text;
-using CodeCompletion.TypedText;
+using CodeCompletion.Completion;
 
 namespace CodeCompletion.Emit;
 
