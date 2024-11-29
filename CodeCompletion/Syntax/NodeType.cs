@@ -4,7 +4,10 @@ namespace CodeCompletion.Syntax;
 
 public enum NodeType : byte
 {
-    Error,
+    /// <summary>
+    /// 不正な式を Parse した時だけ出るはず。
+    /// </summary>
+    Null,
 
     /// <summary>
     /// プロパティ参照とか組み込みメンバー( .length とか)。

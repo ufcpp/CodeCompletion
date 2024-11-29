@@ -123,10 +123,10 @@ public class Parser
             ">" => NodeType.GreaterThan,
             ">=" => NodeType.GreaterThanOrEqual,
             "~" => NodeType.Regex,
-            _ => NodeType.Error,
+            _ => NodeType.Null,
         };
 
-        if (op == NodeType.Error) goto ERROR;
+        if (op == NodeType.Null) goto ERROR;
 
         if (Tokenizer.Categorize(valueSpan) is
             not (TokenCategory.Identifier or TokenCategory.Number or TokenCategory.String))

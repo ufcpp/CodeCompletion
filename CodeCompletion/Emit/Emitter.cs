@@ -18,6 +18,7 @@ internal class Emitter
 
     private static ObjectMatcher? Emit(Node node, Type root) => node.Type switch
     {
+        NodeType.Null => null,
         NodeType.Comma => new And(EmitChildren(node, root)),
         NodeType.Or => new Or(EmitChildren(node, root)),
         NodeType.And => new And(EmitChildren(node, root)),

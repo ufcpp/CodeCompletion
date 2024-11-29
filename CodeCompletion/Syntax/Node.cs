@@ -28,7 +28,7 @@ public readonly struct Node
     /// <summary>
     /// <see cref="NodeType"/>
     /// </summary>
-    public NodeType Type => _buckets[_index].Type;
+    public NodeType Type => _buckets?[_index].Type ?? NodeType.Null;
 
     /// <summary>
     /// <see cref="TextBuffer.Tokens"/> の区間。
