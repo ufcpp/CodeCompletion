@@ -1,4 +1,5 @@
 using CodeCompletion.Text;
+using System.Diagnostics;
 
 namespace CodeCompletion.Completion;
 
@@ -28,7 +29,7 @@ internal static class Candidates
             }
             return [new(null)]; //todo: 何型の自由入力かのヒントくらいは出せるようにしたい。
         }
-        if (cat == TokenCategory.DotIntrinsics && Intrinsic(previousToken) is { } c)
+        if (cat == TokenCategory.DotIntrinsics && Intrinsic(previousToken, property.Direct) is { } c)
         {
             return c;
         }
@@ -58,28 +59,50 @@ internal static class Candidates
         new("&"),
     ];
 
-    public static IEnumerable<Candidate>? Intrinsic(ReadOnlySpan<char> token) => token switch
+    public static IEnumerable<Candidate>? Intrinsic(ReadOnlySpan<char> token, Property property) => token switch
     {
-        IntrinsicNames.Length => _stringCandidates,
-        IntrinsicNames.Ceiling
+        IntrinsicNames.Length
+        or IntrinsicNames.Ceiling
         or IntrinsicNames.Floor
         or IntrinsicNames.Round => _comparableCandidates,
-        //todo: .any .all
+        IntrinsicNames.Any or IntrinsicNames.All => ArrayIntrinsic(property),
         _ => null,
     };
 
     public static IEnumerable<Candidate> Property(Property property)
     {
-        var x = PrimitiveProperty(property.PropertyType)
-            ?? property.PropertyType.GetProperties().Select(p => new Candidate(p.Name)).Append(new("("));
+        var x = Array(property) ?? ElementProperty(property.PropertyType);
 
         // = null, != null の分、演算子を足す。
         if (property.IsNullable) x = [..x, .._equatableCandidates];
 
-        return x;
+        return x.Append(new("("));
 
         //todo: enumerable
     }
+
+    private static IEnumerable<Candidate>? Array(Property property)
+    {
+        if (TypeHelper.GetElementType(property.PropertyType) is { } et)
+        {
+            var x = ElementProperty(et);
+            return [.. x, .. _arrayIntrinsics];
+        }
+        return null;
+    }
+
+    private static IEnumerable<Candidate>? ArrayIntrinsic(Property property)
+    {
+        // Array と違って、 .any .all は出さない。
+        var et = TypeHelper.GetElementType(property.PropertyType);
+        Debug.Assert(et is not null);
+        var x = ElementProperty(et);
+        return [.. x, new("(")];
+    }
+
+    private static IEnumerable<Candidate> ElementProperty(Type type)
+        => PrimitiveProperty(type)
+            ?? type.GetProperties().Select(p => new Candidate(p.Name));
 
     private static Candidate[]? PrimitiveProperty(Type type)
     {
@@ -133,7 +156,6 @@ internal static class Candidates
         new("<="),
         new(">"),
         new(">="),
-        new("("), // 末尾に持っていきたい
     ];
 
     private static readonly Candidate[] _stringCandidates =
@@ -149,5 +171,12 @@ internal static class Candidates
         new(IntrinsicNames.Ceiling),
         new(IntrinsicNames.Floor),
         new(IntrinsicNames.Round),
+    ];
+
+    private static readonly Candidate[] _arrayIntrinsics =
+    [
+        new(IntrinsicNames.Any),
+        new(IntrinsicNames.All),
+        new(IntrinsicNames.Length),
     ];
 }

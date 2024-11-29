@@ -59,13 +59,17 @@ public class CompletionContext
         var cat = Tokenizer.Categorize(text);
         if (cat == TokenCategory.Identifier)
         {
-            var p = property.Direct.PropertyType.GetProperty(text.ToString());
+            var t = property.Direct.PropertyType;
+            if (TypeHelper.GetElementType(t) is { } et) t = et;
+            var p = t.GetProperty(text.ToString());
             if (p is null) return null;
             return new(p);
         }
 
         if (cat == TokenCategory.DotIntrinsics)
         {
+            if (text is IntrinsicNames.Any or IntrinsicNames.All) return property.Direct;
+
             var t = text switch
             {
                 IntrinsicNames.Length => typeof(int),
