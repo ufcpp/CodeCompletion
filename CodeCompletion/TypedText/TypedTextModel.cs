@@ -35,8 +35,7 @@ public class TypedTextModel
         if (GetToken(pos) is not { } t) return;
 
         var token = Texts.Tokens[pos];
-        var pt = GetPropertyToken(pos);
-        t.Filter(token.Span, new(pt), results);
+        t.Filter(token.Span, _propertyTokens[^1], results);
     }
 
     private TypedToken? GetToken(int pos)
@@ -55,7 +54,7 @@ public class TypedTextModel
 
         var stack = new Stack<PropertyTokenBase>();
         stack.Push(property);
-        _propertyTokens.Add((0, property));
+        _propertyTokens.Add((new(property, property)));
 
         var tokens = Texts.Tokens;
 
@@ -63,7 +62,7 @@ public class TypedTextModel
         {
             var token = tokens[i];
 
-            if (t.Select(token.Span, new(stack.Peek())) is { } candidate)
+            if (t.Select(token.Span, _propertyTokens[^1]) is { } candidate)
             {
                 t = candidate.GetToken();
                 _tokens.Add(t);
@@ -75,13 +74,12 @@ public class TypedTextModel
                 else if (t is OpenParenToken)
                 {
                     stack.Push(property);
-                    _propertyTokens.Add((i, property));
                 }
                 else if (t is CloseParenToken)
                 {
                     stack.Pop();
-                    _propertyTokens.Add((i, stack.Peek()));
                 }
+                _propertyTokens.Add(new(property, stack.Peek()));
             }
             else
             {
@@ -94,13 +92,7 @@ public class TypedTextModel
     /// Item (A = 1, B = 2, Child X (>=1, <= 5)) みたいに書いたとき、
     /// ( の直前の <see cref="PropertyToken"/> を保持しておくためのスタック。
     /// </summary>
-    private readonly List<(int index, PropertyTokenBase token)> _propertyTokens = [];
-
-    private PropertyTokenBase GetPropertyToken(int index)
-    {
-        var (i, token) = _propertyTokens.LastOrDefault(x => x.index <= index);
-        return token;
-    }
+    private readonly List<PropertyHierarchy> _propertyTokens = [];
 
     public void Reset(ReadOnlySpan<char> source)
     {
@@ -111,6 +103,8 @@ public class TypedTextModel
     public Func<object?, bool>? Emit()
     {
         var node = Parser.Parse(Texts);
+        if (node.IsNull) return null;
+
         var rootType = ((PropertyToken)_root).Type;
         var m = Emitter.Emit(node, rootType)!;
         if (m is null) return null;

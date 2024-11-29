@@ -70,6 +70,6 @@ public abstract class TypedToken
 /// , | &amp; ) 後ろでの候補を出すために必要。
 /// </param>
 public record struct PropertyHierarchy(
-    //PropertyTokenBase Direct, todo: 追加予定。
+    PropertyTokenBase Direct,
     PropertyTokenBase Parenthesis
     );
