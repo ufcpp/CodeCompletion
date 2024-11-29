@@ -13,7 +13,6 @@ public enum ComparisonType
 
 public class CompareToken(Type type, ComparisonType comparison) : TypedToken
 {
-    public Type Type => type;
     public ComparisonType ComparisonType { get; } = comparison;
 
     private readonly Candidate[] _candidates =
