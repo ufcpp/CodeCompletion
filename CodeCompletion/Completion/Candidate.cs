@@ -75,7 +75,7 @@ internal static class Candidates
         var x = Array(property) ?? ElementProperty(property.PropertyType);
 
         // = null, != null の分、演算子を足す。
-        if (property.IsNullable) x = [..x, .._equatableCandidates];
+        if (property.IsNullable) x = [.. x, .. _equatableCandidates];
 
         return x.Append(new("("));
 
@@ -103,7 +103,10 @@ internal static class Candidates
 
     private static IEnumerable<Candidate> ElementProperty(Type type)
         => PrimitiveProperty(type)
-            ?? type.GetProperties().Select(p => new Candidate(p.Name));
+            ?? GetProperties(type);
+
+    private static IEnumerable<Candidate> GetProperties(Type type)
+        => type.GetProperties().Select(p => new Candidate(p.Name));
 
     private static Candidate[]? PrimitiveProperty(Type type)
     {
@@ -121,12 +124,15 @@ internal static class Candidates
             || type == typeof(ulong)
             || type == typeof(ushort)
             || type == typeof(sbyte)
-            || type == typeof(TimeSpan)
+            ) return _comparableCandidates;
+
+        // 時刻系は parsable (扱いで = とか出す) + プロパティも出す。
+        if (type == typeof(TimeSpan)
             || type == typeof(DateTime)
             || type == typeof(DateTimeOffset)
             || type == typeof(DateOnly)
             || type == typeof(TimeOnly)
-            ) return _comparableCandidates;
+            ) return [.._comparableCandidates, ..GetProperties(type)];
 
         //todo: nullable
         //todo: enum
@@ -147,7 +153,7 @@ internal static class Candidates
     ];
 
     private static readonly Candidate[] _boolCandidates = _equatableCandidates;
-        // bool にも一応 ( 出す？
+    // bool にも一応 ( 出す？
 
     private static readonly Candidate[] _comparableCandidates =
     [
