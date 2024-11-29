@@ -134,11 +134,17 @@ internal static class Candidates
             || type == typeof(TimeOnly)
             ) return [.._comparableCandidates, ..GetProperties(type)];
 
+        var i = TypeHelper.HasInterface(type);
+
+        // 時刻系とかもこの条件で拾えるけど、判定が重たいので分けてる。
+        if (i.HasFlag(HasInterface.ISpanParsable | HasInterface.IComparable))
+            return [.. _comparableCandidates, .. GetProperties(type)];
+
+        if (i.HasFlag(HasInterface.ISpanParsable | HasInterface.IEquatable))
+            return [.. _equatableCandidates, .. GetProperties(type)];
+
         //todo: nullable
         //todo: enum
-
-        //todo: IComparable かつ ISpanParseable
-        //todo: IEquatable かつ ISpanParseable
 
         return null;
     }

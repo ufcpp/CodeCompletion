@@ -62,34 +62,20 @@ internal static class Compare
     {
         public static ObjectMatcher? Create(ComparisonType comparison, Type type, ReadOnlySpan<char> valueSpan)
         {
-            var comparable = false;
-            var equatable = false;
-            var parsable = false;
-            foreach (var i in type.GetInterfaces())
+            var i = TypeHelper.HasInterface(type);
+            if (i.HasFlag(HasInterface.ISpanParsable | HasInterface.IComparable))
             {
-                if (!i.IsGenericType) continue;
-                var args = i.GenericTypeArguments;
-                if (args.Length != 1 || args[0] != type) continue;
-                if (i.GetGenericTypeDefinition() == typeof(IComparable<>)) comparable = true;
-                if (i.GetGenericTypeDefinition() == typeof(IEquatable<>)) equatable = true;
-                if (i.GetGenericTypeDefinition() == typeof(ISpanParsable<>)) parsable = true;
+                var t = typeof(ComparableParseable<>).MakeGenericType(type);
+                var m = t.GetMethod(nameof(ComparableParseable<int>.Create), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)!;
+                var f = m.CreateDelegate<Func<ComparisonType, ReadOnlySpan<char>, ObjectMatcher?>>();
+                return f(comparison, valueSpan);
             }
-            if (parsable)
+            else if (i.HasFlag(HasInterface.ISpanParsable | HasInterface.IEquatable))
             {
-                if (comparable)
-                {
-                    var t = typeof(ComparableParseable<>).MakeGenericType(type);
-                    var m = t.GetMethod(nameof(ComparableParseable<int>.Create), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)!;
-                    var f = m.CreateDelegate<Func<ComparisonType, ReadOnlySpan<char>, ObjectMatcher?>>();
-                    return f(comparison, valueSpan);
-                }
-                if (equatable)
-                {
-                    var t = typeof(EquatableParseable<>).MakeGenericType(type);
-                    var m = t.GetMethod(nameof(ComparableParseable<int>.Create), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)!;
-                    var f = m.CreateDelegate<Func<ComparisonType, ReadOnlySpan<char>, ObjectMatcher?>>();
-                    return f(comparison, valueSpan);
-                }
+                var t = typeof(EquatableParseable<>).MakeGenericType(type);
+                var m = t.GetMethod(nameof(ComparableParseable<int>.Create), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)!;
+                var f = m.CreateDelegate<Func<ComparisonType, ReadOnlySpan<char>, ObjectMatcher?>>();
+                return f(comparison, valueSpan);
             }
 
             return null;
