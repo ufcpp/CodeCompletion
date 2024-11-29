@@ -49,7 +49,7 @@ public readonly struct Node
 
     private Node Create(int index) => index >= 0 ? new(_source, _buckets, index) : default;
 
-    public readonly bool IsNull => _buckets is null;
+    public readonly bool IsNull => _buckets is null || _index < 0 || _index >= _buckets.Length;
 
     /// <summary>
     /// <see cref="Left"/>, <see cref="Right"/> を列挙。
