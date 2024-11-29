@@ -28,8 +28,8 @@ public class CompletionContext
         _propertyInfo.Clear();
 
         Property property = new(t, "", false);
-        var stack = new Stack<Property>();
-        stack.Push(property);
+        var parent = new Stack<Property>();
+        parent.Push(property);
         _propertyInfo.Add(new(property, property));
 
         var tokens = Texts.Tokens;
@@ -40,17 +40,21 @@ public class CompletionContext
 
             if (text is "(")
             {
-                stack.Push(property);
+                parent.Push(property);
             }
             else if (text is ")")
             {
-                stack.Pop();
+                property = parent.Pop();
+            }
+            else if (text is "," or "|" or "&")
+            {
+                property = parent.Peek();
             }
             else if (GetProperty(text, _propertyInfo[^1]) is { } p)
             {
                 property = p;
             }
-            _propertyInfo.Add(new(property, stack.Peek()));
+            _propertyInfo.Add(new(parent.Peek(), property));
         }
     }
 
@@ -59,7 +63,7 @@ public class CompletionContext
         var cat = Tokenizer.Categorize(text);
         if (cat == TokenCategory.Identifier)
         {
-            var t = property.Direct.PropertyType;
+            var t = property.Nearest.PropertyType;
             if (TypeHelper.GetElementType(t) is { } et) t = et;
             var p = t.GetProperty(text.ToString());
             if (p is null) return null;
@@ -68,7 +72,7 @@ public class CompletionContext
 
         if (cat == TokenCategory.DotIntrinsics)
         {
-            if (text is IntrinsicNames.Any or IntrinsicNames.All) return property.Direct;
+            if (text is IntrinsicNames.Any or IntrinsicNames.All) return property.Nearest with { Name = text.ToString() };
 
             var t = text switch
             {

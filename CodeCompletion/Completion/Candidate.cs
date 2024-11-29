@@ -19,17 +19,17 @@ internal static class Candidates
         var cat = Tokenizer.Categorize(previousToken);
         if (cat == TokenCategory.Operator)
         {
-            if (property.Direct.PropertyType == typeof(bool))
+            if (property.Nearest.PropertyType == typeof(bool))
             {
                 return _boolValues;
             }
-            if (property.Direct.IsNullable)
+            if (property.Nearest.IsNullable)
             {
                 return _nullValue;
             }
             return [new(null)]; //todo: 何型の自由入力かのヒントくらいは出せるようにしたい。
         }
-        if (cat == TokenCategory.DotIntrinsics && Intrinsic(previousToken, property.Direct) is { } c)
+        if (cat == TokenCategory.DotIntrinsics && Intrinsic(previousToken, property.Nearest) is { } c)
         {
             return c;
         }
@@ -39,12 +39,12 @@ internal static class Candidates
             if (previousToken is ")") return _conjunction;
 
             // ,|&( の後ろは前の ( 直前のプロパティを元に候補を出す。
-            return Property(property.Parenthesis);
+            return Property(property.Parent);
         }
         if (previousToken is [] // ルート。他の判定方法の方がいいかも…
         || cat == TokenCategory.Identifier)
         {
-            return Property(property.Direct);
+            return Property(property.Nearest);
         }
 
         return _conjunction;

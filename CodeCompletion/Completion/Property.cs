@@ -21,13 +21,12 @@ internal readonly record struct Property(Type PropertyType, string Name, bool Is
 /// <summary>
 /// 補完候補を出すのに必要なプロパティ情報。
 /// </summary>
-/// <param name="Direct">直近のプロパティ。</param>
-/// <param name="Parenthesis">一番近い ( 直前のプロパティ。</param>
+/// <param name="Parent">一番近い ( 直前のプロパティ。) の復帰先。</param>
+/// <param name="Nearest">直近のプロパティ。</param>
 [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
-internal readonly record struct PropertyHierarchy(
-    Property Direct,
-    Property Parenthesis
-    )
+internal record PropertyHierarchy(
+    Property Parent,
+    Property Nearest)
 {
-    private string GetDebuggerDisplay() => $"{Direct.GetDebuggerDisplay()} / {Parenthesis.GetDebuggerDisplay()}";
+    private string GetDebuggerDisplay() => $"{Parent.GetDebuggerDisplay()}({Nearest.GetDebuggerDisplay()})";
 }
