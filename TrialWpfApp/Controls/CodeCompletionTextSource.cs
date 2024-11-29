@@ -58,22 +58,29 @@ internal class CodeCompletionTextSource(TextBuffer texts, CommonTextProperties t
 
         var i = cat switch
         {
-            TokenCategory.Identifier or TokenCategory.DotIntrinsics => 1,
+            TokenCategory.Identifier => IsKeyword(token) ? 5 : 1,
+            TokenCategory.DotIntrinsics => 1,
             TokenCategory.Operator => 3,
             TokenCategory.Number or TokenCategory.String => 4,
             _ => 0,
         };
 
-        //todo: 一時的に Keyword, Primitive 出なくなってる。
+        //todo: 一時的に Primitive 出なくなってる。
         return GetTextRunProperties(i);
     }
+
+    private static bool IsKeyword(ReadOnlySpan<char> token) => token switch
+    {
+        "true" or "false" or "null" => true,
+        _ => false,
+    };
 
     private static readonly Brush[] _tokenBrushes =
     [
         Brushes.Black,
         Brushes.MidnightBlue,
         Brushes.DarkGreen,
-        Brushes.DimGray,
+        Brushes.Purple,
         Brushes.DarkRed,
         Brushes.Blue,
     ];

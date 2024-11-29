@@ -22,9 +22,11 @@ internal static class Candidates
             {
                 return _boolValues;
             }
-            // nullable
-
-            else return [new(null)]; //todo: 何型の自由入力かのヒントくらいは出せるようにしたい。
+            if (property.Direct.IsNullable)
+            {
+                return _nullValue;
+            }
+            return [new(null)]; //todo: 何型の自由入力かのヒントくらいは出せるようにしたい。
         }
         if (cat == TokenCategory.DotIntrinsics && Intrinsic(previousToken) is { } c)
         {
@@ -68,10 +70,15 @@ internal static class Candidates
 
     public static IEnumerable<Candidate> Property(Property property)
     {
-        //todo: enumerable
-
-        return PrimitiveProperty(property.PropertyType)
+        var x = PrimitiveProperty(property.PropertyType)
             ?? property.PropertyType.GetProperties().Select(p => new Candidate(p.Name)).Append(new("("));
+
+        // = null, != null の分、演算子を足す。
+        if (property.IsNullable) x = [..x, .._equatableCandidates];
+
+        return x;
+
+        //todo: enumerable
     }
 
     private static Candidate[]? PrimitiveProperty(Type type)
@@ -106,15 +113,17 @@ internal static class Candidates
         return null;
     }
 
+    private static readonly Candidate[] _nullValue = [new("null")];
     private static readonly Candidate[] _boolValues = [new("true"), new("false")];
 
-    private static readonly Candidate[] _boolCandidates =
+    private static readonly Candidate[] _equatableCandidates =
     [
         new("="),
         new("!="),
-        // bool にも一応 ( 出す？
-        // その場合、任意の equatable と同じ扱いなので _equatableCandidates って名前にする？
     ];
+
+    private static readonly Candidate[] _boolCandidates = _equatableCandidates;
+        // bool にも一応 ( 出す？
 
     private static readonly Candidate[] _comparableCandidates =
     [
