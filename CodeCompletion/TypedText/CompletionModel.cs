@@ -4,20 +4,19 @@ namespace CodeCompletion.TypedText;
 
 public class CompletionModel(Type type)
 {
-    public TypedTextModel Semantics { get; } = new(type);
-
     public IReadOnlyList<Candidate> Candidates => _candidates;
     private readonly List<Candidate> _candidates = [];
     public int SelectedCandidateIndex { get; private set; }
 
-    public TextBuffer Texts => Semantics.Texts;
+    public CompletionContext Context { get; } = new(type, new());
+    public TextBuffer Texts => Context.Texts;
 
     // (仮)
     //todo: 都度 Refresh を呼ぶんじゃなくて、1ストロークごとに更新処理掛ける。
     public void Refresh()
     {
-        Semantics.Refresh();
-        Semantics.GetCandidates(_candidates);
+        Context.Refresh();
+        Context.GetCandidates(_candidates);
     }
 
     /// <summary>

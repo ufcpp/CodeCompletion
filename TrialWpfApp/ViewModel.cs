@@ -28,8 +28,8 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
     }
 
     public CompletionModel Completion { get; set; } = new(GetElementType(itemsSource));
-    public TypedTextModel Semantics => Completion.Semantics;
-    public TextBuffer Texts => Semantics.Texts;
+    public CompletionContext Context => Completion.Context;
+    public TextBuffer Texts => Completion.Texts;
 
     public void Refresh()
     {
@@ -70,7 +70,7 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
 
     public void Filter()
     {
-        var filter = Semantics.Emit();
+        var filter = Context.Emit();
 
         if (filter is null)
         {
@@ -88,7 +88,7 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
 
     public void Reset(ReadOnlySpan<char> source)
     {
-        Semantics.Reset(source);
+        Context.Reset(source);
         PropertyChanged?.Invoke(this, TextsChanged);
     }
 

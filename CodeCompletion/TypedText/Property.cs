@@ -1,78 +1,33 @@
+using System.Diagnostics;
 using System.Reflection;
 
 namespace CodeCompletion.TypedText;
 
-public abstract class PropertyTokenBase : TypedToken;
-
-public class PropertyToken(Type type, bool isNullable = false) : PropertyTokenBase
+/// <summary>
+/// プロパティ情報。
+/// </summary>
+/// <remarks>
+/// <see cref="PropertyInfo"/> そのまま使う案もあったけど、
+/// intrinsics の時に似せ PropertyInfo 作るのが面倒だし、使う情報は型、名前、nullability だけなので。
+/// </remarks>
+[DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
+internal readonly record struct Property(Type PropertyType, string Name, bool IsNullable) //todo: 配列の要素、型引数等
 {
-    public Type Type { get; } = type;
+    public Property(PropertyInfo p) : this(p.PropertyType, p.Name, TypeHelper.IsNullable(p)) { }
 
-    public PropertyToken(PropertyInfo p) : this(p.PropertyType, IsNullable(p)) { }
-
-    private static bool IsNullable(PropertyInfo p)
-    {
-        var pt = p.PropertyType;
-
-        // 値型
-        if (pt.IsGenericType && pt.GetGenericTypeDefinition() == typeof(Nullable<>)) return true;
-
-        // T? じゃない値型
-        if (pt.IsValueType) return false;
-
-        // 参照型
-        var c = new NullabilityInfoContext();
-        var i = c.Create(p);
-        return i.ReadState != NullabilityState.NotNull;
-    }
-
-    public override IEnumerable<Candidate> GetCandidates(PropertyHierarchy context)
-    {
-        if (isNullable)
-        {
-            yield return new CompareCandidate(typeof(object), ComparisonType.Equal);
-            yield return new CompareCandidate(typeof(object), ComparisonType.NotEqual);
-        }
-
-        var t = Type;
-        bool isArray = false;
-
-        if (TypeHelper.GetElementType(t) is { } et)
-        {
-            isArray = true;
-            t = et;
-        }
-
-        foreach (var property in t.GetProperties())
-        {
-            yield return new PropertyCandidate(property);
-        }
-
-        if (isArray)
-        {
-            yield return new FixedCandidate(IntrinsicNames.Length, new IntrinsicToken(IntrinsicNames.Length, typeof(int)));
-            yield return new FixedCandidate(IntrinsicNames.Any, new ArrayAnyToken(this));
-            yield return new FixedCandidate(IntrinsicNames.All, new ArrayAllToken(this));
-        }
-
-        yield return Parenthesis.Open;
-    }
-
-    public override string ToString() => $"Property {Type.Name}";
+    internal string GetDebuggerDisplay() => $"{Name}:{PropertyType.Name}{(IsNullable ? "?" : "")}";
 }
 
-public class PropertyCandidate(PropertyInfo property) : Candidate
+/// <summary>
+/// 補完候補を出すのに必要なプロパティ情報。
+/// </summary>
+/// <param name="Direct">直近のプロパティ。</param>
+/// <param name="Parenthesis">一番近い ( 直前のプロパティ。</param>
+[DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
+internal readonly record struct PropertyHierarchy(
+    Property Direct,
+    Property Parenthesis
+    )
 {
-    public override string? Text => property.Name;
-
-    //public string? ToolTip
-
-    public override TypedToken GetToken()
-    {
-        //todo: ISpanParseable かつ IComparable or IEquatable なものに対応
-        // 無差別に判定して PrimitivePropertyToken に流していい？困る？
-        // (今はコード補完だけ聞かない。Parse, Emit はできてる。)
-        var t = property.PropertyType;
-        return (TypedToken?)PrimitivePropertyToken.Get(t) ?? new PropertyToken(property);
-    }
+    private string GetDebuggerDisplay() => $"{Direct.GetDebuggerDisplay()} / {Parenthesis.GetDebuggerDisplay()}";
 }

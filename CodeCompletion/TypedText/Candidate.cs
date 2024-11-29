@@ -1,16 +1,10 @@
 namespace CodeCompletion.TypedText;
 
-public abstract class Candidate
-{
-    public abstract string? Text { get; }
-    public abstract TypedToken GetToken();
-}
-
 /// <summary>
-/// 常に固定の <see cref="Text"/>, <see cref="TypedToken"/> を返す <see cref="Candidate"/>。
+/// 補完候補。
 /// </summary>
-public class FixedCandidate(string? text, TypedToken token) : Candidate
-{
-    public override string? Text => text;
-    public override TypedToken GetToken() => token;
-}
+public record struct Candidate(string? Text);
+
+//todo:
+// Description みたいなの出したい。
+// 整数・文字列リテラルみたいな自由入力にもヒントくらいは出したい。

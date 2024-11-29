@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace CodeCompletion;
 
 internal class TypeHelper
@@ -17,5 +19,21 @@ internal class TypeHelper
         }
 
         return null;
+    }
+
+    public static bool IsNullable(PropertyInfo p)
+    {
+        var pt = p.PropertyType;
+
+        // 値型
+        if (pt.IsGenericType && pt.GetGenericTypeDefinition() == typeof(Nullable<>)) return true;
+
+        // T? じゃない値型
+        if (pt.IsValueType) return false;
+
+        // 参照型
+        var c = new NullabilityInfoContext();
+        var i = c.Create(p);
+        return i.ReadState != NullabilityState.NotNull;
     }
 }

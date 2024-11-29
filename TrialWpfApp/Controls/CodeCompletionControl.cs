@@ -124,7 +124,7 @@ public partial class CodeCompletionControl : ContentControl
     private void UpdateViewModel(object? newValue)
     {
         TextSource = newValue is ViewModel vm && _textProperties is { } prop
-            ? new(vm.Semantics, prop, Height) // 改行を想定してない
+            ? new(vm.Texts, prop, Height) // 改行を想定してない
             : null;
     }
 
@@ -136,7 +136,6 @@ public partial class CodeCompletionControl : ContentControl
         var (t, p) = buffer.GetPosition();
         System.Diagnostics.Debug.WriteLine($"""
 cursor: {buffer.Cursor} token: {t} pos: {p}
-tokens: {string.Join(", ", vm.Semantics.Tokens)}
 candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {vm.SelectedCandidateIndex})
 
 """);

@@ -1,11 +1,22 @@
 using CodeCompletion.Syntax;
+using CodeCompletion.Text;
 using CodeCompletion.TypedText;
 
 namespace CodeCompletion.Emit;
 
 internal class Emitter
 {
-    public static ObjectMatcher? Emit(Node node, Type root) => node.Type switch
+    public static Func<object?, bool>? Emit(TextBuffer texts, Type root)
+    {
+        var node = Parser.Parse(texts);
+        if (node.IsNull) return null;
+
+        var m = Emit(node, root)!;
+        if (m is null) return null;
+        return m.Match;
+    }
+
+    private static ObjectMatcher? Emit(Node node, Type root) => node.Type switch
     {
         NodeType.Comma => new And(EmitChildren(node, root)),
         NodeType.Or => new Or(EmitChildren(node, root)),
