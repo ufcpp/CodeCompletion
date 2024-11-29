@@ -29,10 +29,10 @@ public static class Tokenizer
         {
             >= '0' and <= '9' or '-' => TokenCategory.Number,
             //>= '1' and <= '9' => TokenCategory.Number,
-            '<' or '>' or '=' or '!' => TokenCategory.Operator,
+            '<' or '>' or '=' or '!' or '~' => TokenCategory.Operator,
             '"' or '\'' => TokenCategory.String,
             '.' => TokenCategory.DotIntrinsics,
-            ',' or '|' or '&' or '(' or ')' or '~' => TokenCategory.Isolation,
+            ',' or '|' or '&' or '(' or ')' => TokenCategory.Isolation,
             _ => TokenCategory.Unknown
         };
     }
@@ -67,7 +67,7 @@ public static class Tokenizer
             //    if (c.Value is (>= '0' and <= '9') or (>= 'a' and <= 'z') or (>= 'A' and <= 'Z')) return TokenSplit.Insert;
             //    return split(c);
             case TokenCategory.Operator:
-                if (c.Value is '<' or '>' or '=' or '!') return TokenSplit.Insert;
+                if (text is ['<'] or ['>'] or ['!'] && c.Value == '=') return TokenSplit.Insert;
                 return split(c);
             case TokenCategory.String:
                 if (c.Value is '"' or '\'') return TokenSplit.InsertThenSplit;
