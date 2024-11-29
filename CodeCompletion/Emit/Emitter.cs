@@ -53,7 +53,7 @@ internal class Emitter
         {
             if (node.Span[0].Span is IntrinsicNames.Length)
             {
-                var child = Primary(node.Left, typeof(int));
+                var child = Emit(node.Left, typeof(int));
                 if (child is null) return null;
                 return new ArrayLength(child);
             }
@@ -74,7 +74,7 @@ internal class Emitter
             //todo: = null, != null だけは配列インスタンス自体の null 判定にした方がいいかも。
             // (Any(x => x != null) の意味にしたければ Array .any != null とか書く。)
 
-            var elem = Primary(node, et);
+            var elem = Emit(node, et);
             if (elem is null) return null;
             return all ? new ArrayAll(elem) : new ArrayAny(elem);
         }
@@ -98,7 +98,7 @@ internal class Emitter
         if (name is ['.', ..] && GetIntrinsicType(name) is { } it)
         {
             // .length とか。
-            var child = Primary(node.Left, it);
+            var child = Emit(node.Left, it);
             if (child is null) return null;
             return Intrinsic.Create(name, t, child);
         }
@@ -107,7 +107,7 @@ internal class Emitter
             // プロパティアクセス。
             if (t.GetProperty(name) is not { } p) return null;
 
-            var child = Primary(node.Left, p.PropertyType);
+            var child = Emit(node.Left, p.PropertyType);
             if (child is null) return null;
             return new Property(name, child);
         }

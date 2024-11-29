@@ -19,6 +19,7 @@ internal static class Candidates
         var cat = Tokenizer.Categorize(previousToken);
         if (cat == TokenCategory.Operator)
         {
+            //todo: 配列のときは要素の型をベースに決める。
             if (property.Nearest.PropertyType == typeof(bool))
             {
                 return _boolValues;
