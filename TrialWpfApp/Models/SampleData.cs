@@ -43,5 +43,7 @@ internal class SampleData
         new() { Id = 36, Item = new() { List = [new(1, 2), new(3, 4)] } },
         new() { Id = 37, Item = new() { Dictionary = new() { { "a", new(1, 2) }, { "b", new(1, 3) } } } },
         new() { Id = 38, Item = new() { Dictionary = new() { { "a", new(1, 2) }, { "c", new(3, 4) } } } },
+
+        new() { Id = 39, R1 = new() { R2=[new() { R1= new() }] } },
     ];
 }

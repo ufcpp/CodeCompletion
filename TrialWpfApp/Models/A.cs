@@ -13,6 +13,9 @@ public class A
     public bool Flag { get; set; }
     public C[] Points { get; set; }
     public D[] Structs { get; set; }
+
+    public A R1 { get; set; }
+    public A[] R2 { get; set; }
 }
 
 public class B
