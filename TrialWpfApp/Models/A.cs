@@ -16,6 +16,7 @@ public class A
 
     public A R1 { get; set; }
     public A[] R2 { get; set; }
+    public NB NItem { get; set; }
 }
 
 public class B
@@ -58,6 +59,64 @@ public class B
     public Dictionary<string, D> Dictionary { get; set; }
 
     public string Description { get; set; }
+}
+
+public class NB
+{
+    public byte? U8 { get; set; }
+    public sbyte? I8 { get; set; }
+    public short? I16 { get; set; }
+    public ushort? U16 { get; set; }
+    public int? I32 { get; set; }
+    public uint? U32 { get; set; }
+    public long? I64 { get; set; }
+    public ulong? U64 { get; set; }
+    public float? F32 { get; set; }
+    public double? F64 { get; set; }
+
+    public DateTime? D1 { get; set; }
+    public DateTimeOffset? D2 { get; set; }
+    public DateOnly? Date { get; set; }
+    public TimeOnly? Time { get; set; }
+    public TimeSpan? TimeSpan { get; set; }
+
+    public E? E1 { get; set; }
+    public F? E2 { get; set; }
+
+    public Comparable Comparable { get; set; }
+    public Equatable Equatable { get; set; }
+
+    public List<D?> List { get; set; }
+    public Dictionary<string, D?> Dictionary { get; set; }
+
+    public string? Description { get; set; }
+
+    public S<int> N1 { get; set; }
+    public C<string> N2 { get; set; }
+    public S<Comparable> N3 { get; set; }
+    public C<C> N4 { get; set; }
+    public S<D> N5 { get; set; }
+    public S<E> N6 { get; set; }
+}
+
+public struct S<T> where T : struct
+{
+    public T[] X1 { get; set; }
+    public T[]? X2 { get; set; }
+    public T?[] X3 { get; set; }
+    public T?[]? X4 { get; set; }
+    public List<T?> X5 { get; set; }
+    public Dictionary<int, T?> X6 { get; set; }
+}
+
+public struct C<T> where T : notnull
+{
+    public T[] X1 { get; set; }
+    public T[]? X2 { get; set; }
+    public T?[] X3 { get; set; }
+    public T?[]? X4 { get; set; }
+    public List<T?> X5 { get; set; }
+    public Dictionary<int, T?> X6 { get; set; }
 }
 
 public record class C(int X, int Y);
