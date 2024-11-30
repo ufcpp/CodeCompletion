@@ -54,18 +54,7 @@ internal class CodeCompletionTextSource(TextBuffer texts, CommonTextProperties t
 
     private GenericTextRunProperties GetTextRunProperties(ReadOnlySpan<char> token)
     {
-        var cat = Tokenizer.Categorize(token);
-
-        var i = cat switch
-        {
-            TokenCategory.Identifier => IsKeyword(token) ? 5 : 1,
-            TokenCategory.DotIntrinsics => 1,
-            TokenCategory.Operator => 3,
-            TokenCategory.Number or TokenCategory.String => 4,
-            _ => 0,
-        };
-
-        //todo: 一時的に Primitive 出なくなってる。
+        var i = GetBrushIndex(token);
         return GetTextRunProperties(i);
     }
 
@@ -78,12 +67,26 @@ internal class CodeCompletionTextSource(TextBuffer texts, CommonTextProperties t
     private static readonly Brush[] _tokenBrushes =
     [
         Brushes.Black,
-        Brushes.MidnightBlue,
-        Brushes.DarkGreen,
-        Brushes.Purple,
-        Brushes.DarkRed,
-        Brushes.Blue,
+        Brushes.Navy, // 1: property
+        Brushes.DarkGreen, // 2: primitive property (判定コスト高すぎるんで現状、欠番)
+        Brushes.Blue, // 3: keyword
+        Brushes.SaddleBrown, // 4: intrinsics
+        Brushes.DarkRed, // 5: literal
+        Brushes.Indigo, // 6: comparison
+        Brushes.Violet, // 7: conjunction
+        Brushes.Purple, // 8: punctuation
     ];
+
+    private static int GetBrushIndex(ReadOnlySpan<char> token) => Tokenizer.Categorize(token) switch
+    {
+        TokenCategory.Identifier => IsKeyword(token) ? 3 : 1,
+        TokenCategory.DotIntrinsics => 4,
+        TokenCategory.Number or TokenCategory.String => 5,
+        TokenCategory.Comparison => 6,
+        TokenCategory.Conjunction => 7,
+        TokenCategory.Punctuation => 8,
+        _ => 0,
+    };
 
     //private static int GetBrushIndex(TypedToken? token) => token switch
     //{

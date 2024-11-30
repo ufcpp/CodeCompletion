@@ -26,6 +26,12 @@ public enum TokenCategory
     Identifier,
 
     /// <summary>
+    /// 組み込み演算みたいなのを . 開始 + ASCII letter にした。
+    /// (.length とか .floor とか。)
+    /// </summary>
+    DotIntrinsics,
+
+    /// <summary>
     /// 10進リテラル。
     /// </summary>
     Number,
@@ -34,31 +40,27 @@ public enum TokenCategory
     //HexNumber,
 
     /// <summary>
-    /// 演算子。
-    /// といいつつ、equality, comparison のみ。
-    /// </summary>
-    Operator,
-
-    /// <summary>
     /// ""
     /// </summary>
     String,
 
     /// <summary>
-    /// 組み込み演算みたいなのを . 開始 + ASCII letter にした。
-    /// (.length とか .floor とか。)
+    /// 演算子。
+    /// といいつつ、equality, comparison のみ。
     /// </summary>
-    DotIntrinsics,
+    Comparison,
 
     /// <summary>
-    /// , とか。
+    /// , | &amp;
+    /// </summary>
+    Conjunction,
+
+    /// <summary>
+    /// ()
     /// </summary>
     /// <remarks>
-    /// 最初は Punctuation って名前で , ( ) を含めてたけど、
-    /// regex 演算子足したことで「孤立トークン」(1文字限りのトークン)に変えた。
-    /// regex だけ分ける意味もなく。
-    ///
-    /// <see cref="Operator"/> の方を Comparison とかに返る方がいいかもしれない。
+    /// tokenize ルール的には <see cref="Conjunction"/> と全く一緒。
+    /// 色を変えるように enum 値分けた。
     /// </remarks>
-    Isolation,
+    Punctuation,
 }

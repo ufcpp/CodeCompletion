@@ -29,10 +29,11 @@ public static class Tokenizer
         {
             >= '0' and <= '9' or '-' => TokenCategory.Number,
             //>= '1' and <= '9' => TokenCategory.Number,
-            '<' or '>' or '=' or '!' or '~' => TokenCategory.Operator,
+            '<' or '>' or '=' or '!' or '~' => TokenCategory.Comparison,
             '"' or '\'' => TokenCategory.String,
             '.' => TokenCategory.DotIntrinsics,
-            ',' or '|' or '&' or '(' or ')' => TokenCategory.Isolation,
+            ',' or '|' or '&' => TokenCategory.Conjunction,
+            '(' or ')' => TokenCategory.Punctuation,
             _ => TokenCategory.Unknown
         };
     }
@@ -59,6 +60,9 @@ public static class Tokenizer
                 if ((uint)uc <= 10 // Letter, Mark, Number
                     || c.Value == '_') return TokenSplit.Insert;
                 return split(c);
+            case TokenCategory.DotIntrinsics:
+                if (c.IsAscii && (uint)uc <= 4) return TokenSplit.Insert;
+                return split(c);
             case TokenCategory.Number:
                 if (c.Value is (>= '0' and <= '9') or '.') return TokenSplit.Insert;
                 //if (text is ['0'] && c.Value is 'x' or 'X') return TokenSplit.Insert;
@@ -66,17 +70,15 @@ public static class Tokenizer
             //case TokenCategory.HexNumber:
             //    if (c.Value is (>= '0' and <= '9') or (>= 'a' and <= 'z') or (>= 'A' and <= 'Z')) return TokenSplit.Insert;
             //    return split(c);
-            case TokenCategory.Operator:
-                if (text is ['<'] or ['>'] or ['!'] && c.Value == '=') return TokenSplit.Insert;
-                return split(c);
             case TokenCategory.String:
                 if (c.Value is '"' or '\'') return TokenSplit.InsertThenSplit;
                 //todo: \" とかの escape 判定
                 return TokenSplit.Insert;
-            case TokenCategory.DotIntrinsics:
-                if (c.IsAscii && (uint)uc <= 4) return TokenSplit.Insert;
+            case TokenCategory.Comparison:
+                if (text is ['<'] or ['>'] or ['!'] && c.Value == '=') return TokenSplit.Insert;
                 return split(c);
-            case TokenCategory.Isolation:
+            case TokenCategory.Conjunction:
+            case TokenCategory.Punctuation:
                 return split(c);
         }
 

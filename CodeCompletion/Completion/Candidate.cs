@@ -17,7 +17,7 @@ internal static class Candidates
     public static IEnumerable<Candidate> GetCandidates(ReadOnlySpan<char> previousToken, PropertyHierarchy property)
     {
         var cat = Tokenizer.Categorize(previousToken);
-        if (cat == TokenCategory.Operator)
+        if (cat == TokenCategory.Comparison)
         {
             //todo: 配列のときは要素の型をベースに決める。
             if (property.Nearest.PropertyType == typeof(bool))
@@ -34,7 +34,7 @@ internal static class Candidates
         {
             return c;
         }
-        if (cat == TokenCategory.Isolation)
+        if (cat == TokenCategory.Conjunction)
         {
             // ) の後ろはリテラルとかと同じ扱い。
             if (previousToken is ")") return _conjunction;
