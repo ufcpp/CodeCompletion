@@ -64,6 +64,13 @@ internal static class Compare
     {
         public static ObjectMatcher? Create(ComparisonType comparison, Type type, ReadOnlySpan<char> valueSpan)
         {
+            if (Nullable.GetUnderlyingType(type) is { } ut)
+            {
+                var inner = Compare.Create(comparison, ut, valueSpan);
+                var t = typeof(NullableMatcher<>).MakeGenericType(ut);
+                return (ObjectMatcher)Activator.CreateInstance(t, inner)!;
+            }
+
             Type? genericType = null;
 
             if (type.IsEnum)
@@ -191,5 +198,12 @@ internal static class Compare
         private class GreaterThanOrEqual(IComparable operand) : ObjectMatcher<IComparable> { public override bool Match(IComparable value) => value.CompareTo(operand) >= 0; }
         private class LessThan(IComparable operand) : ObjectMatcher<IComparable> { public override bool Match(IComparable value) => value.CompareTo(operand) < 0; }
         private class LessThanOrEqual(IComparable operand) : ObjectMatcher<IComparable> { public override bool Match(IComparable value) => value.CompareTo(operand) <= 0; }
+    }
+
+    private class NullableMatcher<T>(ObjectMatcher matcher) : ObjectMatcher<T?>
+        where T : struct
+    {
+        // null との比較は IsNull, IsNotNull に行くはず。
+        public override bool Match(T? value) => value is { } x && matcher.Match(x);
     }
 }

@@ -49,8 +49,6 @@ internal static class Candidates
         }
 
         return _conjunction;
-
-        //todo: 色々移植。
     }
 
     private static readonly Candidate[] _conjunction =
@@ -75,11 +73,10 @@ internal static class Candidates
         var x = Array(property) ?? ElementProperty(property.PropertyType);
 
         // = null, != null の分、演算子を足す。
+        //todo: nullable primitive の時には重複するのではじきたい。
         if (property.IsNullable) x = [.. x, .. _equatableCandidates];
 
         return x.Append(new("("));
-
-        //todo: enumerable
     }
 
     private static IEnumerable<Candidate>? Array(Property property)
@@ -110,7 +107,10 @@ internal static class Candidates
 
     private static Candidate[]? PrimitiveProperty(TypeInfo type)
     {
-        return type.Type.GetComparableType() switch
+        var t = type.Type;
+        if (Nullable.GetUnderlyingType(t) is { } ut) t = ut;
+
+        return t.GetComparableType() switch
         {
             ComparableTypeCategory.String => _stringCandidates,
             ComparableTypeCategory.Bool => _boolCandidates,
@@ -121,9 +121,6 @@ internal static class Candidates
             ComparableTypeCategory.Equatable => [.. _equatableCandidates, .. GetProperties(type)],
             _ => null,
         };
-
-        //todo: nullable
-        //todo: enum
     }
 
     private static readonly Candidate[] _nullValue = [new("null")];
