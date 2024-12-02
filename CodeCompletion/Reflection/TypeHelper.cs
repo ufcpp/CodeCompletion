@@ -23,6 +23,7 @@ internal static class TypeHelper
             || type == typeof(ushort)
             || type == typeof(sbyte)
             ) return ComparableTypeCategory.Integer;
+        if (type.IsEnum) return ComparableTypeCategory.Enum;
         if (type == typeof(TimeSpan)
             || type == typeof(DateTime)
             || type == typeof(DateTimeOffset)
@@ -69,6 +70,7 @@ internal enum ComparableTypeCategory
     Bool,
     Float,
     Integer,
+    Enum,
     Comparable,
     Equatable,
 }

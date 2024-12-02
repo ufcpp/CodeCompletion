@@ -116,6 +116,7 @@ internal static class Candidates
             ComparableTypeCategory.Bool => _boolCandidates,
             ComparableTypeCategory.Float => _floatCandidates,
             ComparableTypeCategory.Integer => _comparableCandidates,
+            ComparableTypeCategory.Enum => _comparableCandidates,
             ComparableTypeCategory.Comparable => [.. _comparableCandidates, .. GetProperties(type)],
             ComparableTypeCategory.Equatable => [.. _equatableCandidates, .. GetProperties(type)],
             _ => null,
