@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace CodeCompletion;
+namespace CodeCompletion.Reflection;
 
 internal class TypeHelper
 {
@@ -45,9 +45,9 @@ internal class TypeHelper
             if (!i.IsGenericType) continue;
             var args = i.GenericTypeArguments;
             if (args.Length != 1 || args[0] != type) continue;
-            if (i.GetGenericTypeDefinition() == typeof(IComparable<>)) x |= CodeCompletion.HasInterface.IComparable;
-            if (i.GetGenericTypeDefinition() == typeof(IEquatable<>)) x |= CodeCompletion.HasInterface.IEquatable;
-            if (i.GetGenericTypeDefinition() == typeof(ISpanParsable<>)) x |= CodeCompletion.HasInterface.ISpanParsable;
+            if (i.GetGenericTypeDefinition() == typeof(IComparable<>)) x |= Reflection.HasInterface.IComparable;
+            if (i.GetGenericTypeDefinition() == typeof(IEquatable<>)) x |= Reflection.HasInterface.IEquatable;
+            if (i.GetGenericTypeDefinition() == typeof(ISpanParsable<>)) x |= Reflection.HasInterface.ISpanParsable;
         }
         return x;
     }

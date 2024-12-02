@@ -1,6 +1,7 @@
 using CodeCompletion.Syntax;
 using CodeCompletion.Text;
 using CodeCompletion.Completion;
+using CodeCompletion.Reflection;
 
 namespace CodeCompletion.Emit;
 

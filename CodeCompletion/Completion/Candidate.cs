@@ -1,3 +1,4 @@
+using CodeCompletion.Reflection;
 using CodeCompletion.Text;
 using System.Diagnostics;
 

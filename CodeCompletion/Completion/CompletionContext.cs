@@ -1,4 +1,5 @@
 using CodeCompletion.Emit;
+using CodeCompletion.Reflection;
 using CodeCompletion.Text;
 
 namespace CodeCompletion.Completion;
