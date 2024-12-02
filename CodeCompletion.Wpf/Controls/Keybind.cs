@@ -1,7 +1,8 @@
 using CodeCompletion.Text;
+using CodeCompletion.ViewModels;
 using System.Windows.Input;
 
-namespace TrialWpfApp.Controls;
+namespace CodeCompletion.Controls;
 
 internal static class Keybind
 {

@@ -3,7 +3,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
-namespace TrialWpfApp.Controls;
+namespace CodeCompletion.Controls;
 
 partial class CodeCompletionControl
 {

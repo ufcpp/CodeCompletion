@@ -107,12 +107,6 @@ public class CompletionContext : ICompletionContext
         }
     }
 
-    public void Reset(ReadOnlySpan<char> source)
-    {
-        Texts.Reset(source);
-        Refresh();
-    }
-
     public Func<object?, bool>? Emit() => Emitter.Emit(Texts, Root)!;
 }
 

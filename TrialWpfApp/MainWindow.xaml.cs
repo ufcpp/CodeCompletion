@@ -1,5 +1,5 @@
+using CodeCompletion.Controls;
 using System.Windows;
-using TrialWpfApp.Controls;
 using TrialWpfApp.Models;
 
 namespace TrialWpfApp;

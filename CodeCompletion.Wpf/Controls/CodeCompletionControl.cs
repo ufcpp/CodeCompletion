@@ -1,3 +1,4 @@
+using CodeCompletion.ViewModels;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -5,7 +6,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace TrialWpfApp.Controls;
+namespace CodeCompletion.Controls;
 
 public partial class CodeCompletionControl : ContentControl
 {

@@ -1,15 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <RootNamespace>CodeCompletion</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CodeCompletion.Wpf\CodeCompletion.Wpf.csproj" />
     <ProjectReference Include="..\CodeCompletion\CodeCompletion.csproj" />
-    <ProjectReference Include="..\ObjectMatching\ObjectMatching.csproj" />
   </ItemGroup>
 
 </Project>

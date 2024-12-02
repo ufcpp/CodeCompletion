@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
 
-namespace TrialWpfApp.Controls;
+namespace CodeCompletion.Controls;
 
 public readonly record struct CommonTextProperties(
     double FontHintingEmSize,

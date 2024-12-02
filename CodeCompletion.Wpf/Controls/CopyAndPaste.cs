@@ -1,10 +1,11 @@
+using CodeCompletion.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace TrialWpfApp.Controls;
+namespace CodeCompletion.Controls;
 
-internal static class CopyAndPaste
+public static class CopyAndPaste
 {
     public static void BindCopyAndPaste(this Control e)
     {

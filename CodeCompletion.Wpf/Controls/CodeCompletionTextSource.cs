@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
 
-namespace TrialWpfApp.Controls;
+namespace CodeCompletion.Controls;
 
 internal class CodeCompletionTextSource(TextBuffer texts, CommonTextProperties textRunProperties, double lineHeight) : TextSource
 {
