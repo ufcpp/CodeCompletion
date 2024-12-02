@@ -35,7 +35,7 @@ internal static class Candidates
         {
             return c;
         }
-        if (cat == TokenCategory.Conjunction)
+        if (cat == TokenCategory.Conjunction || cat == TokenCategory.Punctuation)
         {
             // ) の後ろはリテラルとかと同じ扱い。
             if (previousToken is ")") return _conjunction;
