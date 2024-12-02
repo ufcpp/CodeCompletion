@@ -1,7 +1,7 @@
-using CodeCompletion.Reflection;
+using ObjectMatching.Reflection;
 using System.Diagnostics;
 
-namespace CodeCompletion.Completion;
+namespace ObjectMatching.Completion;
 
 /// <summary>
 /// プロパティ情報。

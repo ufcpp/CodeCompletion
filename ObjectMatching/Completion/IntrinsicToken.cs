@@ -1,5 +1,4 @@
-
-namespace CodeCompletion.Completion;
+namespace ObjectMatching.Completion;
 
 internal class IntrinsicNames
 {

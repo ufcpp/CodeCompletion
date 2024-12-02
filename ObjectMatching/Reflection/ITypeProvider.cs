@@ -1,6 +1,6 @@
 using S = System.Reflection;
 
-namespace CodeCompletion.Reflection;
+namespace ObjectMatching.Reflection;
 
 /// <summary>
 /// 型情報の取得方法をカスタマイズしたいことがあるので、

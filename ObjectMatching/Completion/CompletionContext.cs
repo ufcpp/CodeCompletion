@@ -1,10 +1,11 @@
-using CodeCompletion.Emit;
-using CodeCompletion.Reflection;
+using CodeCompletion.Completion;
 using CodeCompletion.Text;
+using ObjectMatching.Emit;
+using ObjectMatching.Reflection;
 
-namespace CodeCompletion.Completion;
+namespace ObjectMatching.Completion;
 
-public class CompletionContext
+public class CompletionContext : ICompletionContext
 {
     public CompletionContext(TypeInfo root, TextBuffer texts)
     {

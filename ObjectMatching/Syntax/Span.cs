@@ -1,4 +1,4 @@
-namespace CodeCompletion.Syntax;
+namespace ObjectMatching.Syntax;
 
 /// <summary>
 /// テキスト中の範囲。

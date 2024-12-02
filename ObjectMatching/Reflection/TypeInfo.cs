@@ -1,4 +1,4 @@
-namespace CodeCompletion.Reflection;
+namespace ObjectMatching.Reflection;
 
 /// <summary>
 /// <see cref="Type"/> が必要なところには必ず <see cref="ITypeProvider"/> を伝搬させたいのでペアに。

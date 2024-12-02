@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace CodeCompletion.Emit;
+namespace ObjectMatching.Emit;
 
 internal class StringLength(ObjectMatcher mather) : ObjectMatcher<string>
 {

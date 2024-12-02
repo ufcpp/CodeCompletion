@@ -1,7 +1,7 @@
-using CodeCompletion.Completion;
-using CodeCompletion.Reflection;
+using ObjectMatching.Completion;
+using ObjectMatching.Reflection;
 
-namespace CodeCompletion.Emit;
+namespace ObjectMatching.Emit;
 
 internal abstract class ObjectMatcher
 {

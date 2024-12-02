@@ -1,6 +1,6 @@
-using CodeCompletion.Completion;
+using ObjectMatching.Completion;
 
-namespace CodeCompletion.Syntax;
+namespace ObjectMatching.Syntax;
 
 public enum NodeType : byte
 {

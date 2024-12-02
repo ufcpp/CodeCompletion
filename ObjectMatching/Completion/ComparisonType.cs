@@ -1,4 +1,4 @@
-namespace CodeCompletion.Completion;
+namespace ObjectMatching.Completion;
 
 public enum ComparisonType
 {

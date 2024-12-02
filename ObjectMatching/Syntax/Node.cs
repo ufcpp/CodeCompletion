@@ -1,6 +1,6 @@
 using CodeCompletion.Text;
 
-namespace CodeCompletion.Syntax;
+namespace ObjectMatching.Syntax;
 
 /// <summary>
 /// 構文木のノード。

@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace CodeCompletion.Syntax;
+namespace ObjectMatching.Syntax;
 
 internal readonly struct Builder()
 {

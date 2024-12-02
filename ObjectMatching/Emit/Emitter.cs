@@ -1,9 +1,9 @@
-using CodeCompletion.Syntax;
 using CodeCompletion.Text;
-using CodeCompletion.Completion;
-using CodeCompletion.Reflection;
+using ObjectMatching.Syntax;
+using ObjectMatching.Completion;
+using ObjectMatching.Reflection;
 
-namespace CodeCompletion.Emit;
+namespace ObjectMatching.Emit;
 
 internal class Emitter
 {

@@ -1,4 +1,4 @@
-namespace CodeCompletion.Reflection;
+namespace ObjectMatching.Reflection;
 
 /// <summary>
 /// <see cref="ITypeProvider"/> と違って virtual にする必要なさそうなものは拡張メソッド提供。

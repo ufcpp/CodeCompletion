@@ -9,4 +9,5 @@
     <Project Path="TrialWpfApp/TrialWpfApp.csproj" />
   </Folder>
   <Project Path="CodeCompletion/CodeCompletion.csproj" />
+  <Project Path="ObjectMatching/ObjectMatching.csproj" />
 </Solution>

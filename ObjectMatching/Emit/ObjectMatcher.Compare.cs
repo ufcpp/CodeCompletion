@@ -1,8 +1,8 @@
-using CodeCompletion.Completion;
-using CodeCompletion.Reflection;
+using ObjectMatching.Completion;
+using ObjectMatching.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace CodeCompletion.Emit;
+namespace ObjectMatching.Emit;
 
 internal static class Compare
 {

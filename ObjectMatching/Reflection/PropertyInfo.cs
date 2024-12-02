@@ -1,6 +1,6 @@
 using S = System.Reflection;
 
-namespace CodeCompletion.Reflection;
+namespace ObjectMatching.Reflection;
 
 /// <summary>
 /// <see cref="S.PropertyInfo"/> が必要なところには必ず <see cref="ITypeProvider"/> を伝搬させたいのでペアに。
