@@ -71,7 +71,6 @@ public partial class CodeCompletionControl : ContentControl
         _candidates.SelectedIndex = vm.SelectedCandidateIndex;
         _candidates.Visibility = vm.Candidates.Any() ? Visibility.Visible : Visibility.Collapsed;
         _text.InvalidateVisual();
-        ShowDiag(vm);
     }
 
     private static bool CtrlKeyDown
@@ -129,17 +128,6 @@ public partial class CodeCompletionControl : ContentControl
     }
 
     private void UpdateViewModel() => UpdateViewModel(DataContext);
-
-    private static void ShowDiag(ViewModel vm)
-    {
-        var buffer = vm.Texts;
-        var (t, p) = buffer.GetPosition();
-        System.Diagnostics.Debug.WriteLine($"""
-cursor: {buffer.Cursor} token: {t} pos: {p}
-candidates: {string.Join(", ", vm.Candidates.Select(x => x.Text))} (selected: {vm.SelectedCandidateIndex})
-
-""");
-    }
 
     internal void UpdateCaret(double x)
     {

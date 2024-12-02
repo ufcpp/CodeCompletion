@@ -46,6 +46,19 @@ public class ViewModel : INotifyPropertyChanged
         Completion.Refresh();
         _candidates?.Invalidate();
         SelectedCandidateIndex = Completion.SelectedCandidateIndex;
+
+        ShowDiag();
+    }
+
+    private void ShowDiag()
+    {
+        var buffer = Texts;
+        var (t, p) = buffer.GetPosition();
+        System.Diagnostics.Debug.WriteLine($"""
+cursor: {buffer.Cursor} token: {t} pos: {p}
+candidates: {string.Join(", ", Candidates.Select(x => x.Text))} (selected: {SelectedCandidateIndex})
+
+""");
     }
 
     private Wrap<Candidate>? _candidates;
