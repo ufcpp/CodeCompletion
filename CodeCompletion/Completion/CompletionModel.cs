@@ -1,3 +1,4 @@
+using CodeCompletion.Reflection;
 using CodeCompletion.Text;
 
 namespace CodeCompletion.Completion;
@@ -8,7 +9,7 @@ public class CompletionModel(Type type)
     private readonly List<Candidate> _candidates = [];
     public int SelectedCandidateIndex { get; private set; }
 
-    public CompletionContext Context { get; } = new(type, new());
+    public CompletionContext Context { get; } = new(new(type, new DefaultTypeProvider()), new());
     public TextBuffer Texts => Context.Texts;
 
     // (仮)

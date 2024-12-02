@@ -1,6 +1,5 @@
 using CodeCompletion.Reflection;
 using System.Diagnostics;
-using System.Reflection;
 
 namespace CodeCompletion.Completion;
 
@@ -12,9 +11,11 @@ namespace CodeCompletion.Completion;
 /// intrinsics の時に似せ PropertyInfo 作るのが面倒だし、使う情報は型、名前、nullability だけなので。
 /// </remarks>
 [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
-internal readonly record struct Property(Type PropertyType, string Name, bool IsNullable) //todo: 配列の要素、型引数等
+internal readonly record struct Property(TypeInfo PropertyType, string Name, bool IsNullable) //todo: 配列の要素、型引数等
 {
-    public Property(PropertyInfo p) : this(p.PropertyType, p.Name, TypeHelper.IsNullable(p)) { }
+    public Property(PropertyInfo p) : this(p.PropertyType, p.Name, p.IsNullable()) { }
+
+    public ITypeProvider TypeProvider => PropertyType.TypeProvider;
 
     internal string GetDebuggerDisplay() => $"{Name}:{PropertyType.Name}{(IsNullable ? "?" : "")}";
 }
@@ -29,5 +30,7 @@ internal record PropertyHierarchy(
     Property Parent,
     Property Nearest)
 {
+    public ITypeProvider TypeProvider => Parent.TypeProvider;
+
     private string GetDebuggerDisplay() => $"{Parent.GetDebuggerDisplay()}({Nearest.GetDebuggerDisplay()})";
 }

@@ -6,14 +6,14 @@ namespace CodeCompletion.Completion;
 
 public class CompletionContext
 {
-    public CompletionContext(Type root, TextBuffer texts)
+    public CompletionContext(TypeInfo root, TextBuffer texts)
     {
         Root = root;
         Texts = texts;
         Refresh();
     }
 
-    public Type Root { get; }
+    public TypeInfo Root { get; }
     public TextBuffer Texts { get; }
 
     private readonly List<PropertyHierarchy> _propertyInfo = [];
@@ -65,10 +65,8 @@ public class CompletionContext
         if (cat == TokenCategory.Identifier)
         {
             var t = property.Nearest.PropertyType;
-            if (TypeHelper.GetElementType(t) is { } et) t = et;
-            var p = t.GetProperty(text.ToString());
-            if (p is null) return null;
-            return new(p);
+            if (t.GetElementType() is { } et) t = et;
+            return t.GetProperty(text.ToString()) is { } p ? new(p) : null;
         }
 
         if (cat == TokenCategory.DotIntrinsics)
@@ -85,7 +83,7 @@ public class CompletionContext
             };
 
             if (t is null) return null;
-            return new(t, text.ToString(), false);
+            return new(new(t, property.TypeProvider), text.ToString(), false);
         }
 
         return null;

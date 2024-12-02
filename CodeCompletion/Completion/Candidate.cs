@@ -20,8 +20,7 @@ internal static class Candidates
         var cat = Tokenizer.Categorize(previousToken);
         if (cat == TokenCategory.Comparison)
         {
-            //todo: 配列のときは要素の型をベースに決める。
-            if (property.Nearest.PropertyType == typeof(bool))
+            if (property.Nearest.PropertyType.Type == typeof(bool))
             {
                 return _boolValues;
             }
@@ -85,7 +84,7 @@ internal static class Candidates
 
     private static IEnumerable<Candidate>? Array(Property property)
     {
-        if (TypeHelper.GetElementType(property.PropertyType) is { } et)
+        if (property.PropertyType.GetElementType() is { } et)
         {
             var x = ElementProperty(et);
             return [.. x, .. _arrayIntrinsics];
@@ -96,22 +95,22 @@ internal static class Candidates
     private static IEnumerable<Candidate>? ArrayIntrinsic(Property property)
     {
         // Array と違って、 .any .all は出さない。
-        var et = TypeHelper.GetElementType(property.PropertyType);
-        Debug.Assert(et is not null);
-        var x = ElementProperty(et);
+        var et = property.PropertyType.GetElementType();
+        Debug.Assert(et != null);
+        var x = ElementProperty(et.GetValueOrDefault());
         return [.. x, new("(")];
     }
 
-    private static IEnumerable<Candidate> ElementProperty(Type type)
+    private static IEnumerable<Candidate> ElementProperty(TypeInfo type)
         => PrimitiveProperty(type)
             ?? GetProperties(type);
 
-    private static IEnumerable<Candidate> GetProperties(Type type)
+    private static IEnumerable<Candidate> GetProperties(TypeInfo type)
         => type.GetProperties().Select(p => new Candidate(p.Name));
 
-    private static Candidate[]? PrimitiveProperty(Type type)
+    private static Candidate[]? PrimitiveProperty(TypeInfo type)
     {
-        return type.GetComparableType() switch
+        return type.Type.GetComparableType() switch
         {
             ComparableTypeCategory.String => _stringCandidates,
             ComparableTypeCategory.Bool => _boolCandidates,

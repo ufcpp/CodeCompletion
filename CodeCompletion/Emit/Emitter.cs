@@ -7,7 +7,7 @@ namespace CodeCompletion.Emit;
 
 internal class Emitter
 {
-    public static Func<object?, bool>? Emit(TextBuffer texts, Type type)
+    public static Func<object?, bool>? Emit(TextBuffer texts, TypeInfo type)
     {
         var node = Parser.Parse(texts);
         if (node.IsNull) return null;
@@ -17,7 +17,7 @@ internal class Emitter
         return m.Match;
     }
 
-    private static ObjectMatcher? Emit(Node node, Type type) => node.Type switch
+    private static ObjectMatcher? Emit(Node node, TypeInfo type) => node.Type switch
     {
         NodeType.Null => null,
         NodeType.Comma => new And(EmitChildren(node, type)),
@@ -26,7 +26,7 @@ internal class Emitter
         _ => Primary(node, type),
     };
 
-    private static ObjectMatcher?[] EmitChildren(Node node, Type type)
+    private static ObjectMatcher?[] EmitChildren(Node node, TypeInfo type)
     {
         var childNodes = node.GetChildren();
         var children = new ObjectMatcher?[childNodes.Length];
@@ -46,16 +46,16 @@ internal class Emitter
         _ => null,
     };
 
-    private static ObjectMatcher? Primary(Node node, Type type)
+    private static ObjectMatcher? Primary(Node node, TypeInfo type)
     {
         if (node.IsNull) return null;
 
         // Array X = 1 とか書いて、C# でいう x.Array.Any(x => x.X == 1) 扱い。
-        if (TypeHelper.GetElementType(type) is { } et)
+        if (type.GetElementType() is { } et)
         {
             if (node.Span[0].Span is IntrinsicNames.Length)
             {
-                var child = Emit(node.Left, typeof(int));
+                var child = Emit(node.Left, new(typeof(int), type.TypeProvider));
                 if (child is null) return null;
                 return new ArrayLength(child);
             }
@@ -89,7 +89,7 @@ internal class Emitter
             if (node.Type == NodeType.Regex) return RegexMatcher.Create(valueToken);
 
             var compType = node.Type.ToComparisonType();
-            return Compare.Create(compType, type, valueToken);
+            return Compare.Create(compType, type.Type, valueToken);
         }
 
         // member (A=1, B=2) みたいなのの、() の部分。
@@ -100,7 +100,7 @@ internal class Emitter
         if (name is ['.', ..] && GetIntrinsicType(name) is { } it)
         {
             // .length とか。
-            var child = Emit(node.Left, it);
+            var child = Emit(node.Left, new(it, type.TypeProvider));
             if (child is null) return null;
             return Intrinsic.Create(name, type, child);
         }
