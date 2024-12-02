@@ -111,43 +111,19 @@ internal static class Candidates
 
     private static Candidate[]? PrimitiveProperty(Type type)
     {
-        if (type == typeof(string)) return _stringCandidates;
-        if (type == typeof(bool)) return _boolCandidates;
-        if (type == typeof(float)
-            || type == typeof(double)
-            || type == typeof(decimal)
-            ) return _floatCandidates;
-        if (type == typeof(int)
-            || type == typeof(long)
-            || type == typeof(short)
-            || type == typeof(byte)
-            || type == typeof(uint)
-            || type == typeof(ulong)
-            || type == typeof(ushort)
-            || type == typeof(sbyte)
-            ) return _comparableCandidates;
-
-        // 時刻系は parsable (扱いで = とか出す) + プロパティも出す。
-        if (type == typeof(TimeSpan)
-            || type == typeof(DateTime)
-            || type == typeof(DateTimeOffset)
-            || type == typeof(DateOnly)
-            || type == typeof(TimeOnly)
-            ) return [.._comparableCandidates, ..GetProperties(type)];
-
-        var i = TypeHelper.HasInterface(type);
-
-        // 時刻系とかもこの条件で拾えるけど、判定が重たいので分けてる。
-        if (i.HasFlag(HasInterface.ISpanParsable | HasInterface.IComparable))
-            return [.. _comparableCandidates, .. GetProperties(type)];
-
-        if (i.HasFlag(HasInterface.ISpanParsable | HasInterface.IEquatable))
-            return [.. _equatableCandidates, .. GetProperties(type)];
+        return type.GetComparableType() switch
+        {
+            ComparableTypeCategory.String => _stringCandidates,
+            ComparableTypeCategory.Bool => _boolCandidates,
+            ComparableTypeCategory.Float => _floatCandidates,
+            ComparableTypeCategory.Integer => _comparableCandidates,
+            ComparableTypeCategory.Comparable => [.. _comparableCandidates, .. GetProperties(type)],
+            ComparableTypeCategory.Equatable => [.. _equatableCandidates, .. GetProperties(type)],
+            _ => null,
+        };
 
         //todo: nullable
         //todo: enum
-
-        return null;
     }
 
     private static readonly Candidate[] _nullValue = [new("null")];

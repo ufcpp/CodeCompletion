@@ -64,14 +64,14 @@ internal static class Compare
         public static ObjectMatcher? Create(ComparisonType comparison, Type type, ReadOnlySpan<char> valueSpan)
         {
             var i = TypeHelper.HasInterface(type);
-            if (i.HasFlag(HasInterface.ISpanParsable | HasInterface.IComparable))
+            if (i.HasFlag(InterfaceType.ISpanParsable | InterfaceType.IComparable))
             {
                 var t = typeof(ComparableParseable<>).MakeGenericType(type);
                 var m = t.GetMethod(nameof(ComparableParseable<int>.Create), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)!;
                 var f = m.CreateDelegate<Func<ComparisonType, ReadOnlySpan<char>, ObjectMatcher?>>();
                 return f(comparison, valueSpan);
             }
-            else if (i.HasFlag(HasInterface.ISpanParsable | HasInterface.IEquatable))
+            else if (i.HasFlag(InterfaceType.ISpanParsable | InterfaceType.IEquatable))
             {
                 var t = typeof(EquatableParseable<>).MakeGenericType(type);
                 var m = t.GetMethod(nameof(ComparableParseable<int>.Create), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)!;
