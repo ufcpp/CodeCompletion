@@ -1,6 +1,6 @@
-using CodeCompletion.Completion;
+using ObjectMatching.Reflection;
 
-namespace CodeCompletion.Emit;
+namespace ObjectMatching.Emit;
 
 internal abstract class ObjectMatcher
 {
@@ -26,15 +26,15 @@ internal class Property(string name, ObjectMatcher mather) : ObjectMatcher
 
 internal static class Intrinsic
 {
-    public static ObjectMatcher? Create(string name, Type type, ObjectMatcher matcher)
+    public static ObjectMatcher? Create(string name, TypeInfo type, ObjectMatcher matcher)
     {
-        if (type == typeof(float)) return FloatIntrinsic<float>.Create(name, matcher);
-        if (type == typeof(double)) return FloatIntrinsic<double>.Create(name, matcher);
-        if (type == typeof(decimal)) return FloatIntrinsic<decimal>.Create(name, matcher);
+        if (type.Type == typeof(float)) return FloatIntrinsic<float>.Create(name, matcher);
+        if (type.Type == typeof(double)) return FloatIntrinsic<double>.Create(name, matcher);
+        if (type.Type == typeof(decimal)) return FloatIntrinsic<decimal>.Create(name, matcher);
         if (name == IntrinsicNames.Length)
         {
-            if (type == typeof(string)) return new StringLength(matcher);
-            if (TypeHelper.GetElementType(type) is { }) return new ArrayLength(matcher);
+            if (type.Type == typeof(string)) return new StringLength(matcher);
+            if (type.GetElementType() is { }) return new ArrayLength(matcher);
         }
 
         return null;

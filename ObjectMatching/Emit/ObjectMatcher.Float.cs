@@ -1,7 +1,6 @@
-using CodeCompletion.Completion;
 using System.Numerics;
 
-namespace CodeCompletion.Emit;
+namespace ObjectMatching.Emit;
 
 internal static class FloatIntrinsic<T>
     where T : IFloatingPoint<T>

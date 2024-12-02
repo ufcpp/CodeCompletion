@@ -1,14 +1,26 @@
 using CodeCompletion.Completion;
 using CodeCompletion.Text;
+using ObjectMatching.Completion;
+using ObjectMatching.Reflection;
 using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
 namespace TrialWpfApp;
 
-public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
+public class ViewModel : INotifyPropertyChanged
 {
-    public IEnumerable ItemsSource { get; } = itemsSource;
+    public IEnumerable ItemsSource { get; }
+    private readonly CompletionContext _context;
+    public CompletionModel Completion { get; }
+
+    public ViewModel(IEnumerable itemsSource, ITypeProvider? typeProvider = null)
+    {
+        ItemsSource = itemsSource;
+        _context = new(new(GetElementType(itemsSource), typeProvider ?? new DefaultTypeProvider()), new());
+        Completion = new(_context);
+        _filteredItems = itemsSource;
+    }
 
     private static Type GetElementType(object obj)
     {
@@ -27,8 +39,6 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
         throw new InvalidOperationException();
     }
 
-    public CompletionModel Completion { get; set; } = new(GetElementType(itemsSource));
-    public CompletionContext Context => Completion.Context;
     public TextBuffer Texts => Completion.Texts;
 
     public void Refresh()
@@ -36,6 +46,19 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
         Completion.Refresh();
         _candidates?.Invalidate();
         SelectedCandidateIndex = Completion.SelectedCandidateIndex;
+
+        ShowDiag();
+    }
+
+    private void ShowDiag()
+    {
+        var buffer = Texts;
+        var (t, p) = buffer.GetPosition();
+        System.Diagnostics.Debug.WriteLine($"""
+cursor: {buffer.Cursor} token: {t} pos: {p}
+candidates: {string.Join(", ", Candidates.Select(x => x.Text))} (selected: {SelectedCandidateIndex})
+
+""");
     }
 
     private Wrap<Candidate>? _candidates;
@@ -60,7 +83,7 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
     public void Next() => Completion.Next();
     public void Prev() => Completion.Prev();
 
-    private IEnumerable _filteredItems = itemsSource;
+    private IEnumerable _filteredItems;
     public IEnumerable FilteredItems
     {
         get => _filteredItems;
@@ -70,7 +93,7 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
 
     public void Filter()
     {
-        var filter = Context.Emit();
+        var filter = _context.Emit();
 
         if (filter is null)
         {
@@ -88,7 +111,7 @@ public class ViewModel(IEnumerable itemsSource) : INotifyPropertyChanged
 
     public void Reset(ReadOnlySpan<char> source)
     {
-        Context.Reset(source);
+        _context.Reset(source);
         PropertyChanged?.Invoke(this, TextsChanged);
     }
 

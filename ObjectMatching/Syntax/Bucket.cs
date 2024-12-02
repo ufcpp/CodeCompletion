@@ -1,4 +1,4 @@
-namespace CodeCompletion.Syntax;
+namespace ObjectMatching.Syntax;
 
 /// <summary>
 /// <see cref="Node"/> の中身。

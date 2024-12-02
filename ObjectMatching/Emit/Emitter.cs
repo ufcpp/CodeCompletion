@@ -1,37 +1,37 @@
-using CodeCompletion.Syntax;
 using CodeCompletion.Text;
-using CodeCompletion.Completion;
+using ObjectMatching.Syntax;
+using ObjectMatching.Reflection;
 
-namespace CodeCompletion.Emit;
+namespace ObjectMatching.Emit;
 
 internal class Emitter
 {
-    public static Func<object?, bool>? Emit(TextBuffer texts, Type root)
+    public static Func<object?, bool>? Emit(TextBuffer texts, TypeInfo type)
     {
         var node = Parser.Parse(texts);
         if (node.IsNull) return null;
 
-        var m = Emit(node, root)!;
+        var m = Emit(node, type)!;
         if (m is null) return null;
         return m.Match;
     }
 
-    private static ObjectMatcher? Emit(Node node, Type root) => node.Type switch
+    private static ObjectMatcher? Emit(Node node, TypeInfo type) => node.Type switch
     {
         NodeType.Null => null,
-        NodeType.Comma => new And(EmitChildren(node, root)),
-        NodeType.Or => new Or(EmitChildren(node, root)),
-        NodeType.And => new And(EmitChildren(node, root)),
-        _ => Primary(node, root),
+        NodeType.Comma => new And(EmitChildren(node, type)),
+        NodeType.Or => new Or(EmitChildren(node, type)),
+        NodeType.And => new And(EmitChildren(node, type)),
+        _ => Primary(node, type),
     };
 
-    private static ObjectMatcher?[] EmitChildren(Node node, Type root)
+    private static ObjectMatcher?[] EmitChildren(Node node, TypeInfo type)
     {
         var childNodes = node.GetChildren();
         var children = new ObjectMatcher?[childNodes.Length];
         for (var i = 0; i < children.Length; ++i)
         {
-            children[i] = Emit(childNodes[i], root);
+            children[i] = Emit(childNodes[i], type);
         }
         return children;
     }
@@ -45,16 +45,16 @@ internal class Emitter
         _ => null,
     };
 
-    private static ObjectMatcher? Primary(Node node, Type t)
+    private static ObjectMatcher? Primary(Node node, TypeInfo type)
     {
         if (node.IsNull) return null;
 
         // Array X = 1 とか書いて、C# でいう x.Array.Any(x => x.X == 1) 扱い。
-        if (TypeHelper.GetElementType(t) is { } et)
+        if (type.GetElementType() is { } et)
         {
             if (node.Span[0].Span is IntrinsicNames.Length)
             {
-                var child = Emit(node.Left, typeof(int));
+                var child = Emit(node.Left, new(typeof(int), type.TypeProvider));
                 if (child is null) return null;
                 return new ArrayLength(child);
             }
@@ -88,25 +88,25 @@ internal class Emitter
             if (node.Type == NodeType.Regex) return RegexMatcher.Create(valueToken);
 
             var compType = node.Type.ToComparisonType();
-            return Compare.Create(compType, t, valueToken);
+            return Compare.Create(compType, type.Type, valueToken);
         }
 
         // member (A=1, B=2) みたいなのの、() の部分。
         // Comma, Or, And なので Emit 呼ぶ。
-        if(node.Type != NodeType.Member) return Emit(node, t);
+        if(node.Type != NodeType.Member) return Emit(node, type);
 
         var name = node.Span[0].Span.ToString();
         if (name is ['.', ..] && GetIntrinsicType(name) is { } it)
         {
             // .length とか。
-            var child = Emit(node.Left, it);
+            var child = Emit(node.Left, new(it, type.TypeProvider));
             if (child is null) return null;
-            return Intrinsic.Create(name, t, child);
+            return Intrinsic.Create(name, type, child);
         }
         else
         {
             // プロパティアクセス。
-            if (t.GetProperty(name) is not { } p) return null;
+            if (type.GetProperty(name) is not { } p) return null;
 
             var child = Emit(node.Left, p.PropertyType);
             if (child is null) return null;

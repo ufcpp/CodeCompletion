@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace CodeCompletion.Emit;
+namespace ObjectMatching.Emit;
 
 internal class ArrayLength(ObjectMatcher mather) : ObjectMatcher
 {
