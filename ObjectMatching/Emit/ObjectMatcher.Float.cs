@@ -1,4 +1,3 @@
-using ObjectMatching.Completion;
 using System.Numerics;
 
 namespace ObjectMatching.Emit;

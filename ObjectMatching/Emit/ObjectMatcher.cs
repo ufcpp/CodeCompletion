@@ -1,4 +1,3 @@
-using ObjectMatching.Completion;
 using ObjectMatching.Reflection;
 
 namespace ObjectMatching.Emit;

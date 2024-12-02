@@ -1,5 +1,3 @@
-using ObjectMatching.Completion;
-
 namespace ObjectMatching.Syntax;
 
 public enum NodeType : byte

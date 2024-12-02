@@ -1,6 +1,5 @@
 using CodeCompletion.Text;
 using ObjectMatching.Syntax;
-using ObjectMatching.Completion;
 using ObjectMatching.Reflection;
 
 namespace ObjectMatching.Emit;
