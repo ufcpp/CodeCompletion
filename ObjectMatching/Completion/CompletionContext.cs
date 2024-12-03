@@ -44,7 +44,7 @@ public class CompletionContext : ICompletionContext
             {
                 parent.Push(property);
             }
-            else if (text is ")")
+            else if (text is ")" && parent.Count > 1)
             {
                 property = parent.Pop();
             }
