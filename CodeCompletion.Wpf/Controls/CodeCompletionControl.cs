@@ -70,16 +70,14 @@ public partial class CodeCompletionControl : ContentControl
             if (handled) e.Handled = true;
         };
 
-        GotFocus += (_, _) =>
-        {
-            _popup.IsOpen = true;
-            _caret.Line.Visibility = Visibility.Visible;
-        };
-        LostFocus += (_, _) =>
-        {
-            _popup.IsOpen = false;
-            _caret.Line.Visibility = Visibility.Collapsed;
-        };
+        GotFocus += (_, _) => SetVisible(true);
+        LostFocus += (_, _) => SetVisible(false);
+    }
+
+    private void SetVisible(bool isVisible)
+    {
+        _popup.IsOpen = isVisible;
+        _caret.Line.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void Show(ViewModel vm)
@@ -154,7 +152,7 @@ public partial class CodeCompletionControl : ContentControl
     internal void UpdateCaret(double x)
     {
         _caret.Update(x, Height);
-        _popup.IsOpen = IsFocused;
         _popup.HorizontalOffset = x;
+        SetVisible(IsFocused);
     }
 }
