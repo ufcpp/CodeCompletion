@@ -67,6 +67,17 @@ public partial class CodeCompletionControl : ContentControl
             if (invalidates) Show(vm);
             if (handled) e.Handled = true;
         };
+
+        GotFocus += (_, _) =>
+        {
+            _popup.IsOpen = true;
+            _caret.Line.Visibility = Visibility.Visible;
+        };
+        LostFocus += (_, _) =>
+        {
+            _popup.IsOpen = false;
+            _caret.Line.Visibility = Visibility.Collapsed;
+        };
     }
 
     private void Show(ViewModel vm)
