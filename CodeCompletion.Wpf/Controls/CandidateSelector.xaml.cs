@@ -14,7 +14,7 @@ public partial class CandidateSelector : UserControl
     public IEnumerable<Candidate> Candidates
     {
         get { return (IEnumerable<Candidate>)GetValue(CandidatesProperty); }
-        set { SetValue(CandidatesProperty, value); }
+        set { SetValue(CandidatesProperty, value); Scroll(); }
     }
 
     public static readonly DependencyProperty CandidatesProperty =
@@ -23,7 +23,13 @@ public partial class CandidateSelector : UserControl
     public int SelectedIndex
     {
         get { return (int)GetValue(SelectedIndexProperty); }
-        set { SetValue(SelectedIndexProperty, value); }
+        set { SetValue(SelectedIndexProperty, value); Scroll(); }
+    }
+
+    private void Scroll()
+    {
+        if (Candidates?.ElementAtOrDefault(SelectedIndex) is not { } x) return;
+        list.ScrollIntoView(x);
     }
 
     public static readonly DependencyProperty SelectedIndexProperty =
