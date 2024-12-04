@@ -32,10 +32,14 @@ public partial class CodeCompletionControl : ContentControl
             PopupAnimation = PopupAnimation.Slide,
         };
 
-        Content = new Canvas
+        var canvas = new Canvas
         {
             Children = { _text, _caret.Line, _popup },
+            Background = Brushes.White,
         };
+        canvas.MouseDown += (s, e) => Focus();
+
+        Content = canvas;
 
         Focusable = true;
         Margin = new(5);
