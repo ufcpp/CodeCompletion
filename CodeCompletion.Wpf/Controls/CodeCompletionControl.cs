@@ -138,9 +138,13 @@ public partial class CodeCompletionControl : ContentControl
 
     private void UpdateViewModel(object? newValue)
     {
-        TextSource = newValue is ViewModel vm && _textProperties is { } prop
+        if (newValue is not ViewModel vm) return;
+
+        TextSource = _textProperties is { } prop
             ? new(vm.Texts, prop, Height) // 改行を想定してない
             : null;
+
+        Show(vm);
     }
 
     private void UpdateViewModel() => UpdateViewModel(DataContext);
@@ -148,7 +152,7 @@ public partial class CodeCompletionControl : ContentControl
     internal void UpdateCaret(double x)
     {
         _caret.Update(x, Height);
-        _popup.IsOpen = true;
+        _popup.IsOpen = IsFocused;
         _popup.HorizontalOffset = x;
     }
 }
