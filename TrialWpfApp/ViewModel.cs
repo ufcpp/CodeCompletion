@@ -5,7 +5,7 @@ using System.Collections;
 namespace TrialWpfApp;
 
 public class ViewModel(IEnumerable itemsSource, ITypeProvider? typeProvider = null)
-    : CodeCompletion.ViewModels.ViewModel<CompletionContext>(new(new(GetElementType(itemsSource), typeProvider ?? new DefaultTypeProvider()), new()), itemsSource)
+    : CodeCompletion.ViewModels.ViewModel<CompletionContext>(new(new(GetElementType(itemsSource), typeProvider ?? new DefaultTypeProvider())), itemsSource)
 {
     private static Type GetElementType(object obj)
     {
@@ -43,7 +43,7 @@ candidates: {string.Join(", ", Candidates.Select(x => x.Text))} (selected: {Sele
 
     protected override IEnumerable Filter(IEnumerable itemsSource)
     {
-        var filter = Context.Emit();
+        var filter = Context.Emit(Texts);
 
         if (filter is null)
         {

@@ -5,17 +5,9 @@ using ObjectMatching.Reflection;
 
 namespace ObjectMatching.Completion;
 
-public class CompletionContext : ICompletionContext
+public class CompletionContext(TypeInfo root) : ICompletionContext
 {
-    public CompletionContext(TypeInfo root, TextBuffer texts)
-    {
-        Root = root;
-        Texts = texts;
-        Refresh();
-    }
-
-    public TypeInfo Root { get; }
-    public TextBuffer Texts { get; }
+    public TypeInfo Root { get; } = root;
 
     private readonly List<PropertyHierarchy> _propertyInfo = [];
 
@@ -23,7 +15,7 @@ public class CompletionContext : ICompletionContext
     /// 全更新。
     /// todo: 1ストロークごとに更新処理掛けれないか要検討。
     /// </summary>
-    public void Refresh()
+    public void Refresh(TextBuffer texts)
     {
         var t = Root;
 
@@ -34,7 +26,7 @@ public class CompletionContext : ICompletionContext
         parent.Push(property);
         _propertyInfo.Add(new(property, property));
 
-        var tokens = Texts.Tokens;
+        var tokens = texts.Tokens;
 
         for (int i = 0; i < tokens.Length; i++)
         {
@@ -90,23 +82,11 @@ public class CompletionContext : ICompletionContext
         return null;
     }
 
-    public void GetCandidates(IList<Candidate> results)
+    public IEnumerable<Candidate> GetCandidates(ReadOnlySpan<char> previousToken, int tokenPosition)
     {
-        results.Clear();
-        var (pos, _) = Texts.GetPosition();
-        var previousToken = pos == 0 ? "" : Texts.Tokens[pos - 1].Span;
-        var text = Texts.Tokens[pos].Span;
-
-        foreach (var candidate in Candidates.GetCandidates(previousToken, _propertyInfo[pos]))
-        {
-            if (candidate.Text is not { } ct
-                || ct.AsSpan().StartsWith(text, StringComparison.OrdinalIgnoreCase))
-            {
-                results.Add(candidate);
-            }
-        }
+        return Candidates.GetCandidates(previousToken, _propertyInfo[tokenPosition]);
     }
 
-    public Func<object?, bool>? Emit() => Emitter.Emit(Texts, Root)!;
+    public Func<object?, bool>? Emit(TextBuffer texts) => Emitter.Emit(texts, Root)!;
 }
 

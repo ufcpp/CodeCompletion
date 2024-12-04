@@ -9,14 +9,37 @@ public class CompletionModel(ICompletionContext context)
     public int SelectedCandidateIndex { get; private set; }
 
     public ICompletionContext Context { get; } = context;
-    public TextBuffer Texts => Context.Texts;
+    public TextBuffer Texts { get; } = new();
+
+    public void Reset(ReadOnlySpan<char> source)
+    {
+        Texts.Reset(source);
+        Refresh();
+    }
 
     // (仮)
     //todo: 都度 Refresh を呼ぶんじゃなくて、1ストロークごとに更新処理掛ける。
     public void Refresh()
     {
-        Context.Refresh();
-        Context.GetCandidates(_candidates);
+        Context.Refresh(Texts);
+        GetCandidates(_candidates);
+    }
+
+    public void GetCandidates(IList<Candidate> results)
+    {
+        results.Clear();
+        var (pos, _) = Texts.GetPosition();
+        var previousToken = pos == 0 ? "" : Texts.Tokens[pos - 1].Span;
+        var text = Texts.Tokens[pos].Span;
+
+        foreach (var candidate in Context.GetCandidates(previousToken, pos))
+        {
+            if (candidate.Text is not { } ct
+                || ct.AsSpan().StartsWith(text, StringComparison.OrdinalIgnoreCase)) //todo: ここのマッチ方法もインターフェイスで変更可能にしたい。
+            {
+                results.Add(candidate);
+            }
+        }
     }
 
     /// <summary>

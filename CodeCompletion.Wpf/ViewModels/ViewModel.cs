@@ -76,7 +76,7 @@ public class ViewModel : INotifyPropertyChanged
 
     public void Reset(ReadOnlySpan<char> source)
     {
-        Context.Reset(source);
+        Completion.Reset(source);
         PropertyChanged?.Invoke(this, TextsChanged);
     }
 
