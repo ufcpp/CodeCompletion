@@ -15,6 +15,9 @@ public partial class CodeCompletionControl : ContentControl
     private readonly CandidateSelector _candidates;
     private readonly Popup _popup;
 
+    const int MarginSize = 3;
+    const int BorderSize = 1;
+
     public CodeCompletionControl()
     {
         _text = new(this);
@@ -36,15 +39,20 @@ public partial class CodeCompletionControl : ContentControl
         {
             Children = { _text, _caret.Line, _popup },
             Background = Brushes.White,
+            Margin = new(MarginSize),
         };
         canvas.MouseDown += (s, e) => Focus();
 
         this.BindCopyAndPaste();
 
-        Content = canvas;
+        Content = new Border
+        {
+            Child = canvas,
+            BorderThickness = new(BorderSize),
+            BorderBrush = Brushes.DarkGray,
+        };
 
         Focusable = true;
-        Margin = new(5);
 
         Loaded += (_, _) => UpdateTextProperties(true);
         DataContextChanged += (_, args) => UpdateViewModel(args.OldValue, args.NewValue);
@@ -73,6 +81,8 @@ public partial class CodeCompletionControl : ContentControl
         GotFocus += (_, _) => SetVisible(true);
         LostFocus += (_, _) => SetVisible(false);
     }
+
+    private double CanvasHeight => ActualHeight - MarginSize * 2 - BorderSize * 2;
 
     private void SetVisible(bool isVisible)
     {
@@ -117,7 +127,7 @@ public partial class CodeCompletionControl : ContentControl
 
     private void UpdateTextProperties(bool updatesHeight = false)
     {
-        if (updatesHeight) Height = Math.Ceiling(FontFamily.LineSpacing * FontSize); // 改行を想定してない
+        if (updatesHeight) Height = Math.Ceiling(FontFamily.LineSpacing * FontSize) + 2 * (MarginSize + BorderSize); // 改行を想定してない
         _textProperties = new CommonTextProperties(FontSize, FontFamily, FontStyle, FontWeight, FontStretch);
         UpdateViewModel();
     }
@@ -141,7 +151,7 @@ public partial class CodeCompletionControl : ContentControl
         if (newValue is not ViewModel vm) return;
 
         TextSource = _textProperties is { } prop
-            ? new(vm.Texts, prop, Height) // 改行を想定してない
+            ? new(vm.Texts, prop, CanvasHeight) // 改行を想定してない
             : null;
 
         Show(vm);
@@ -151,7 +161,7 @@ public partial class CodeCompletionControl : ContentControl
 
     internal void UpdateCaret(double x)
     {
-        _caret.Update(x, ActualHeight);
+        _caret.Update(x, CanvasHeight);
         _popup.HorizontalOffset = x;
         SetVisible(IsFocused);
     }
