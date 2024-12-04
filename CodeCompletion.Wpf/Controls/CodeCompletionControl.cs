@@ -39,6 +39,8 @@ public partial class CodeCompletionControl : ContentControl
         };
         canvas.MouseDown += (s, e) => Focus();
 
+        this.BindCopyAndPaste();
+
         Content = canvas;
 
         Focusable = true;

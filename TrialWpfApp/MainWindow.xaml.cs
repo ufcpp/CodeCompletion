@@ -12,7 +12,5 @@ public partial class MainWindow : Window
 
         var vm = new ViewModel(SampleData.Data);
         DataContext = vm;
-
-        this.BindCopyAndPaste();
     }
 }
