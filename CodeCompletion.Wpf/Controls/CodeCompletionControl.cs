@@ -151,7 +151,7 @@ public partial class CodeCompletionControl : ContentControl
 
     internal void UpdateCaret(double x)
     {
-        _caret.Update(x, Height);
+        _caret.Update(x, ActualHeight);
         _popup.HorizontalOffset = x;
         SetVisible(IsFocused);
     }
