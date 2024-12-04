@@ -159,7 +159,7 @@ internal static class Compare
 
     private class CompreEnum<TEnum, TUnderlying>
         where TEnum : struct, Enum
-        where TUnderlying : IComparable<TUnderlying>, ISpanParsable<TUnderlying>
+        where TUnderlying : struct, IComparable<TUnderlying>, ISpanParsable<TUnderlying>
     {
         public static ObjectMatcher? Create(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
         {
