@@ -82,7 +82,7 @@ public class CompletionContext(TypeInfo root) : ICompletionContext
         return null;
     }
 
-    public IEnumerable<Candidate> GetCandidates(ReadOnlySpan<char> previousToken, int tokenPosition)
+    public CandidateList GetCandidates(ReadOnlySpan<char> previousToken, int tokenPosition)
     {
         return Candidates.GetCandidates(previousToken, _propertyInfo[tokenPosition]);
     }

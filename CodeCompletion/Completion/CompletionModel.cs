@@ -32,7 +32,7 @@ public class CompletionModel(ICompletionContext context)
         var previousToken = pos == 0 ? "" : Texts.Tokens[pos - 1].Span;
         var text = Texts.Tokens[pos].Span;
 
-        foreach (var candidate in Context.GetCandidates(previousToken, pos))
+        foreach (var candidate in Context.GetCandidates(previousToken, pos).Candidates) //todo: Description も保存
         {
             if (candidate.Text is not { } ct
                 || ct.AsSpan().StartsWith(text, StringComparison.OrdinalIgnoreCase)) //todo: ここのマッチ方法もインターフェイスで変更可能にしたい。

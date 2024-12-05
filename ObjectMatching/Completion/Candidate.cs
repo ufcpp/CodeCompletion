@@ -11,40 +11,40 @@ namespace ObjectMatching.Completion;
 
 internal static class Candidates
 {
-    public static IEnumerable<Candidate> GetCandidates(ReadOnlySpan<char> previousToken, PropertyHierarchy property)
+    public static CandidateList GetCandidates(ReadOnlySpan<char> previousToken, PropertyHierarchy property)
     {
         var cat = Tokenizer.Categorize(previousToken);
         if (cat == TokenCategory.Comparison)
         {
             if (property.Nearest.PropertyType.Type == typeof(bool))
             {
-                return _boolValues;
+                return new("", _boolValues);
             }
             if (property.Nearest.IsNullable)
             {
-                return _nullValue;
+                return new("", _nullValue);
             }
-            return [new(null)]; //todo: 何型の自由入力かのヒントくらいは出せるようにしたい。
+            return new("", []); //todo: 何型の自由入力かのヒントくらいは出せるようにしたい。
         }
         if (cat == TokenCategory.DotIntrinsics && Intrinsic(previousToken, property.Nearest) is { } c)
         {
-            return c;
+            return new("", c);
         }
         if (cat == TokenCategory.Conjunction || cat == TokenCategory.Punctuation)
         {
             // ) の後ろはリテラルとかと同じ扱い。
-            if (previousToken is ")") return _conjunction;
+            if (previousToken is ")") return new("", _conjunction);
 
             // ,|&( の後ろは前の ( 直前のプロパティを元に候補を出す。
-            return Property(property.Parent);
+            return new("", Property(property.Parent));
         }
         if (previousToken is [] // ルート。他の判定方法の方がいいかも…
         || cat == TokenCategory.Identifier)
         {
-            return Property(property.Nearest);
+            return new("", Property(property.Nearest));
         }
 
-        return _conjunction;
+        return new("", _conjunction);
     }
 
     private static readonly Candidate[] _conjunction =

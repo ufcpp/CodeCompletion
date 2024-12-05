@@ -4,6 +4,6 @@ namespace CodeCompletion.Completion;
 
 public interface ICompletionContext
 {
-    IEnumerable<Candidate> GetCandidates(ReadOnlySpan<char> previousToken, int tokenPosition);
+    CandidateList GetCandidates(ReadOnlySpan<char> previousToken, int tokenPosition);
     void Refresh(TextBuffer texts);
 }
