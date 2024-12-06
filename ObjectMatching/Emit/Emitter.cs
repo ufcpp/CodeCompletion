@@ -108,9 +108,19 @@ internal class Emitter
             // プロパティアクセス。
             if (type.GetProperty(name) is not { } p) return null;
 
-            var child = Emit(node.Left, p.PropertyType);
-            if (child is null) return null;
-            return new Property(name, child);
+            // KeyValuePiar のときは Value 素通し。
+            if (p.PropertyType.GetKeyValuePairValueType() is { } vt)
+            {
+                var child = Emit(node.Left, vt);
+                if (child is null) return null;
+                return new Property(name, new Property("Value", child));
+            }
+            else
+            {
+                var child = Emit(node.Left, p.PropertyType);
+                if (child is null) return null;
+                return new Property(name, child);
+            }
         }
     }
 }
