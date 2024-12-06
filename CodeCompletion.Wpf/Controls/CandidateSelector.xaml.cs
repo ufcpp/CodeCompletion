@@ -46,10 +46,6 @@ public partial class CandidateSelector : UserControl
         {
             OnPropertyChanged(vm, true);
         }
-        else if (n == nameof(ViewModel.Candidates))
-        {
-            OnPropertyChanged(vm, true);
-        }
         else if (n == nameof(ViewModel.Description))
         {
             OnPropertyChanged(vm, false);

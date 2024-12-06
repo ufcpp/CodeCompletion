@@ -54,7 +54,11 @@ public partial class CodeCompletionControl : ContentControl
 
         Focusable = true;
 
-        Loaded += (_, _) => UpdateTextProperties(true);
+        Loaded += (_, _) =>
+        {
+            UpdateTextProperties(true);
+            if (DataContext is ViewModel vm) Reflesh(vm);
+        };
         DataContextChanged += (_, args) => UpdateViewModel(args.OldValue, args.NewValue);
 
         //todo: InputBindings KeyBinding でやった方がいい？
@@ -66,7 +70,7 @@ public partial class CodeCompletionControl : ContentControl
             if (char.GetUnicodeCategory(e.Text[0]) == System.Globalization.UnicodeCategory.Control) return;
 
             vm.Texts.Insert(e.Text);
-            Show(vm);
+            Reflesh(vm);
         };
 
         KeyDown += (sender, e) =>
@@ -74,7 +78,7 @@ public partial class CodeCompletionControl : ContentControl
             if (DataContext is not ViewModel vm) return;
 
             var (handled, invalidates) = Keybind.Handle(e.Key, CtrlKeyDown, vm);
-            if (invalidates) Show(vm);
+            if (invalidates) Reflesh(vm);
             if (handled) e.Handled = true;
         };
 
@@ -90,10 +94,16 @@ public partial class CodeCompletionControl : ContentControl
         _caret.Line.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private void Show(ViewModel vm)
+    private void Reflesh(ViewModel vm)
     {
         vm.Refresh();
+        Invalidate();
+    }
+
+    private void Invalidate()
+    {
         _text.InvalidateVisual();
+        InvalidateVisual();
     }
 
     private static bool CtrlKeyDown
@@ -108,14 +118,14 @@ public partial class CodeCompletionControl : ContentControl
             || e.Property == FontFamilyProperty)
         {
             UpdateTextProperties(true);
-            InvalidateVisual();
+            Invalidate();
         }
         else if (e.Property == FontStyleProperty
             || e.Property == FontWeightProperty
             || e.Property == FontStretchProperty)
         {
             UpdateTextProperties();
-            InvalidateVisual();
+            Invalidate();
         }
     }
 
@@ -126,7 +136,6 @@ public partial class CodeCompletionControl : ContentControl
     {
         if (updatesHeight) Height = Math.Ceiling(FontFamily.LineSpacing * FontSize) + 2 * (MarginSize + BorderSize); // 改行を想定してない
         _textProperties = new CommonTextProperties(FontSize, FontFamily, FontStyle, FontWeight, FontStretch);
-        UpdateViewModel();
     }
 
     private void UpdateViewModel(object? oldValue, object? newValue)
@@ -134,7 +143,7 @@ public partial class CodeCompletionControl : ContentControl
         void propChanged(object? sender, PropertyChangedEventArgs args)
         {
             var vm = (ViewModel)sender!;
-            Show(vm);
+            Invalidate();
         }
 
         if (oldValue is ViewModel oldVm) oldVm.PropertyChanged -= propChanged;
@@ -151,13 +160,12 @@ public partial class CodeCompletionControl : ContentControl
             ? new(vm.Texts, prop, CanvasHeight) // 改行を想定してない
             : null;
 
-        Show(vm);
+        if (IsLoaded) Reflesh(vm);
     }
-
-    private void UpdateViewModel() => UpdateViewModel(DataContext);
 
     internal void UpdateCaret(double x)
     {
+        if(!IsLoaded) return;
         _caret.Update(x, CanvasHeight);
         _popup.HorizontalOffset = x;
         SetVisible(IsFocused);
