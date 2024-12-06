@@ -57,7 +57,7 @@ public class DefaultTypeProvider : ITypeProvider
         if (pt.IsValueType) return false;
 
         // 参照型
-        var c = new S.NullabilityInfoContext();
+        var c = new NullabilityInfoContext();
         var i = c.Create(p);
         return i.ReadState != S.NullabilityState.NotNull;
     }
