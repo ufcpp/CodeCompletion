@@ -14,7 +14,7 @@ internal static class Candidates
     public static CandidateList GetCandidates(ReadOnlySpan<char> previousToken, PropertyHierarchy property)
     {
         var nearestType = property.Nearest.PropertyType;
-        if (nearestType.GetKeyValuePairValueType() is { } vt) nearestType = vt;
+        if (nearestType.GetKeyValuePairType() is [_, var vt]) nearestType = vt;
 
         var cat = Tokenizer.Categorize(previousToken);
         if (cat == TokenCategory.Comparison)
@@ -60,6 +60,7 @@ internal static class Candidates
         or IntrinsicNames.Floor
         or IntrinsicNames.Round => (new(typeof(long), property.TypeProvider), _comparableCandidates),
         IntrinsicNames.Any or IntrinsicNames.All => ArrayIntrinsic(property),
+        IntrinsicNames.Key => (property.PropertyType, Property(property)), // property にダミーでキー型のプロパティが入ってきてるはず
         _ => default,
     };
 
@@ -107,7 +108,7 @@ internal static class Candidates
 
     private static IEnumerable<Candidate>? GetKeyValuePairProperties(TypeInfo type)
     {
-        if (type.GetKeyValuePairValueType() is not { } vt) return null;
+        if (type.GetKeyValuePairType() is not [_, var vt]) return null;
 
         // ここの isNullable、ちゃんと NullabilityInfoContext 追えば取れるんだけど、
         // 今の型構造的に伝搬が難しくて悩み中。

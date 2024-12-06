@@ -59,14 +59,14 @@ internal static class TypeHelper
     }
 
     /// <summary>
-    /// <see cref="KeyValuePair{TKey, TValue}"/> のとき、TValue の型を返す。
+    /// <see cref="KeyValuePair{TKey, TValue}"/> のとき、<see cref="Type.GetGenericArguments"/> を返す。
     /// そうでないとき null。
     /// </summary>
-    public static Type? GetKeyValuePairValueType(this Type type)
+    public static Type[]? GetKeyValuePairType(this Type type)
     {
         if (!type.IsGenericType) return null;
         if (type.GetGenericTypeDefinition() != typeof(KeyValuePair<,>)) return null;
-        return type.GetGenericArguments()[1];
+        return type.GetGenericArguments();
     }
 }
 

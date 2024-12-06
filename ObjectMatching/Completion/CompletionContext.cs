@@ -59,13 +59,20 @@ public class CompletionContext(TypeInfo root) : ICompletionContext
         {
             var t = property.Nearest.PropertyType;
             if (t.GetElementType() is { } et) t = et;
-            if (t.GetKeyValuePairValueType() is { } vt) t = vt;
+            if (t.GetKeyValuePairType() is [_, var vt]) t = vt;
             return t.GetProperty(text.ToString()) is { } p ? new(p) : null;
         }
 
         if (cat == TokenCategory.DotIntrinsics)
         {
             if (text is IntrinsicNames.Any or IntrinsicNames.All) return property.Nearest with { Name = text.ToString() };
+            if (text is IntrinsicNames.Key)
+            {
+                if (property.Nearest.PropertyType.GetKeyValuePairType() is not [var kt, _]) return null;
+                {
+                    return new(kt, "Key", false);
+                }
+            }
 
             var t = text switch
             {
