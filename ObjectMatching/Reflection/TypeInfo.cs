@@ -19,9 +19,9 @@ public readonly struct TypeInfo(Type type, ITypeProvider typeProvider)
     /// <see cref="KeyValuePair{TKey, TValue}"/> のとき、TValue の型を返す。
     /// そうでないとき null。
     /// </summary>
-    public TypeInfoList? GetKeyValuePairType()
+    public TypeInfo? GetKeyValuePairValueType()
     {
-        var t = type.GetKeyValuePairType();
+        var t = type.GetKeyValuePairValueType();
         return t is null ? null : new(t, typeProvider);
     }
 }

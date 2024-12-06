@@ -109,22 +109,11 @@ internal class Emitter
             if (type.GetProperty(name) is not { } p) return null;
 
             // KeyValuePiar のときは Value 素通し。
-            if (p.PropertyType.GetKeyValuePairType() is [var kt, var vt])
+            if (p.PropertyType.GetKeyValuePairValueType() is { } vt)
             {
-                if(node.Left.IsNull) return null;
-
-                if (node.Left.Span[0].Span is IntrinsicNames.Key)
-                {
-                    var child = Emit(node.Left.Left, kt);
-                    if (child is null) return null;
-                    return new Property(name, new Property("Key", child));
-                }
-                else
-                {
-                    var child = Emit(node.Left, vt);
-                    if (child is null) return null;
-                    return new Property(name, new Property("Value", child));
-                }
+                var child = Emit(node.Left, vt);
+                if (child is null) return null;
+                return new Property(name, new Property("Value", child));
             }
             else
             {
