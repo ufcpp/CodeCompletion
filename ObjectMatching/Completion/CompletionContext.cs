@@ -59,7 +59,6 @@ public class CompletionContext(TypeInfo root) : ICompletionContext
         {
             var t = property.Nearest.PropertyType;
             if (t.GetElementType() is { } et) t = et;
-            if (t.GetKeyValuePairValueType() is { } vt) t = vt;
             return t.GetProperty(text.ToString()) is { } p ? new(p) : null;
         }
 

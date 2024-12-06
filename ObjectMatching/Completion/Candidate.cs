@@ -13,17 +13,14 @@ internal static class Candidates
 {
     public static CandidateList GetCandidates(ReadOnlySpan<char> previousToken, PropertyHierarchy property)
     {
-        var nearestType = property.Nearest.PropertyType;
-        if (nearestType.GetKeyValuePairValueType() is { } vt) nearestType = vt;
-
         var cat = Tokenizer.Categorize(previousToken);
         if (cat == TokenCategory.Comparison)
         {
             var values =
-                nearestType.Type == typeof(bool) ? _boolValues :
+                property.Nearest.PropertyType.Type == typeof(bool) ? _boolValues :
                 property.Nearest.IsNullable ? _nullValue :
                 [];
-            return new(nearestType.Description, values);
+            return new(property.Nearest.PropertyType.Description, values);
         }
         if (cat == TokenCategory.DotIntrinsics && Intrinsic(previousToken, property.Nearest) is (var t, { } c))
         {
@@ -32,18 +29,18 @@ internal static class Candidates
         if (cat == TokenCategory.Conjunction || cat == TokenCategory.Punctuation)
         {
             // ) の後ろはリテラルとかと同じ扱い。
-            if (previousToken is ")") return new(nearestType.Description, _conjunction);
+            if (previousToken is ")") return new(property.Nearest.PropertyType.Description, _conjunction);
 
             // ,|&( の後ろは前の ( 直前のプロパティを元に候補を出す。
-            return new(nearestType.Description, Property(property.Parent));
+            return new(property.Nearest.PropertyType.Description, Property(property.Parent));
         }
         if (previousToken is [] // ルート。他の判定方法の方がいいかも…
         || cat == TokenCategory.Identifier)
         {
-            return new(nearestType.Description, Property(property.Nearest));
+            return new(property.Nearest.PropertyType.Description, Property(property.Nearest));
         }
 
-        return new(nearestType.Description, _conjunction);
+        return new(property.Nearest.PropertyType.Description, _conjunction);
     }
 
     private static readonly Candidate[] _conjunction =
@@ -64,22 +61,19 @@ internal static class Candidates
     };
 
     public static IEnumerable<Candidate> Property(Property property)
-        => Property(property.PropertyType, property.IsNullable).Append(new("("));
-
-    public static IEnumerable<Candidate> Property(TypeInfo type, bool isNullable)
     {
-        var x = Array(type) ?? ElementProperty(type);
+        var x = Array(property) ?? ElementProperty(property.PropertyType);
 
         // = null, != null の分、演算子を足す。
         //todo: nullable primitive の時には重複するのではじきたい。
-        if (isNullable) x = [.. x, .. _equatableCandidates];
+        if (property.IsNullable) x = [.. x, .. _equatableCandidates];
 
-        return x;
+        return x.Append(new("("));
     }
 
-    private static IEnumerable<Candidate>? Array(TypeInfo propertyType)
+    private static IEnumerable<Candidate>? Array(Property property)
     {
-        if (propertyType.GetElementType() is { } et)
+        if (property.PropertyType.GetElementType() is { } et)
         {
             var x = ElementProperty(et);
             return [.. x, .. _arrayIntrinsics];
@@ -102,18 +96,7 @@ internal static class Candidates
             ?? GetProperties(type);
 
     private static IEnumerable<Candidate> GetProperties(TypeInfo type)
-        => GetKeyValuePairProperties(type)
-            ?? type.GetProperties().Select(p => new Candidate(p.Name, p.Description));
-
-    private static IEnumerable<Candidate>? GetKeyValuePairProperties(TypeInfo type)
-    {
-        if (type.GetKeyValuePairValueType() is not { } vt) return null;
-
-        // ここの isNullable、ちゃんと NullabilityInfoContext 追えば取れるんだけど、
-        // 今の型構造的に伝搬が難しくて悩み中。
-        var xx = Property(vt, false);
-        return [.. Property(vt, false), _keyCandidate];
-    }
+        => type.GetProperties().Select(p => new Candidate(p.Name, p.Description));
 
     private static Candidate[]? PrimitiveProperty(TypeInfo type)
     {
@@ -154,8 +137,6 @@ internal static class Candidates
         new(">"),
         new(">="),
     ];
-
-    private static readonly Candidate _keyCandidate = new(IntrinsicNames.Key, IntrinsicDescription.Key);
 
     private static readonly Candidate[] _stringCandidates =
     [
