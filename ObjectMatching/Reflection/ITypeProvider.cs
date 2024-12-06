@@ -1,3 +1,4 @@
+using System.Reflection;
 using S = System.Reflection;
 
 namespace ObjectMatching.Reflection;
@@ -62,6 +63,25 @@ public class DefaultTypeProvider : ITypeProvider
     }
 
     // Description 属性とかリフレクションで探す？
-    public string? GetDerscription(Type t) => t.Name;
-    public string? GetDerscription(S.PropertyInfo p) => null;
+    public string? GetDerscription(Type t) => GetDescriptionFromAttribute(t) ?? t.Name;
+    public string? GetDerscription(S.PropertyInfo p) => GetDescriptionFromAttribute(p);
+
+    private static string? GetDescriptionFromAttribute(MemberInfo m)
+    {
+        var desc = m.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>()?.Description;
+
+        if (desc is null) return null;
+
+        if (m is Type t && t.IsGenericType)
+        {
+            // 2引数以上のときもやる？
+            foreach (var arg in t.GetGenericArguments())
+            {
+                var argDesc = GetDescriptionFromAttribute(arg) ?? arg.Name;
+                if (argDesc is not null) desc += " - " + argDesc;
+            }
+        }
+
+        return desc;
+    }
 }

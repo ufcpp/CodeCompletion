@@ -1,12 +1,15 @@
 #pragma warning disable CS8618
 
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
 namespace TrialWpfApp.Models;
 
+[Description("型A")]
 public class A
 {
     public int Id { get; set; }
+    [Description("名前")]
     public string Name { get; set; }
     public B Item { get; set; }
     public B? Nullable { get; set; }
@@ -19,6 +22,7 @@ public class A
     public NB NItem { get; set; }
 }
 
+[Description("型B")]
 public class B
 {
     public int Number { get; set; }
@@ -99,29 +103,44 @@ public class NB
     public S<E> N6 { get; set; }
 }
 
+[Description("nullチェック(値型)")]
 public struct S<T> where T : struct
 {
+    [Description("T[]")]
     public T[] X1 { get; set; }
+    [Description("T[]?")]
     public T[]? X2 { get; set; }
+    [Description("T?[]")]
     public T?[] X3 { get; set; }
+    [Description("T?[]?")]
     public T?[]? X4 { get; set; }
+    [Description("List<T?>")]
     public List<T?> X5 { get; set; }
+    [Description("Dictionary<int, T?>")]
     public Dictionary<int, T?> X6 { get; set; }
 }
 
+[Description("nullチェック(参照型)")]
 public struct C<T> where T : notnull
 {
+    [Description("T[]")]
     public T[] X1 { get; set; }
+    [Description("T[]?")]
     public T[]? X2 { get; set; }
+    [Description("T?[]")]
     public T?[] X3 { get; set; }
+    [Description("T?[]?")]
     public T?[]? X4 { get; set; }
+    [Description("List<T?>")]
     public List<T?> X5 { get; set; }
+    [Description("Dictionary<int, T?>")]
     public Dictionary<int, T?> X6 { get; set; }
 }
 
 public record class C(int X, int Y);
 public record struct D(int X, int Y);
 
+[Description("列挙")]
 public enum E
 {
     A,
@@ -130,6 +149,7 @@ public enum E
     C1 = C,
 }
 
+[Description("flags 列挙")]
 [Flags]
 public enum F
 {
