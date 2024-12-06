@@ -4,12 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CodeCompletion.Controls"
+             xmlns:vm="clr-namespace:CodeCompletion.ViewModels"
+             d:DataContext="{d:DesignInstance Type=vm:ViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="root">
     <StackPanel>
         <TextBlock
-            Text="{Binding Description, ElementName=root}"
+            x:Name="desc"
+            Text="{Binding Description}"
             Background="AliceBlue"
             Foreground="CadetBlue"
             Padding="3"/>
@@ -17,8 +20,8 @@
         <ListBox
             x:Name="list"
             MaxHeight="200"
-            ItemsSource="{Binding Candidates, ElementName=root}"
-            SelectedIndex="{Binding SelectedIndex, ElementName=root}">
+            ItemsSource="{Binding Candidates}"
+            SelectedIndex="{Binding SelectedCandidateIndex}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Text}" />

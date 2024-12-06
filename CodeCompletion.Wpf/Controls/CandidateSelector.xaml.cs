@@ -1,4 +1,7 @@
 using CodeCompletion.Completion;
+using CodeCompletion.ViewModels;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -9,38 +12,68 @@ public partial class CandidateSelector : UserControl
     public CandidateSelector()
     {
         InitializeComponent();
+
+        DataContextChanged += static (sender, arg) =>
+        {
+            var @this = (CandidateSelector)sender;
+
+            if (arg.OldValue is ViewModel x)
+            {
+                x.PropertyChanged -= @this.VMPropertyChanged;
+                ((INotifyCollectionChanged)x.Candidates).CollectionChanged -= @this.VMCPropertyChanged;
+            }
+
+            if (arg.NewValue is ViewModel y)
+            {
+                y.PropertyChanged += @this.VMPropertyChanged;
+                ((INotifyCollectionChanged)y.Candidates).CollectionChanged += @this.VMCPropertyChanged;
+            }
+        };
     }
 
-    public string? Description
+    private void VMCPropertyChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        get { return (string?)GetValue(DescriptionProperty); }
-        set { SetValue(DescriptionProperty, value); }
+        if (DataContext is not ViewModel vm) return;
+        OnPropertyChanged(vm, true);
     }
 
-    public static readonly DependencyProperty DescriptionProperty =
-        DependencyProperty.Register(nameof(Description), typeof(string), typeof(CandidateSelector), new PropertyMetadata(null));
-
-    public IEnumerable<Candidate> Candidates
+    private void VMPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        get { return (IEnumerable<Candidate>)GetValue(CandidatesProperty); }
-        set { SetValue(CandidatesProperty, value); Scroll(); }
+        if (sender is not ViewModel vm) return;
+
+        var n = e.PropertyName;
+        if (n == nameof(ViewModel.SelectedCandidateIndex))
+        {
+            OnPropertyChanged(vm, true);
+        }
+        else if (n == nameof(ViewModel.Candidates))
+        {
+            OnPropertyChanged(vm, true);
+        }
+        else if (n == nameof(ViewModel.Description))
+        {
+            OnPropertyChanged(vm, false);
+        }
     }
 
-    public static readonly DependencyProperty CandidatesProperty =
-        DependencyProperty.Register(nameof(Candidates), typeof(IEnumerable<Candidate>), typeof(CandidateSelector), new PropertyMetadata(null));
-
-    public int SelectedIndex
+    private void OnPropertyChanged(ViewModel vm, bool needsScroll)
     {
-        get { return (int)GetValue(SelectedIndexProperty); }
-        set { SetValue(SelectedIndexProperty, value); Scroll(); }
+        if (needsScroll) Scroll(vm);
+
+        var listVisible = vm.Candidates.Any();
+        list.Visibility = vis(listVisible);
+
+        var descVisible = !string.IsNullOrWhiteSpace(vm.Description);
+        desc.Visibility = vis(descVisible);
+
+        Visibility = vis(listVisible || descVisible);
+
+        static Visibility vis(bool x) => x ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private void Scroll()
+    private void Scroll(ViewModel vm)
     {
-        if (Candidates?.ElementAtOrDefault(SelectedIndex) is not { } x) return;
+        if (vm.Candidates?.ElementAtOrDefault(vm.SelectedCandidateIndex) is not { } x) return;
         list.ScrollIntoView(x);
     }
-
-    public static readonly DependencyProperty SelectedIndexProperty =
-        DependencyProperty.Register(nameof(SelectedIndex), typeof(int), typeof(CandidateSelector), new PropertyMetadata(0));
 }

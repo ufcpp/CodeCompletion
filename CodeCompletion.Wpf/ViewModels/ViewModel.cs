@@ -31,11 +31,25 @@ public class ViewModel : INotifyPropertyChanged
     public virtual void Refresh()
     {
         Completion.Refresh();
+        Description = Completion.Description;
         _candidates?.Invalidate();
         SelectedCandidateIndex = Completion.SelectedCandidateIndex;
     }
 
-    public string? Description => Completion.Description;
+    private string? _description;
+    public string? Description
+    {
+        get => _description;
+        set
+        {
+            if (_description != value)
+            {
+                _description = value;
+                PropertyChanged?.Invoke(this, DescriptionChanged);
+            }
+        }
+    }
+    private static readonly PropertyChangedEventArgs DescriptionChanged = new(nameof(Description));
 
     private Wrap<Candidate>? _candidates;
     public IEnumerable<Candidate> Candidates => _candidates ??= new(Completion.Candidates);
