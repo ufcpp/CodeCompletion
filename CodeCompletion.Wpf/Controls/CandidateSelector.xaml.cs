@@ -23,12 +23,12 @@ public partial class CandidateSelector : UserControl
     {
         Scroll(vm);
 
+        // こっちも {Binding Candidates, Converter={VisibleIf.Any}} みたいにできればいいんだけど…
+        // CollectionChanged を拾えないのでできなさそう。
         var listVisible = vm.Candidates.Any();
         list.Visibility = vis(listVisible);
 
         var descVisible = !string.IsNullOrWhiteSpace(vm.Description);
-        desc.Visibility = vis(descVisible);
-
         Visibility = vis(listVisible || descVisible);
 
         static Visibility vis(bool x) => x ? Visibility.Visible : Visibility.Collapsed;

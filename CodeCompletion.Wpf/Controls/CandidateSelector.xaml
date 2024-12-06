@@ -13,6 +13,7 @@
         <TextBlock
             x:Name="desc"
             Text="{Binding Description}"
+            Visibility="{Binding Description, Converter={x:Static local:VisibleIf.NotNull}}"
             Background="AliceBlue"
             Foreground="CadetBlue"
             Padding="3"/>
