@@ -37,7 +37,7 @@ public class ViewModel : INotifyPropertyChanged
         Refreshed?.Invoke(this);
     }
 
-    public event Action<ViewModel> Refreshed;
+    public event Action<ViewModel>? Refreshed;
 
     private string? _description;
     public string? Description
