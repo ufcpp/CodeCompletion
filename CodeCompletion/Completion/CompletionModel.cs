@@ -4,6 +4,7 @@ namespace CodeCompletion.Completion;
 
 public class CompletionModel(ICompletionContext context)
 {
+    public string? Description { get; private set; }
     public IReadOnlyList<Candidate> Candidates => _candidates;
     private readonly List<Candidate> _candidates = [];
     public int SelectedCandidateIndex { get; private set; }
@@ -32,10 +33,10 @@ public class CompletionModel(ICompletionContext context)
         var previousToken = pos == 0 ? "" : Texts.Tokens[pos - 1].Span;
         var text = Texts.Tokens[pos].Span;
 
-        foreach (var candidate in Context.GetCandidates(previousToken, pos).Candidates) //todo: Description も保存
+        (Description, var candidates) = Context.GetCandidates(previousToken, pos);
+        foreach (var candidate in candidates)
         {
-            if (candidate.Text is not { } ct
-                || ct.AsSpan().StartsWith(text, StringComparison.OrdinalIgnoreCase)) //todo: ここのマッチ方法もインターフェイスで変更可能にしたい。
+            if (candidate.Text.AsSpan().StartsWith(text, StringComparison.OrdinalIgnoreCase)) //todo: ここのマッチ方法もインターフェイスで変更可能にしたい。
             {
                 results.Add(candidate);
             }

@@ -11,6 +11,15 @@ public partial class CandidateSelector : UserControl
         InitializeComponent();
     }
 
+    public string? Description
+    {
+        get { return (string?)GetValue(DescriptionProperty); }
+        set { SetValue(DescriptionProperty, value); }
+    }
+
+    public static readonly DependencyProperty DescriptionProperty =
+        DependencyProperty.Register(nameof(Description), typeof(string), typeof(CandidateSelector), new PropertyMetadata(null));
+
     public IEnumerable<Candidate> Candidates
     {
         get { return (IEnumerable<Candidate>)GetValue(CandidatesProperty); }

@@ -16,35 +16,31 @@ internal static class Candidates
         var cat = Tokenizer.Categorize(previousToken);
         if (cat == TokenCategory.Comparison)
         {
-            if (property.Nearest.PropertyType.Type == typeof(bool))
-            {
-                return new("", _boolValues);
-            }
-            if (property.Nearest.IsNullable)
-            {
-                return new("", _nullValue);
-            }
-            return new("", []); //todo: 何型の自由入力かのヒントくらいは出せるようにしたい。
+            var values =
+                property.Nearest.PropertyType.Type == typeof(bool) ? _boolValues :
+                property.Nearest.IsNullable ? _nullValue :
+                [];
+            return new(property.Nearest.PropertyType.Description, values);
         }
-        if (cat == TokenCategory.DotIntrinsics && Intrinsic(previousToken, property.Nearest) is { } c)
+        if (cat == TokenCategory.DotIntrinsics && Intrinsic(previousToken, property.Nearest) is (var t, { } c))
         {
-            return new("", c);
+            return new(t.Description, c);
         }
         if (cat == TokenCategory.Conjunction || cat == TokenCategory.Punctuation)
         {
             // ) の後ろはリテラルとかと同じ扱い。
-            if (previousToken is ")") return new("", _conjunction);
+            if (previousToken is ")") return new(property.Nearest.PropertyType.Description, _conjunction);
 
             // ,|&( の後ろは前の ( 直前のプロパティを元に候補を出す。
-            return new("", Property(property.Parent));
+            return new(property.Nearest.PropertyType.Description, Property(property.Parent));
         }
         if (previousToken is [] // ルート。他の判定方法の方がいいかも…
         || cat == TokenCategory.Identifier)
         {
-            return new("", Property(property.Nearest));
+            return new(property.Nearest.PropertyType.Description, Property(property.Nearest));
         }
 
-        return new("", _conjunction);
+        return new(property.Nearest.PropertyType.Description, _conjunction);
     }
 
     private static readonly Candidate[] _conjunction =
@@ -54,14 +50,14 @@ internal static class Candidates
         new("&"),
     ];
 
-    public static IEnumerable<Candidate>? Intrinsic(ReadOnlySpan<char> token, Property property) => token switch
+    public static (TypeInfo type, IEnumerable<Candidate>? candidates) Intrinsic(ReadOnlySpan<char> token, Property property) => token switch
     {
-        IntrinsicNames.Length
-        or IntrinsicNames.Ceiling
+        IntrinsicNames.Length => (new(typeof(string), property.TypeProvider), _comparableCandidates),
+        IntrinsicNames.Ceiling
         or IntrinsicNames.Floor
-        or IntrinsicNames.Round => _comparableCandidates,
+        or IntrinsicNames.Round => (new(typeof(long), property.TypeProvider), _comparableCandidates),
         IntrinsicNames.Any or IntrinsicNames.All => ArrayIntrinsic(property),
-        _ => null,
+        _ => default,
     };
 
     public static IEnumerable<Candidate> Property(Property property)
@@ -85,13 +81,14 @@ internal static class Candidates
         return null;
     }
 
-    private static IEnumerable<Candidate>? ArrayIntrinsic(Property property)
+    private static (TypeInfo elementType, IEnumerable<Candidate>? candidates) ArrayIntrinsic(Property property)
     {
         // Array と違って、 .any .all は出さない。
-        var et = property.PropertyType.GetElementType();
-        Debug.Assert(et != null);
-        var x = ElementProperty(et.GetValueOrDefault());
-        return [.. x, new("(")];
+        var et0 = property.PropertyType.GetElementType();
+        Debug.Assert(et0 != null);
+        var et = et0.GetValueOrDefault();
+        var x = ElementProperty(et);
+        return (et, [.. x, new("(")]);
     }
 
     private static IEnumerable<Candidate> ElementProperty(TypeInfo type)

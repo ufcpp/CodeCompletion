@@ -13,6 +13,9 @@ public interface ITypeProvider
 
     Type? GetElementType(Type t);
     bool IsNullable(S.PropertyInfo p);
+
+    string? GetDerscription(Type t);
+    string? GetDerscription(S.PropertyInfo p);
 }
 
 /// <summary>
@@ -57,4 +60,8 @@ public class DefaultTypeProvider : ITypeProvider
         var i = c.Create(p);
         return i.ReadState != S.NullabilityState.NotNull;
     }
+
+    // Description 属性とかリフレクションで探す？
+    public string? GetDerscription(Type t) => t.Name;
+    public string? GetDerscription(S.PropertyInfo p) => null;
 }

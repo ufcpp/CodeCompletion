@@ -7,15 +7,23 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="root">
-    <ListBox
-        x:Name="list"
-        MaxHeight="200"
-        ItemsSource="{Binding Candidates, ElementName=root}"
-        SelectedIndex="{Binding SelectedIndex, ElementName=root}">
-        <ListBox.ItemTemplate>
-            <DataTemplate>
-                <TextBlock Text="{Binding Text}" />
-            </DataTemplate>
-        </ListBox.ItemTemplate>
-    </ListBox>
+    <StackPanel>
+        <TextBlock
+            Text="{Binding Description, ElementName=root}"
+            Background="AliceBlue"
+            Foreground="CadetBlue"
+            Padding="3"/>
+
+        <ListBox
+            x:Name="list"
+            MaxHeight="200"
+            ItemsSource="{Binding Candidates, ElementName=root}"
+            SelectedIndex="{Binding SelectedIndex, ElementName=root}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Text}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </StackPanel>
 </UserControl>

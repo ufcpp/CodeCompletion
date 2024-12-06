@@ -93,9 +93,10 @@ public partial class CodeCompletionControl : ContentControl
     private void Show(ViewModel vm)
     {
         vm.Refresh();
+        _candidates.Description = vm.Description;
         _candidates.Candidates = vm.Candidates;
         _candidates.SelectedIndex = vm.SelectedCandidateIndex;
-        _candidates.Visibility = vm.Candidates.Any() ? Visibility.Visible : Visibility.Collapsed;
+        _candidates.Visibility = (!string.IsNullOrWhiteSpace(vm.Description) || vm.Candidates.Any()) ? Visibility.Visible : Visibility.Collapsed;
         _text.InvalidateVisual();
     }
 

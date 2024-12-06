@@ -12,4 +12,5 @@ public readonly struct TypeInfo(Type type, ITypeProvider typeProvider)
     public PropertyInfo? GetProperty(string name) => typeProvider.GetProperty(type, name) is { } p ? new (p, typeProvider) : null;
     public TypeInfo? GetElementType() => typeProvider.GetElementType(type) is { } et ? new (et, typeProvider) : null;
     public string Name => type!.Name;
+    public string? Description => typeProvider.GetDerscription(type);
 }

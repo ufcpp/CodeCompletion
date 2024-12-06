@@ -35,8 +35,10 @@ public class ViewModel : INotifyPropertyChanged
         SelectedCandidateIndex = Completion.SelectedCandidateIndex;
     }
 
+    public string? Description => Completion.Description;
+
     private Wrap<Candidate>? _candidates;
-    public IEnumerable<Candidate> Candidates => _candidates ??= new(Completion.Candidates.Where(x => x.Text != null));
+    public IEnumerable<Candidate> Candidates => _candidates ??= new(Completion.Candidates);
 
     private int _index;
     public int SelectedCandidateIndex
