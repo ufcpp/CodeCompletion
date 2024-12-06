@@ -142,7 +142,7 @@ internal static class Candidates
     [
         .._comparableCandidates,
         new("~"),
-        new(IntrinsicNames.Length),
+        new(IntrinsicNames.Length, IntrinsicDescription.StringLength),
     ];
 
     private static readonly Candidate[] _floatCandidates =
@@ -155,8 +155,8 @@ internal static class Candidates
 
     private static readonly Candidate[] _arrayIntrinsics =
     [
-        new(IntrinsicNames.Any),
-        new(IntrinsicNames.All),
-        new(IntrinsicNames.Length),
+        new(IntrinsicNames.Any, IntrinsicDescription.Any),
+        new(IntrinsicNames.All, IntrinsicDescription.All),
+        new(IntrinsicNames.Length, IntrinsicDescription.ArrayLength),
     ];
 }
