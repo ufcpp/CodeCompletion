@@ -25,7 +25,17 @@
             SelectedIndex="{Binding SelectedCandidateIndex}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Text}" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Text}" />
+                        <StackPanel
+                            Orientation="Horizontal"
+                            TextBlock.Foreground="Gray"
+                            Visibility="{Binding Description, Converter={x:Static local:VisibleIf.NotNull}}">
+                            <TextBlock Text=" (" />
+                            <TextBlock Text="{Binding Description}" />
+                            <TextBlock Text=")" />
+                        </StackPanel>
+                    </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

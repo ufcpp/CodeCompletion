@@ -3,7 +3,7 @@ namespace CodeCompletion.Completion;
 /// <summary>
 /// 補完候補。
 /// </summary>
-public record struct Candidate(string Text);
+public record struct Candidate(string Text, string? Description = null);
 
 /// <summary>
 /// 補完候補リスト。

@@ -11,4 +11,5 @@ public readonly struct PropertyInfo(S.PropertyInfo property, ITypeProvider typeP
 
     public TypeInfo PropertyType => new(property.PropertyType, typeProvider);
     public string Name => property.Name;
+    public string? Description => typeProvider.GetDerscription(property);
 }

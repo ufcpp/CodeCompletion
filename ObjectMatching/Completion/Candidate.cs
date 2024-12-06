@@ -96,7 +96,7 @@ internal static class Candidates
             ?? GetProperties(type);
 
     private static IEnumerable<Candidate> GetProperties(TypeInfo type)
-        => type.GetProperties().Select(p => new Candidate(p.Name));
+        => type.GetProperties().Select(p => new Candidate(p.Name, p.Description));
 
     private static Candidate[]? PrimitiveProperty(TypeInfo type)
     {
