@@ -34,7 +34,10 @@ public class ViewModel : INotifyPropertyChanged
         Description = Completion.Description;
         _candidates?.Invalidate();
         SelectedCandidateIndex = Completion.SelectedCandidateIndex;
+        Refreshed?.Invoke(this);
     }
+
+    public event Action<ViewModel> Refreshed;
 
     private string? _description;
     public string? Description
