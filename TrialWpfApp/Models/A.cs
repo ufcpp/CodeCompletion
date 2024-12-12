@@ -1,4 +1,4 @@
-#pragma warning disable CS8618
+#pragma warning disable CS8618, IDE1006
 
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
@@ -20,6 +20,27 @@ public class A
     public A R1 { get; set; }
     public A[] R2 { get; set; }
     public NB NItem { get; set; }
+
+    public NameVariation Variation { get; set; }
+}
+
+public class NameVariation
+{
+    // 頭文字マッチとかができるかの確認用に、数単語のプロパティを用意
+    public int adg { get; set; }
+    public int Adg { get; set; }
+    public int AbcDefGhi { get; set; }
+    public int ThreeWordAcronym { get; set; }
+    public int abcあいうdef { get; set; }
+
+    [Description("abc")]
+    public int あいうえお { get; set; }
+
+    [Description("あいうえお")]
+    public int 阿以宇恵男 { get; set; }
+
+    [Description("adg")]
+    public int Xyz { get; set; }
 }
 
 [Description("型B")]
