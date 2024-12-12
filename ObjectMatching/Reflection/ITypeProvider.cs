@@ -68,7 +68,8 @@ public class DefaultTypeProvider : ITypeProvider
 
     private static string? GetDescriptionFromAttribute(MemberInfo m)
     {
-        var desc = m.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>()?.Description;
+        var desc = m.GetCustomAttribute<System.ComponentModel.DisplayNameAttribute>()?.DisplayName
+            ?? m.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>()?.Description;
 
         if (desc is null) return null;
 
