@@ -16,7 +16,7 @@ public class HistoryModel(CompletionModel completion, int? maxHisotry = null)
 
     public TextBuffer Texts => Completion.Texts;
 
-    private List<string> _history = new();
+    private readonly List<string> _history = new();
 
     public void Save()
     {
@@ -28,7 +28,18 @@ public class HistoryModel(CompletionModel completion, int? maxHisotry = null)
         Index = 0;
     }
 
-    private void Reset()
+    public void Reset(ReadOnlySpan<char> source)
+    {
+        foreach (var lineRange in source.Split('\n'))
+        {
+            var line = source[lineRange];
+            if (line.IsWhiteSpace()) continue;
+            Completion.Reset(line);
+            Save();
+        }
+    }
+
+    private void ChooseHisotry()
     {
         var i = Index;
         if (i < _history.Count) Texts.Reset(_history[i]);
@@ -39,7 +50,7 @@ public class HistoryModel(CompletionModel completion, int? maxHisotry = null)
     {
         Index++;
         if (Index >= _history.Count) Index = 0;
-        Reset();
+        ChooseHisotry();
     }
 
     // 補完候補を1個前に。
@@ -47,7 +58,10 @@ public class HistoryModel(CompletionModel completion, int? maxHisotry = null)
     {
         Index--;
         if (Index < 0) Index = _history.Count - 1;
-        Reset();
+        ChooseHisotry();
     }
+
+    // Copy → Paste で元に戻るようにするには逆順で Join。
+    public override string ToString() => string.Join("\n", Enumerable.Reverse(_history));
 }
 
