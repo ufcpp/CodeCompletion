@@ -30,8 +30,11 @@ internal static class Keybind
         table.Neutral(Key.Enter, static vm => vm.Complete());
         table.Ctrl(Key.Enter, static vm => { vm.Filter(); return false; });
 
-        table.Either(Key.Down, static vm => vm.Next());
-        table.Either(Key.Up, static vm => vm.Prev());
+        table.Neutral(Key.Down, static vm => vm.NextCandidate());
+        table.Neutral(Key.Up, static vm => vm.PrevCandidate());
+
+        table.Ctrl(Key.Down, static vm => vm.NextHistory());
+        table.Ctrl(Key.Up, static vm => vm.PrevHistory());
 
         table.Neutral(Key.Left, static vm => vm.Texts.Move(CursorMove.Back));
         table.Neutral(Key.Right, static vm => vm.Texts.Move(CursorMove.Forward));

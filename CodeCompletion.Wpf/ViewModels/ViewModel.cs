@@ -16,16 +16,17 @@ public class ViewModel : INotifyPropertyChanged
 {
     public IEnumerable ItemsSource { get; }
     protected ICompletionContext Context { get; }
-    public CompletionModel Completion { get; }
+    public HistoryModel History { get; }
 
     public ViewModel(ICompletionContext context, IEnumerable itemsSource)
     {
         ItemsSource = itemsSource;
         Context = context;
-        Completion = new(Context);
+        History = new(Context);
         _filteredItems = itemsSource;
     }
 
+    public CompletionModel Completion => History.Completion;
     public TextBuffer Texts => Completion.Texts;
 
     public virtual void Refresh()
@@ -73,8 +74,11 @@ public class ViewModel : INotifyPropertyChanged
     private static readonly PropertyChangedEventArgs SelectedCandidateIndexChanged = new(nameof(SelectedCandidateIndex));
 
     public bool Complete() => Completion.Complete();
-    public void Next() => Completion.Next();
-    public void Prev() => Completion.Prev();
+    public void NextCandidate() => Completion.Next();
+    public void PrevCandidate() => Completion.Prev();
+
+    public void NextHistory() => History.Next();
+    public void PrevHistory() => History.Prev();
 
     private IEnumerable _filteredItems;
     public IEnumerable FilteredItems
@@ -87,6 +91,7 @@ public class ViewModel : INotifyPropertyChanged
     public void Filter()
     {
         FilteredItems = Filter(ItemsSource);
+        History.Save();
     }
 
     protected virtual IEnumerable Filter(IEnumerable itemsSource) => itemsSource;
