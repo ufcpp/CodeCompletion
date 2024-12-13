@@ -68,6 +68,11 @@ public class B
     public TimeOnly Time { get; set; }
     public TimeSpan TimeSpan { get; set; }
 
+    // 直接に対応はしてないけど、たぶん parseable なので行ける
+    public Int128 I128 { get; set; }
+    public UInt128 U128 { get; set; }
+    public Half F16 { get; set; }
+
     public E E1 { get; set; }
     public F E2 { get; set; }
 
