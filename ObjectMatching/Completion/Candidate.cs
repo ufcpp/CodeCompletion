@@ -141,7 +141,7 @@ internal static class Candidates
     private static readonly Candidate[] _stringCandidates =
     [
         .._comparableCandidates,
-        new("~"),
+        new("~", "正規表現"),
         new(IntrinsicNames.Length, IntrinsicDescription.StringLength),
     ];
 
