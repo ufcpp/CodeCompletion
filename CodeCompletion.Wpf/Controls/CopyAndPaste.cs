@@ -9,42 +9,35 @@ public static class CopyAndPaste
 {
     public static void BindCopyAndPaste(this Control e)
     {
-        e.ContextMenu = new()
+        void add(RoutedUICommand command, Action<ViewModel> action)
         {
-            Items =
+            e.ContextMenu.Items.Add(new MenuItem { Command = command });
+
+            foreach (var key in command.InputGestures.OfType<KeyGesture>())
             {
-                new MenuItem { Header = "Copy", Command = ApplicationCommands.Copy },
-                new MenuItem { Header = "Copy All", Command = CopyAllCommand },
-                new MenuItem { Header = "Paste", Command = ApplicationCommands.Paste },
+                e.InputBindings.Add(new KeyBinding(command, key));
             }
-        };
 
-        e.InputBindings.Add(new KeyBinding(ApplicationCommands.Copy, Key.C, ModifierKeys.Control));
-        e.InputBindings.Add(new KeyBinding(CopyAllCommand, Key.C, ModifierKeys.Control | ModifierKeys.Shift));
-        e.InputBindings.Add(new KeyBinding(ApplicationCommands.Paste, Key.V, ModifierKeys.Control));
+            e.CommandBindings.Add(new CommandBinding(command, (sender, arg) =>
+            {
+                if (sender is not FrameworkElement e) return;
+                if (e.DataContext is not ViewModel vm) return;
+                action(vm);
+            }));
+        }
 
-        e.CommandBindings.Add(new CommandBinding(ApplicationCommands.Copy, (sender, arg) =>
+        e.ContextMenu = new();
+
+        add(ApplicationCommands.Copy, vm => Clipboard.SetData(DataFormats.Text, vm.Texts.ToString()));
+
+        add(CopyAllCommand, vm => Clipboard.SetData(DataFormats.Text, vm.History.ToString()));
+
+        add(ApplicationCommands.Paste, vm =>
         {
-            if (sender is not FrameworkElement e) return;
-            if (e.DataContext is not ViewModel vm) return;
-            Clipboard.SetData(DataFormats.Text, vm.Texts.ToString());
-        }));
-
-        e.CommandBindings.Add(new CommandBinding(CopyAllCommand, (sender, arg) =>
-        {
-            if (sender is not FrameworkElement e) return;
-            if (e.DataContext is not ViewModel vm) return;
-            Clipboard.SetData(DataFormats.Text, vm.History.ToString());
-        }));
-
-        e.CommandBindings.Add(new CommandBinding(ApplicationCommands.Paste, (sender, arg) =>
-        {
-            if (sender is not FrameworkElement e) return;
-            if (e.DataContext is not ViewModel vm) return;
             if (Clipboard.GetData(DataFormats.Text) is not string s) return;
             vm.Reset(s);
-        }));
+        });
     }
 
-    private static readonly RoutedUICommand CopyAllCommand = new RoutedUICommand("Copy All", "Copy All", typeof(CopyAndPaste), new() { new KeyGesture(Key.C, ModifierKeys.Control | ModifierKeys.Shift) });
+    private static readonly RoutedUICommand CopyAllCommand = new("履歴コピー", "Copy All", typeof(CopyAndPaste), [new KeyGesture(Key.C, ModifierKeys.Control | ModifierKeys.Shift)]);
 }
