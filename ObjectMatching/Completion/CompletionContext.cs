@@ -9,6 +9,8 @@ public class CompletionContext(TypeInfo root) : ICompletionContext
 {
     public TypeInfo Root { get; } = root;
 
+    public CompletionContext(Type root, ITypeProvider typeProvider) : this(new(root, typeProvider)) { }
+
     private readonly List<PropertyHierarchy> _propertyInfo = [];
 
     /// <summary>
