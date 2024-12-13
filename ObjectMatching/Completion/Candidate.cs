@@ -113,7 +113,7 @@ internal static partial class Candidates
             ComparableTypeCategory.Bool => _boolCandidates,
             ComparableTypeCategory.Float => _floatCandidates,
             ComparableTypeCategory.Integer => _comparableCandidates,
-            ComparableTypeCategory.Enum => _enumCandidates,
+            ComparableTypeCategory.Enum => IsFlagsEnum(t) ? _flagsEnumCandidates : _comparableCandidates,
             ComparableTypeCategory.Comparable => [.. _comparableCandidates, .. GetProperties(type)],
             ComparableTypeCategory.Equatable => [.. _equatableCandidates, .. GetProperties(type)],
             _ => null,
@@ -141,7 +141,7 @@ internal static partial class Candidates
         new(">="),
     ];
 
-    private static readonly Candidate[] _enumCandidates =
+    private static readonly Candidate[] _flagsEnumCandidates =
     [
         new("="),
         new("~", "HasFlag"),

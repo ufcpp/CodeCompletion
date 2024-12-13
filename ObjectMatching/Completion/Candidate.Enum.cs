@@ -30,4 +30,6 @@ partial class Candidates
 
         return new(type.Description, candidates);
     }
+
+    private static bool IsFlagsEnum(Type t) => t.GetCustomAttribute<FlagsAttribute>() is not null;
 }
