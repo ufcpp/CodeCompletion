@@ -2,15 +2,17 @@ using System.Numerics;
 
 namespace ObjectMatching.Emit;
 
+using Res = Result<ObjectMatcher, BoxedErrorCode>;
+
 internal static class FloatIntrinsic<T>
     where T : IFloatingPoint<T>
 {
-    public static ObjectMatcher? Create(string name, ObjectMatcher matcher) => name switch
+    public static Res Create(string name, ObjectMatcher matcher) => name switch
     {
         IntrinsicNames.Ceiling => new Ceiling(matcher),
         IntrinsicNames.Floor => new Floor(matcher),
         IntrinsicNames.Round => new Round(matcher),
-        _ => null
+        _ => BoxedErrorCode.InvalidIntrinsic
     };
 
     private class Ceiling(ObjectMatcher matcher) : ObjectMatcher<T>

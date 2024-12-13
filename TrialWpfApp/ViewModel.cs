@@ -45,15 +45,15 @@ candidates: {string.Join(", ", Candidates.Select(x => x.Text))} (selected: {Sele
     {
         var filter = Context.Emit(Texts);
 
-        if (filter is null)
+        if (filter.Error is { } error)
         {
-            System.Diagnostics.Debug.WriteLine("filter OFF");
+            System.Diagnostics.Debug.WriteLine("filter OFF, Error: " + error);
             return itemsSource;
         }
         else
         {
             System.Diagnostics.Debug.WriteLine("filter ON");
-            return itemsSource.Cast<object>().Where(filter).ToList();
+            return itemsSource.Cast<object>().Where(filter.Value!).ToList();
         }
     }
 }

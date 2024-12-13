@@ -2,6 +2,8 @@ using ObjectMatching.Reflection;
 
 namespace ObjectMatching.Emit;
 
+using Res = Result<ObjectMatcher, BoxedErrorCode>;
+
 internal abstract class ObjectMatcher
 {
     public abstract bool Match(object? value);
@@ -26,7 +28,7 @@ internal class Property(string name, ObjectMatcher mather) : ObjectMatcher
 
 internal static class Intrinsic
 {
-    public static ObjectMatcher? Create(string name, TypeInfo type, ObjectMatcher matcher)
+    public static Res Create(string name, TypeInfo type, ObjectMatcher matcher)
     {
         if (type.Type == typeof(float)) return FloatIntrinsic<float>.Create(name, matcher);
         if (type.Type == typeof(double)) return FloatIntrinsic<double>.Create(name, matcher);
@@ -37,6 +39,6 @@ internal static class Intrinsic
             if (type.GetElementType() is { }) return new ArrayLength(matcher);
         }
 
-        return null;
+        return BoxedErrorCode.InvalidIntrinsic;
     }
 }

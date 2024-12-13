@@ -3,9 +3,11 @@ using System.Runtime.CompilerServices;
 
 namespace ObjectMatching.Emit;
 
+using Res = Result<ObjectMatcher, BoxedErrorCode>;
+
 internal static class Compare
 {
-    public static ObjectMatcher? Create(ComparisonType comparison, Type type, ReadOnlySpan<char> valueSpan)
+    public static Res Create(ComparisonType comparison, Type type, ReadOnlySpan<char> valueSpan)
     {
         if (type == typeof(int)) return CreateParsable<int>(comparison, valueSpan);
         if (type == typeof(uint)) return CreateParsable<uint>(comparison, valueSpan);
@@ -26,21 +28,21 @@ internal static class Compare
 
         if (Dynamic.Create(comparison, type, valueSpan) is { } c) return c;
 
-        return null;
+        return BoxedErrorCode.UnsupportedType;
     }
 
-    public static ObjectMatcher? CreateParsable<T>(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
+    public static Res CreateParsable<T>(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
         where T : IComparable<T>, ISpanParsable<T>
         => ComparableParseable<T>.Create(comparison, valueSpan);
 
-    public static ObjectMatcher? CreateBool(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
+    public static Res CreateBool(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
     {
         if (valueSpan.Equals("true", StringComparison.OrdinalIgnoreCase)) return Comparable<bool>.Create(comparison, true);
         if (valueSpan.Equals("false", StringComparison.OrdinalIgnoreCase)) return Comparable<bool>.Create(comparison, false);
-        return null;
+        return BoxedErrorCode.InvalidOperand;
     }
 
-    public static ObjectMatcher? CreateString(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
+    public static Res CreateString(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
     {
         valueSpan = StringHelper.Unescape(valueSpan);
         return Comparable<string>.Create(comparison, valueSpan.ToString());
@@ -61,7 +63,7 @@ internal static class Compare
 
     private class Dynamic
     {
-        public static ObjectMatcher? Create(ComparisonType comparison, Type type, ReadOnlySpan<char> valueSpan)
+        public static Res Create(ComparisonType comparison, Type type, ReadOnlySpan<char> valueSpan)
         {
             if (Nullable.GetUnderlyingType(type) is { } ut)
             {
@@ -85,14 +87,15 @@ internal static class Compare
                 genericType = typeof(EquatableParseable<>).MakeGenericType(type);
             }
 
+            if (genericType is null) return BoxedErrorCode.UnsupportedType;
+
             return InvokeCreate(comparison, valueSpan, genericType);
         }
 
-        private static ObjectMatcher? InvokeCreate(ComparisonType comparison, ReadOnlySpan<char> valueSpan, Type? t)
+        private static Res InvokeCreate(ComparisonType comparison, ReadOnlySpan<char> valueSpan, Type t)
         {
-            if (t is null) return null;
             var m = t.GetMethod("Create", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)!;
-            var f = m.CreateDelegate<Func<ComparisonType, ReadOnlySpan<char>, ObjectMatcher?>>();
+            var f = m.CreateDelegate<Func<ComparisonType, ReadOnlySpan<char>, Res>>();
             return f(comparison, valueSpan);
         }
     }
@@ -100,11 +103,11 @@ internal static class Compare
     private class ComparableParseable<T>
         where T : IComparable<T>, ISpanParsable<T>
     {
-        public static ObjectMatcher? Create(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
+        public static Res Create(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
         {
             valueSpan = StringHelper.Unescape(valueSpan); // Date 系、"" で囲まないと入力できない。
 
-            if (!T.TryParse(valueSpan, null, out var value)) return null;
+            if (!T.TryParse(valueSpan, null, out var value)) return BoxedErrorCode.InvalidOperand;
             return Comparable<T>.Create(comparison, value);
         }
     }
@@ -112,7 +115,7 @@ internal static class Compare
     private class Comparable<T>
         where T : IComparable<T>
     {
-        public static ObjectMatcher Create(ComparisonType comparison, T operand) => comparison switch
+        public static Res Create(ComparisonType comparison, T operand) => comparison switch
         {
             ComparisonType.Equal => new Equal(operand),
             ComparisonType.NotEqual => new NotEqual(operand),
@@ -120,7 +123,7 @@ internal static class Compare
             ComparisonType.GreaterThanOrEqual => new GreaterThanOrEqual(operand),
             ComparisonType.LessThan => new LessThan(operand),
             ComparisonType.LessThanOrEqual => new LessThanOrEqual(operand),
-            _ => throw new NotImplementedException() // 他は null 返して単に無視してるのが多い
+            _ => BoxedErrorCode.InvalidOperator,
         };
 
         private class Equal(T operand) : ObjectMatcher<T> { public override bool Match(T value) => value.CompareTo(operand) == 0; }
@@ -134,11 +137,11 @@ internal static class Compare
     private class EquatableParseable<T>
         where T : IEquatable<T>, ISpanParsable<T>
     {
-        public static ObjectMatcher? Create(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
+        public static Res Create(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
         {
             valueSpan = StringHelper.Unescape(valueSpan); // Date 系、"" で囲まないと入力できない。
 
-            if (!T.TryParse(valueSpan, null, out var value)) return null;
+            if (!T.TryParse(valueSpan, null, out var value)) return BoxedErrorCode.InvalidOperand;
             return Equatable<T>.Create(comparison, value);
         }
     }
@@ -146,11 +149,11 @@ internal static class Compare
     private class Equatable<T>
         where T : IEquatable<T>
     {
-        public static ObjectMatcher Create(ComparisonType comparison, T operand) => comparison switch
+        public static Res Create(ComparisonType comparison, T operand) => comparison switch
         {
             ComparisonType.Equal => new Equal(operand),
             ComparisonType.NotEqual => new NotEqual(operand),
-            _ => throw new NotImplementedException() // 他は null 返して単に無視してるのが多い
+            _ => BoxedErrorCode.InvalidOperator,
         };
 
         private class Equal(T operand) : ObjectMatcher<T> { public override bool Match(T value) => value.Equals(operand); }
@@ -161,7 +164,7 @@ internal static class Compare
         where TEnum : struct, Enum
         where TUnderlying : struct, IComparable<TUnderlying>, ISpanParsable<TUnderlying>
     {
-        public static ObjectMatcher? Create(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
+        public static Res Create(ComparisonType comparison, ReadOnlySpan<char> valueSpan)
         {
             valueSpan = StringHelper.Unescape(valueSpan); // Date 系、"" で囲まないと入力できない。
 
@@ -170,7 +173,7 @@ internal static class Compare
             {
                 // 数値で parse
                 if (TUnderlying.TryParse(valueSpan, null, out var x)) value = Unsafe.BitCast<TUnderlying, TEnum>(x);
-                else return null;
+                else return BoxedErrorCode.InvalidOperand;
             }
             return Comparable.Create(comparison, value);
         }
@@ -178,7 +181,7 @@ internal static class Compare
 
     private class Comparable
     {
-        public static ObjectMatcher Create(ComparisonType comparison, Enum operand) => comparison switch
+        public static Res Create(ComparisonType comparison, Enum operand) => comparison switch
         {
             ComparisonType.Equal => new Equal(operand),
             ComparisonType.NotEqual => new NotEqual(operand),
@@ -187,7 +190,7 @@ internal static class Compare
             ComparisonType.LessThan => new LessThan(operand),
             ComparisonType.LessThanOrEqual => new LessThanOrEqual(operand),
             ComparisonType.Tilde => new HasFlag(operand),
-            _ => throw new NotImplementedException() // 他は null 返して単に無視してるのが多い
+            _ => BoxedErrorCode.InvalidOperator,
         };
 
         private class Equal(Enum operand) : ObjectMatcher<Enum> { public override bool Match(Enum value) => value.CompareTo(operand) == 0; }

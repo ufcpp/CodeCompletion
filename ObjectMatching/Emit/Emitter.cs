@@ -4,36 +4,45 @@ using ObjectMatching.Reflection;
 
 namespace ObjectMatching.Emit;
 
+using Res = Result<ObjectMatcher, Error>;
+using Func = Result<Func<object?, bool>, Error>;
+
 internal class Emitter
 {
-    public static Func<object?, bool>? Emit(TextBuffer texts, TypeInfo type)
+    public static Func Emit(TextBuffer texts, TypeInfo type)
     {
         var node = Parser.Parse(texts);
-        if (node.IsNull) return null;
+        if (node.IsNull) return Error.UnknownSyntaxError;
 
         var m = Emit(node, type)!;
-        if (m is null) return null;
-        return m.Match;
+        if (m.Value is not { } matcher) return m.Error!;
+        return new(matcher.Match);
     }
 
-    private static ObjectMatcher? Emit(Node node, TypeInfo type) => node.Type switch
+    private static Res Emit(Node node, TypeInfo type) => node.Type switch
     {
-        NodeType.Null => null,
-        NodeType.Comma => new And(EmitChildren(node, type)),
-        NodeType.Or => new Or(EmitChildren(node, type)),
-        NodeType.And => new And(EmitChildren(node, type)),
+        NodeType.Null => Error.UnknownSyntaxError,
+        NodeType.Comma or NodeType.Or or NodeType.And => EmitChildren(node, type),
         _ => Primary(node, type),
     };
 
-    private static ObjectMatcher?[] EmitChildren(Node node, TypeInfo type)
+    private static Res EmitChildren(Node node, TypeInfo type)
     {
         var childNodes = node.GetChildren();
         var children = new ObjectMatcher?[childNodes.Length];
         for (var i = 0; i < children.Length; ++i)
         {
-            children[i] = Emit(childNodes[i], type);
+            var child = Emit(childNodes[i], type);
+            if (child.Value is not { } c) return child;
+            children[i] = c;
         }
-        return children;
+
+        return node.Type switch
+        {
+            NodeType.Or => new Or(children),
+            NodeType.And or NodeType.Comma => new And(children),
+            _ => BoxedErrorCode.InvalidOperator.With(node),
+        };
     }
 
     private static Type? GetIntrinsicType(ReadOnlySpan<char> name) => name switch
@@ -45,9 +54,9 @@ internal class Emitter
         _ => null,
     };
 
-    private static ObjectMatcher? Primary(Node node, TypeInfo type)
+    private static Res Primary(Node node, TypeInfo type)
     {
-        if (node.IsNull) return null;
+        if (node.IsNull) return Error.UnknownSyntaxError;
 
         // Array X = 1 とか書いて、C# でいう x.Array.Any(x => x.X == 1) 扱い。
         if (type.GetElementType() is { } et)
@@ -55,8 +64,8 @@ internal class Emitter
             if (node.Span[0].Span is IntrinsicNames.Length)
             {
                 var child = Emit(node.Left, new(typeof(int), type.TypeProvider));
-                if (child is null) return null;
-                return new ArrayLength(child);
+                if (child.Value is not { } c) return child;
+                return new ArrayLength(c);
             }
 
             bool all = false;
@@ -76,8 +85,8 @@ internal class Emitter
             // (Any(x => x != null) の意味にしたければ Array .any != null とか書く。)
 
             var elem = Emit(node, et);
-            if (elem is null) return null;
-            return all ? new ArrayAll(elem) : new ArrayAny(elem);
+            if (elem.Value is not { } e) return elem;
+            return all ? new ArrayAll(e) : new ArrayAny(e);
         }
 
         // = とか > とか。
@@ -87,10 +96,10 @@ internal class Emitter
 
             if (node.Type == NodeType.Regex
                 && type.Type == typeof(string))
-                return RegexMatcher.Create(valueToken);
+                return RegexMatcher.Create(valueToken).With(node);
 
             var compType = node.Type.ToComparisonType();
-            return Compare.Create(compType, type.Type, valueToken);
+            return Compare.Create(compType, type.Type, valueToken).With(node);
         }
 
         // member (A=1, B=2) みたいなのの、() の部分。
@@ -102,17 +111,17 @@ internal class Emitter
         {
             // .length とか。
             var child = Emit(node.Left, new(it, type.TypeProvider));
-            if (child is null) return null;
-            return Intrinsic.Create(name, type, child);
+            if (child.Value is not { } c) return child;
+            return Intrinsic.Create(name, type, c).With(node);
         }
         else
         {
             // プロパティアクセス。
-            if (type.GetProperty(name) is not { } p) return null;
+            if (type.GetProperty(name) is not { } p) return BoxedErrorCode.PropertyNotFound.With(node);
 
             var child = Emit(node.Left, p.PropertyType);
-            if (child is null) return null;
-            return new Property(name, child);
+            if (child.Value is not { } c) return child;
+            return new Property(name, c);
         }
     }
 }

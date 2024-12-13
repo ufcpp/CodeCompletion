@@ -2,21 +2,32 @@ using System.Text.RegularExpressions;
 
 namespace ObjectMatching.Emit;
 
+using Res = Result<ObjectMatcher, BoxedErrorCode>;
+
 internal class StringLength(ObjectMatcher mather) : ObjectMatcher<string>
 {
     public override bool Match(string value) => mather.Match(value.Length);
 }
 
-internal class RegexMatcher(string pattern) : ObjectMatcher<string>
+internal class RegexMatcher(Regex pattern) : ObjectMatcher<string>
 {
-    private readonly Regex _reg = new(pattern);
+    private readonly Regex _reg = pattern;
 
     public override bool Match(string value) => _reg.Match(value).Success;
 
-    public static RegexMatcher Create(ReadOnlySpan<char> escapedPattern)
+    public static Res Create(ReadOnlySpan<char> escapedPattern)
     {
         var pattern = StringHelper.Unescape(escapedPattern).ToString();
-        return new(pattern);
+
+        try
+        {
+            var regex = new Regex(pattern);
+            return new RegexMatcher(regex);
+        }
+        catch (Exception)
+        {
+            return BoxedErrorCode.InvalidRegex;
+        }
     }
 }
 

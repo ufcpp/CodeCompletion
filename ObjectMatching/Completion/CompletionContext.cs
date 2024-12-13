@@ -89,6 +89,6 @@ public class CompletionContext(TypeInfo root) : ICompletionContext
         return Candidates.GetCandidates(previousToken, _propertyInfo[tokenPosition]);
     }
 
-    public Func<object?, bool>? Emit(TextBuffer texts) => Emitter.Emit(texts, Root)!;
+    public Result<Func<object?, bool>, Error> Emit(TextBuffer texts) => Emitter.Emit(texts, Root)!;
 }
 
