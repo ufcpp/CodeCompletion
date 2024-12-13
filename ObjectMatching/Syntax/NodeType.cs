@@ -38,7 +38,7 @@ public enum NodeType : byte
     LessThanOrEqual = 8 + ComparisonType.LessThanOrEqual,
     GreaterThan = 8 + ComparisonType.GreaterThan,
     GreaterThanOrEqual = 8 + ComparisonType.GreaterThanOrEqual,
-    Regex = 8 + ComparisonType.Regex,
+    Regex = 8 + ComparisonType.Tilde,
 }
 
 internal static class NodeTypeExtensions

@@ -136,7 +136,7 @@ internal static class Candidates
             ComparableTypeCategory.Bool => _boolCandidates,
             ComparableTypeCategory.Float => _floatCandidates,
             ComparableTypeCategory.Integer => _comparableCandidates,
-            ComparableTypeCategory.Enum => _comparableCandidates,
+            ComparableTypeCategory.Enum => _enumCandidates,
             ComparableTypeCategory.Comparable => [.. _comparableCandidates, .. GetProperties(type)],
             ComparableTypeCategory.Equatable => [.. _equatableCandidates, .. GetProperties(type)],
             _ => null,
@@ -158,6 +158,17 @@ internal static class Candidates
     private static readonly Candidate[] _comparableCandidates =
     [
         new("="),
+        new("!="),
+        new("<"),
+        new("<="),
+        new(">"),
+        new(">="),
+    ];
+
+    private static readonly Candidate[] _enumCandidates =
+    [
+        new("="),
+        new("~", "HasFlag"),
         new("!="),
         new("<"),
         new("<="),

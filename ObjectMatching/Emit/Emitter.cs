@@ -85,7 +85,9 @@ internal class Emitter
         {
             var valueToken = node.Span[1].Span;
 
-            if (node.Type == NodeType.Regex) return RegexMatcher.Create(valueToken);
+            if (node.Type == NodeType.Regex
+                && type.Type == typeof(string))
+                return RegexMatcher.Create(valueToken);
 
             var compType = node.Type.ToComparisonType();
             return Compare.Create(compType, type.Type, valueToken);

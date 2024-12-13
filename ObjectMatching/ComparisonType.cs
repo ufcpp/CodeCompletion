@@ -8,5 +8,5 @@ public enum ComparisonType
     LessThanOrEqual,
     GreaterThan,
     GreaterThanOrEqual,
-    Regex,
+    Tilde, // ~ は正規表現だけじゃなく、enum.HasFlag マッチにも使うことに。
 }

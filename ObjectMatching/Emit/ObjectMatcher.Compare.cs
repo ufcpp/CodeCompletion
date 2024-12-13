@@ -178,7 +178,7 @@ internal static class Compare
 
     private class Comparable
     {
-        public static ObjectMatcher Create(ComparisonType comparison, IComparable operand) => comparison switch
+        public static ObjectMatcher Create(ComparisonType comparison, Enum operand) => comparison switch
         {
             ComparisonType.Equal => new Equal(operand),
             ComparisonType.NotEqual => new NotEqual(operand),
@@ -186,14 +186,16 @@ internal static class Compare
             ComparisonType.GreaterThanOrEqual => new GreaterThanOrEqual(operand),
             ComparisonType.LessThan => new LessThan(operand),
             ComparisonType.LessThanOrEqual => new LessThanOrEqual(operand),
+            ComparisonType.Tilde => new HasFlag(operand),
             _ => throw new NotImplementedException() // 他は null 返して単に無視してるのが多い
         };
 
-        private class Equal(IComparable operand) : ObjectMatcher<IComparable> { public override bool Match(IComparable value) => value.CompareTo(operand) == 0; }
-        private class NotEqual(IComparable operand) : ObjectMatcher<IComparable> { public override bool Match(IComparable value) => value.CompareTo(operand) != 0; }
-        private class GreaterThan(IComparable operand) : ObjectMatcher<IComparable> { public override bool Match(IComparable value) => value.CompareTo(operand) > 0; }
-        private class GreaterThanOrEqual(IComparable operand) : ObjectMatcher<IComparable> { public override bool Match(IComparable value) => value.CompareTo(operand) >= 0; }
-        private class LessThan(IComparable operand) : ObjectMatcher<IComparable> { public override bool Match(IComparable value) => value.CompareTo(operand) < 0; }
-        private class LessThanOrEqual(IComparable operand) : ObjectMatcher<IComparable> { public override bool Match(IComparable value) => value.CompareTo(operand) <= 0; }
+        private class Equal(Enum operand) : ObjectMatcher<Enum> { public override bool Match(Enum value) => value.CompareTo(operand) == 0; }
+        private class NotEqual(Enum operand) : ObjectMatcher<Enum> { public override bool Match(Enum value) => value.CompareTo(operand) != 0; }
+        private class GreaterThan(Enum operand) : ObjectMatcher<Enum> { public override bool Match(Enum value) => value.CompareTo(operand) > 0; }
+        private class GreaterThanOrEqual(Enum operand) : ObjectMatcher<Enum> { public override bool Match(Enum value) => value.CompareTo(operand) >= 0; }
+        private class LessThan(Enum operand) : ObjectMatcher<Enum> { public override bool Match(Enum value) => value.CompareTo(operand) < 0; }
+        private class LessThanOrEqual(Enum operand) : ObjectMatcher<Enum> { public override bool Match(Enum value) => value.CompareTo(operand) <= 0; }
+        private class HasFlag(Enum operand) : ObjectMatcher<Enum> { public override bool Match(Enum value) => value.HasFlag(operand); }
     }
 }
