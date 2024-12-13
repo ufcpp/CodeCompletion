@@ -178,6 +178,8 @@ public enum F
     A = 1,
     B = 2,
     C = 4,
+    C1 = C,
+    D = 8,
     AB = A | B,
     ABC = A | B | C,
 }
