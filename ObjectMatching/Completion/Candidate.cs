@@ -9,7 +9,7 @@ namespace ObjectMatching.Completion;
 // Description みたいなの出したい。
 // 整数・文字列リテラルみたいな自由入力にもヒントくらいは出したい。
 
-internal static class Candidates
+internal static partial class Candidates
 {
     public static CandidateList GetCandidates(ReadOnlySpan<char> previousToken, PropertyHierarchy property)
     {
@@ -45,29 +45,6 @@ internal static class Candidates
         }
 
         return new(property.Nearest.PropertyType.Description, _conjunction);
-    }
-
-    private static CandidateList GetEnumCandidates(TypeInfo type)
-    {
-        var fields = type.Type.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Select(f => (f.Name, Value: f.GetRawConstantValue()!))
-            .ToArray();
-
-        var candidates = new List<Candidate>();
-
-        // メンバー名: 値
-        foreach (var (name, value) in fields)
-        {
-            candidates.Add(new(name, value.ToString()));
-        }
-
-        // 値: メンバー名
-        foreach (var g in fields.GroupBy(f => f.Value).OrderBy(g => g.Key))
-        {
-            candidates.Add(new(g.Key.ToString()!, string.Join(", ", g.Select(f => f.Name))));
-        }
-
-        return new(type.Description, candidates);
     }
 
     private static readonly Candidate[] _conjunction =
