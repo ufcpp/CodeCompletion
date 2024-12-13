@@ -45,5 +45,16 @@ internal class SampleData
         new() { Id = 38, Item = new() { Dictionary = new() { { "a", new(1, 2) }, { "c", new(3, 4) } } } },
 
         new() { Id = 39, R1 = new() { R2=[new() { R1= new() }] } },
+
+        new() { Id = 40, Item = new() { E1 = E.A } },
+        new() { Id = 41, Item = new() { E1 = E.B } },
+        new() { Id = 42, Item = new() { E1 = E.C } },
+        new() { Id = 43, Item = new() { E1 = E.C1 } },
+        new() { Id = 44, Item = new() { E2 = F.A } },
+        new() { Id = 45, Item = new() { E2 = F.B } },
+        new() { Id = 46, Item = new() { E2 = F.C } },
+        new() { Id = 47, Item = new() { E2 = F.AB } },
+        new() { Id = 48, Item = new() { E2 = F.ABC } },
+        new() { Id = 49, Item = new() { E2 = F.B | F.C } },
     ];
 }

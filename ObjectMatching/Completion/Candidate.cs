@@ -16,6 +16,10 @@ internal static class Candidates
         var cat = Tokenizer.Categorize(previousToken);
         if (cat == TokenCategory.Comparison)
         {
+            if (property.Nearest.PropertyType.Type.IsEnum)
+            {
+                return GetEnumCandidates(property.Nearest.PropertyType);
+            }
             var values =
                 property.Nearest.PropertyType.Type == typeof(bool) ? _boolValues :
                 property.Nearest.IsNullable ? _nullValue :
@@ -41,6 +45,29 @@ internal static class Candidates
         }
 
         return new(property.Nearest.PropertyType.Description, _conjunction);
+    }
+
+    private static CandidateList GetEnumCandidates(TypeInfo type)
+    {
+        var fields = type.Type.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Select(f => (f.Name, Value: f.GetRawConstantValue()!))
+            .ToArray();
+
+        var candidates = new List<Candidate>();
+
+        // メンバー名: 値
+        foreach (var (name, value) in fields)
+        {
+            candidates.Add(new(name, value.ToString()));
+        }
+
+        // 値: メンバー名
+        foreach (var g in fields.GroupBy(f => f.Value).OrderBy(g => g.Key))
+        {
+            candidates.Add(new(g.Key.ToString()!, string.Join(", ", g.Select(f => f.Name))));
+        }
+
+        return new(type.Description, candidates);
     }
 
     private static readonly Candidate[] _conjunction =
