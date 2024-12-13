@@ -153,7 +153,6 @@ internal static class Candidates
     ];
 
     private static readonly Candidate[] _boolCandidates = _equatableCandidates;
-    // bool にも一応 ( 出す？
 
     private static readonly Candidate[] _comparableCandidates =
     [
