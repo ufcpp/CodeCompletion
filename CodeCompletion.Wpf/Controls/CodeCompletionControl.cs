@@ -71,6 +71,7 @@ public partial class CodeCompletionControl : ContentControl
 
             vm.Texts.Insert(e.Text);
             Reflesh(vm);
+            e.Handled = true;
         };
 
         KeyDown += (sender, e) =>

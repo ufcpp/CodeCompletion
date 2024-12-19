@@ -23,6 +23,7 @@ public static class CopyAndPaste
                 if (sender is not FrameworkElement e) return;
                 if (e.DataContext is not ViewModel vm) return;
                 action(vm);
+                arg.Handled = true;
             }));
         }
 
