@@ -137,6 +137,8 @@ public partial class CodeCompletionControl : ContentControl
     {
         if (updatesHeight) Height = Math.Ceiling(FontFamily.LineSpacing * FontSize) + 2 * (MarginSize + BorderSize); // 改行を想定してない
         _textProperties = new CommonTextProperties(FontSize, FontFamily, FontStyle, FontWeight, FontStretch);
+
+        if (DataContext is ViewModel vm) UpdateViewModel(vm, _textProperties);
     }
 
     private void UpdateViewModel(object? oldValue, object? newValue)
@@ -148,19 +150,18 @@ public partial class CodeCompletionControl : ContentControl
         }
 
         if (oldValue is ViewModel oldVm) oldVm.PropertyChanged -= propChanged;
-        if (newValue is ViewModel newVm) newVm.PropertyChanged += propChanged;
 
-        UpdateViewModel(newValue);
+        if (newValue is ViewModel newVm)
+        {
+            newVm.PropertyChanged += propChanged;
+
+            if (_textProperties is { } prop) UpdateViewModel(newVm, prop);
+        }
     }
 
-    private void UpdateViewModel(object? newValue)
+    private void UpdateViewModel(ViewModel vm, CommonTextProperties prop)
     {
-        if (newValue is not ViewModel vm) return;
-
-        TextSource = _textProperties is { } prop
-            ? new(vm.Texts, prop, CanvasHeight) // 改行を想定してない
-            : null;
-
+        TextSource = new(vm.Texts, prop, CanvasHeight); // 改行を想定してない
         if (IsLoaded) Reflesh(vm);
     }
 
