@@ -1,4 +1,3 @@
-using CodeCompletion.Controls;
 using System.Windows;
 using TrialWpfApp.Models;
 
