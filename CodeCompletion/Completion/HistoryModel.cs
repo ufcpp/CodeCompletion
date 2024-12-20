@@ -28,6 +28,8 @@ public class HistoryModel(CompletionModel completion, int? maxHisotry = null)
         Index = 0;
     }
 
+    public void ClearHistory() => _history.Clear();
+
     public void AddHistory(ReadOnlySpan<char> source)
     {
         foreach (var lineRange in source.Split('\n'))
