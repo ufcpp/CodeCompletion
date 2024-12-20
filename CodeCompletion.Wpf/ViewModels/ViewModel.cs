@@ -100,7 +100,7 @@ public class ViewModel : INotifyPropertyChanged
 
     public void Reset(ReadOnlySpan<char> source)
     {
-        History.Reset(source);
+        History.AddHistory(source);
         PropertyChanged?.Invoke(this, TextsChanged);
     }
 
