@@ -313,7 +313,7 @@ public class TextBuffer : ISpanFormattable
     {
         _tokens.Clear();
         _tokens.Add(new());
-        _cursor = 0;
+        _cursor = TotalLength;
 
         while (source.Length > 0)
         {
