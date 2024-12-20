@@ -9,7 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CodeCompletion.Wpf\CodeCompletion.Wpf.csproj" />
     <ProjectReference Include="..\CodeCompletion\CodeCompletion.csproj" />
-    <ProjectReference Include="..\ObjectMatching\ObjectMatching.csproj" />
+    <ProjectReference Include="..\ObjectFilter\ObjectFilter.csproj" />
   </ItemGroup>
 
 </Project>

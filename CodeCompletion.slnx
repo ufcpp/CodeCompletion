@@ -10,5 +10,5 @@
   </Folder>
   <Project Path="CodeCompletion/CodeCompletion.csproj" />
   <Project Path="CodeCompletion.Wpf/CodeCompletion.Wpf.csproj" />
-  <Project Path="ObjectMatching/ObjectMatching.csproj" />
+  <Project Path="ObjectFilter/ObjectFilter.csproj" />
 </Solution>
