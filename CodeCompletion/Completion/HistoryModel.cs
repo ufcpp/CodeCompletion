@@ -44,7 +44,7 @@ public class HistoryModel(CompletionModel completion, int? maxHisotry = null)
     private void ChooseHisotry()
     {
         var i = Index;
-        if (i < _history.Count) Texts.Reset(_history[i]);
+        if ((uint)i < _history.Count) Texts.Reset(_history[i]);
     }
 
     // 補完候補を1個次に。
