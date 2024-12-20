@@ -63,5 +63,7 @@ public class HistoryModel(CompletionModel completion, int? maxHisotry = null)
 
     // Copy → Paste で元に戻るようにするには逆順で Join。
     public override string ToString() => string.Join("\n", Enumerable.Reverse(_history));
+
+    public string ToString(int maxCount) => string.Join("\n", Enumerable.Reverse(_history.Take(maxCount)));
 }
 
