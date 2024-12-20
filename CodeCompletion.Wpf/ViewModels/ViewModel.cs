@@ -38,6 +38,14 @@ public class ViewModel : INotifyPropertyChanged
         Refreshed?.Invoke(this);
     }
 
+    public void ResetHistory(ReadOnlySpan<char> source)
+    {
+        History.ClearHistory();
+        History.AddHistory(source);
+
+        Refresh();
+    }
+
     public event Action<ViewModel>? Refreshed;
 
     private string? _description;
